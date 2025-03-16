@@ -58,7 +58,7 @@ app.get("/api/personaggi", async (req, res) => {
     res.json(personaggi);
   } catch (error) {
     console.error("Errore nel recupero dei personaggi:", error);
-    res.status(500).json({ error: error.message }); // Mostra l'errore SQL
+    res.status(500).json({ error: error.message });
   }
 });
 
