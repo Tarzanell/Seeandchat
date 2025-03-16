@@ -52,12 +52,13 @@ app.get("/api/personaggi/:utente_id", (req, res) => {
   });
 });
 
-app.get("/api/personaggi", async (req, res) => {
+app.get("/api/personaggi", async (req, res) => { 
   try {
     const [personaggi] = await db.query("SELECT * FROM personaggi");
     res.json(personaggi);
   } catch (error) {
-    res.status(500).json({ error: "Errore nel recupero dei personaggi" });
+    console.error("Errore nel recupero dei personaggi:", error);
+    res.status(500).json({ error: error.message }); // Mostra l'errore SQL
   }
 });
 
