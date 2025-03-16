@@ -9,6 +9,6 @@ app.get("/", (req, res) => {
     res.send("Server See-adn-chat attivo!");
 });
 
-app.listen(3001, '0.0.0.0', () => {
+app.listen(8080, '0.0.0.0', () => {
     console.log("Server avviato su http://localhost:3001");
 });
