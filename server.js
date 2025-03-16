@@ -42,11 +42,23 @@ app.get("/api/personaggi/:utente_id", (req, res) => {
   const utente_id = req.params.utente_id;
   db.query("SELECT * FROM personaggi WHERE utente_id = ?", [utente_id], (err, result) => {
     if (err) {
-      res.status(500).send("Errore nel database");
+      console.error("Errore nel database:", err);
+      res.status(500).send({ error: "Errore nel database" });
+    } else if (result.length === 0) {
+      res.status(404).json({ message: "Nessun personaggio trovato per questo utente." });
     } else {
       res.json(result);
     }
   });
+});
+
+app.get("/api/personaggi", async (req, res) => {
+  try {
+    const [personaggi] = await db.query("SELECT * FROM personaggi");
+    res.json(personaggi);
+  } catch (error) {
+    res.status(500).json({ error: "Errore nel recupero dei personaggi" });
+  }
 });
 
 app.listen(3001, "0.0.0.0", () => {
