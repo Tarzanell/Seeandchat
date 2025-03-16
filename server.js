@@ -11,15 +11,22 @@ const db = mysql.createPool({
   user: "Tarzanell",
   password: "Collinetta.1",
   database: "seeandchat",
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
 
-db.connect(err => {
-  if (err) {
-    console.error("Errore di connessione al database:", err);
-    return;
+async function testDbConnection() {
+  try {
+    const connection = await db.getConnection();
+    console.log("Connessione al database riuscita!");
+    connection.release();
+  } catch (error) {
+    console.error("Errore di connessione al database:", error);
   }
-  console.log("Connesso a MySQL!");
-});
+}
+
+testDbConnection();
 
 // Login utente
 app.post("/api/login", (req, res) => {
