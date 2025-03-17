@@ -69,6 +69,12 @@ app.get("/api/personaggi", async (req, res) => {
   }
 });
 
+const os = require("os");
+const interfaces = os.networkInterfaces();
+const serverIP = Object.values(interfaces)
+  .flat()
+  .find((iface) => iface.family === "IPv4" && !iface.internal)?.address || "localhost";
+
 app.listen(3001, "0.0.0.0", () => {
-  console.log("Server avviato su http://localhost:3001");
+  console.log(`Server avviato su http://${serverIP}:3001`);
 });

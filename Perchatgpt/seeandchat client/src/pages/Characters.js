@@ -8,16 +8,13 @@ function Characters() {
   useEffect(() => {
     const fetchCharacters = async () => {
       const token = localStorage.getItem("token");
-      try {
-        const response = await fetch("http://217.154.16.188:3001/api/personaggi", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-    
-        if (!response.ok) throw new Error("Errore nel recupero dei personaggi");
-        const data = await response.json();
+      const response = await fetch("http://217.154.16.188:3001/api/personaggi", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (response.ok) {
         setCharacters(data);
-      } catch (error) {
-        console.error("Errore nel recupero dei personaggi:", error);
+      } else {
         alert("Errore nel recupero dei personaggi.");
       }
     };
