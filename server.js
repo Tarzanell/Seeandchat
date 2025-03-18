@@ -29,7 +29,7 @@ async function testDbConnection() {
 testDbConnection();
 
 // Login utente
-pp.post("/api/login", async (req, res) => {
+app.post("/api/login", async (req, res) => {
   try {
     const { username, password } = req.body;
     const [rows] = await db.query("SELECT * FROM utenti WHERE username = ?", [username]);
