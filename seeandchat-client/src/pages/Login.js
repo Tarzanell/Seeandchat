@@ -8,18 +8,38 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const response = await fetch("http://217.154.16.188:3001/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
-
-    const data = await response.json();
-    if (response.ok) {
-      localStorage.setItem("token", data.token); // Salva il token per autenticazione
-      navigate("/characters");
-    } else {
-      alert("Login fallito: " + data.message);
+    console.log("Tentativo di login con:", username, password);
+  
+    try {
+      const response = await fetch("http://217.154.16.188:3001/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+  
+      console.log("Risposta ricevuta:", response);
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Errore nel login:", errorData);
+        alert("Login fallito: " + errorData.message);
+        return;
+      }
+  
+      const data = await response.json();
+      console.log("Dati ricevuti dal server:", data);
+  
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        console.log("Token salvato:", data.token);
+        navigate("/characters");
+      } else {
+        console.error("Token non ricevuto!");
+        alert("Errore: nessun token ricevuto.");
+      }
+    } catch (error) {
+      console.error("Errore durante la fetch:", error);
+      alert("Errore di connessione al server.");
     }
   };
 
