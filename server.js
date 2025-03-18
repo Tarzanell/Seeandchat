@@ -42,14 +42,15 @@ app.post("/api/login", async (req, res) => {
 
       const user = rows[0];
 
-      // ⚠️ Controlla se la password esiste prima di confrontarla
-      if (!user.password) {
+      // ✅ Usa la colonna corretta per la password
+      if (!user.password_hash) {
           return res.status(500).json({ error: "Errore: nessuna password trovata per questo utente" });
       }
 
       console.log("Password ricevuta:", password);
-      console.log("Hash nel database:", user.password);
-      const match = await bcrypt.compare(password, user.password);
+      console.log("Hash nel database:", user.password_hash);
+
+      const match = await bcrypt.compare(password, user.password_hash);
       if (!match) {
           return res.status(401).json({ message: "Password errata" });
       }
