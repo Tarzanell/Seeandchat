@@ -2,6 +2,9 @@ const express = require("express");
 const cors = require("cors");
 const mysql = require("mysql2/promise");
 const app = express();
+const bcrypt = require("bcrypt");
+
+
 app.use(cors());
 app.use(express.json());
 
@@ -39,9 +42,27 @@ function generateToken(user) {
   );
 }
 
-// Login utente
-const bcrypt = require("bcrypt");
+// Registrazione utente
+app.post("/api/register", async (req, res) => {
+  try {
+    const { username, password, email } = req.body;
+    const [existingUsers] = await db.query("SELECT * FROM utenti WHERE username = ?", [username]);
 
+    if (existingUsers.length > 0) {
+      return res.status(400).json({ message: "Username già in uso" });
+    }
+
+    const password_hash = await bcrypt.hash(password, 10);
+    await db.query("INSERT INTO utenti (username, password_hash, email) VALUES (?, ?, ?)", [username, password_hash, email]);
+
+    res.status(201).json({ message: "Registrazione completata con successo" });
+  } catch (error) {
+    console.error("Errore nella registrazione:", error);
+    res.status(500).json({ error: "Errore nel server" });
+  }
+});
+
+// Login utente
 app.post("/api/login", async (req, res) => {
   try {
       const { username, password } = req.body;
@@ -89,6 +110,7 @@ app.get("/api/personaggi/:utente_id", (req, res) => {
   });
 });
 
+// Non lo so
 app.get("/api/personaggi", async (req, res) => { 
   try {
     const [personaggi] = await db.query("SELECT * FROM personaggi");
@@ -99,6 +121,7 @@ app.get("/api/personaggi", async (req, res) => {
   }
 });
 
+//Cos'è sta roba?
 const os = require("os");
 const interfaces = os.networkInterfaces();
 const serverIP = Object.values(interfaces)
