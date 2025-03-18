@@ -29,19 +29,27 @@ async function testDbConnection() {
 testDbConnection();
 
 // Login utente
-app.post("/api/login", (req, res) => {
-  const { username, password } = req.body;
-  const sql = "SELECT id, username FROM utenti WHERE username = ? AND password_hash = SHA2(?, 256)";
-  
-  db.query(sql, [username, password], (err, result) => {
-    if (err) {
-      res.status(500).send("Errore nel database");
-    } else if (result.length > 0) {
-      res.json({ success: true, utente: result[0] });
-    } else {
-      res.status(401).send("Credenziali errate");
+pp.post("/api/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const [rows] = await db.query("SELECT * FROM utenti WHERE username = ?", [username]);
+
+    if (rows.length === 0) {
+      return res.status(401).json({ message: "Utente non trovato" });
     }
-  });
+
+    const user = rows[0];
+
+    if (user.password !== password) {
+      return res.status(401).json({ message: "Password errata" });
+    }
+
+    const token = generateToken(user); // Assicurati che esista una funzione generateToken
+    res.json({ token });
+  } catch (error) {
+    console.error("Errore login:", error);
+    res.status(500).json({ error: "Errore nel server" });
+  }
 });
 
 // Recupero personaggi dell'utente
