@@ -32,22 +32,33 @@ testDbConnection();
 const bcrypt = require("bcrypt");
 
 app.post("/api/login", async (req, res) => {
-  const { username, password } = req.body;
-  const [rows] = await db.query("SELECT * FROM utenti WHERE username = ?", [username]);
+  try {
+      const { username, password } = req.body;
+      const [rows] = await db.query("SELECT * FROM utenti WHERE username = ?", [username]);
 
-  if (rows.length > 0) {
-    const user = rows[0];
+      if (rows.length === 0) {
+          return res.status(401).json({ message: "Utente non trovato" });
+      }
 
-    // 🔍 Confronta la password inserita con l'hash salvato nel database
-    const passwordMatch = await bcrypt.compare(password, user.password);
+      const user = rows[0];
 
-    if (passwordMatch) {
-      res.json({ message: "Login riuscito!", token: "faketoken123" });
-    } else {
-      res.status(401).json({ error: "Password errata" });
-    }
-  } else {
-    res.status(404).json({ error: "Utente non trovato" });
+      // ⚠️ Controlla se la password esiste prima di confrontarla
+      if (!user.password) {
+          return res.status(500).json({ error: "Errore: nessuna password trovata per questo utente" });
+      }
+
+      console.log("Password ricevuta:", password);
+      console.log("Hash nel database:", user.password);
+      const match = await bcrypt.compare(password, user.password);
+      if (!match) {
+          return res.status(401).json({ message: "Password errata" });
+      }
+
+      const token = generateToken(user); // Assicurati che questa funzione esista
+      res.json({ token });
+  } catch (error) {
+      console.error("Errore login:", error);
+      res.status(500).json({ error: "Errore nel server" });
   }
 });
 
