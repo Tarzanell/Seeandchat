@@ -111,9 +111,15 @@ app.get("/api/personaggi/:utente_id", (req, res) => {
 });
 
 // Non lo so
-app.get("/api/personaggi", async (req, res) => { 
+app.get("/api/personaggi", async (req, res) => {
   try {
-    const [personaggi] = await db.query("SELECT * FROM personaggi");
+    const token = req.headers.authorization?.split(" ")[1]; // 🔹 Estrae il token
+    if (!token) return res.status(401).json({ message: "Token mancante" });
+
+    const decoded = jwt.verify(token, "secret_key"); // 🔹 Decodifica il token
+    const utente_id = decoded.id; // 🔹 Estrai ID utente dal token
+
+    const [personaggi] = await db.query("SELECT * FROM personaggi WHERE utente_id = ?", [utente_id]);
     res.json(personaggi);
   } catch (error) {
     console.error("Errore nel recupero dei personaggi:", error);
