@@ -31,11 +31,20 @@ testDbConnection();
 // Login utente
 const bcrypt = require("bcrypt");
 
+async function hashPassword() {
+  const password = "password123"; // La password originale
+  const hashedPassword = await bcrypt.hash(password, 10); // Crea un hash bcrypt
+  console.log("Nuovo hash bcrypt:", hashedPassword);
+}
+
+hashPassword();
+
 app.post("/api/login", async (req, res) => {
   try {
 
-      const hashedPassword = await bcrypt.hash("password123", 10);
-      console.log(hashedPassword);
+  
+
+
       const { username, password } = req.body;
       const [rows] = await db.query("SELECT * FROM utenti WHERE username = ?", [username]);
 
