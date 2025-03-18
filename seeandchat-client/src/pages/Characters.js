@@ -12,16 +12,19 @@ function Characters() {
         const response = await fetch("http://217.154.16.188:3001/api/personaggi", {
           headers: { Authorization: `Bearer ${token}` },
         });
-    
-        if (!response.ok) throw new Error("Errore nel recupero dei personaggi");
         const data = await response.json();
-        setCharacters(data);
+        if (response.ok) {
+          setCharacters(data);
+        } else {
+          console.error("Errore nel recupero dei personaggi:", data);
+          alert("Errore nel recupero dei personaggi.");
+        }
       } catch (error) {
-        console.error("Errore nel recupero dei personaggi:", error);
-        alert("Errore nel recupero dei personaggi.");
+        console.error("Errore di connessione:", error);
+        alert("Errore di connessione al server.");
       }
     };
-
+  
     fetchCharacters();
   }, []);
 
