@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const mysql = require("mysql2/promise");
-
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -28,23 +27,23 @@ async function testDbConnection() {
 
 testDbConnection();
 
+
+const jwt = require("jsonwebtoken"); // Importa il modulo JWT
+const SECRET_KEY = "supersegreto"; // Sostituiscilo con una chiave segreta più sicura
+
+function generateToken(user) {
+  return jwt.sign(
+      { id: user.id, username: user.username },
+      SECRET_KEY,
+      { expiresIn: "1h" } // Il token scade in 1 ora
+  );
+}
+
 // Login utente
 const bcrypt = require("bcrypt");
 
-async function hashPassword() {
-  const password = "password123"; // La password originale
-  const hashedPassword = await bcrypt.hash(password, 10); // Crea un hash bcrypt
-  console.log("Nuovo hash bcrypt:", hashedPassword);
-}
-
-hashPassword();
-
 app.post("/api/login", async (req, res) => {
   try {
-
-  
-
-
       const { username, password } = req.body;
       const [rows] = await db.query("SELECT * FROM utenti WHERE username = ?", [username]);
 
