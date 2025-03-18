@@ -33,6 +33,9 @@ const bcrypt = require("bcrypt");
 
 app.post("/api/login", async (req, res) => {
   try {
+
+      const hashedPassword = await bcrypt.hash("password123", 10);
+      console.log(hashedPassword);
       const { username, password } = req.body;
       const [rows] = await db.query("SELECT * FROM utenti WHERE username = ?", [username]);
 
@@ -42,7 +45,7 @@ app.post("/api/login", async (req, res) => {
 
       const user = rows[0];
 
-      // ✅ Usa la colonna corretta per la password
+      // Controlliamo se la colonna della password esiste.
       if (!user.password_hash) {
           return res.status(500).json({ error: "Errore: nessuna password trovata per questo utente" });
       }
