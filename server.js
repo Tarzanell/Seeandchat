@@ -110,6 +110,31 @@ app.get("/api/personaggi/:utente_id", (req, res) => {
   });
 });
 
+// Dettagli personaggio
+
+app.get("/api/personaggi/:id", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Token mancante" });
+
+    const decoded = jwt.verify(token, "supersegreto"); // Decodifica il token
+    const utente_id = decoded.id; // Estrai l'ID utente dal token
+
+    // 🔹 Cerca il personaggio per ID e verifica che appartenga all'utente loggato
+    const [rows] = await db.query("SELECT * FROM personaggi WHERE id = ? AND utente_id = ?", [req.params.id, utente_id]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Personaggio non trovato" });
+    }
+
+    res.json(rows[0]); // 🔹 Invia i dettagli del personaggio
+  } catch (error) {
+    console.error("Errore nel recupero del personaggio:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
 // Non lo so
 app.get("/api/personaggi", async (req, res) => {
   try {
