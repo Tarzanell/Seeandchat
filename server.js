@@ -116,7 +116,7 @@ app.get("/api/personaggi", async (req, res) => {
     const token = req.headers.authorization?.split(" ")[1]; // 🔹 Estrae il token
     if (!token) return res.status(401).json({ message: "Token mancante" });
 
-    const decoded = jwt.verify(token, "secret_key"); // 🔹 Decodifica il token
+    const decoded = jwt.verify(token, "supersegreto"); // 🔹 Decodifica il token
     const utente_id = decoded.id; // 🔹 Estrai ID utente dal token
 
     const [personaggi] = await db.query("SELECT * FROM personaggi WHERE utente_id = ?", [utente_id]);
