@@ -114,31 +114,58 @@ app.get("/api/personaggi/:utente_id", (req, res) => {
 
 // Dettagli personaggio
 
-app.get("/api/personaggi/:id", async (req, res) => {
+app.get("/api/personaggi/:id", async (req, res) => { 
   try {
-    console.log("Inizio ricerca dettaglichar");
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) return res.status(401).json({ message: "Token mancante" });
+    console.log("🔹 Inizio ricerca dettaglichar");
 
-    const decoded = jwt.verify(token, "supersegreto"); // Decodifica il token
+    // 🔸 Controlla se arriva il token nell'header della richiesta
+    const authHeader = req.headers.authorization;
+    console.log("🔹 Header Authorization:", authHeader);
+    
+    if (!authHeader) {
+      console.error("❌ Token mancante!");
+      return res.status(401).json({ message: "Token mancante" });
+    }
+
+    const token = authHeader.split(" ")[1];
+    console.log("🔹 Token ricevuto:", token);
+
+    // 🔸 Decodifica il token
+    let decoded;
+    try {
+      decoded = jwt.verify(token, "supersegreto");
+    } catch (err) {
+      console.error("❌ Errore nella decodifica del token:", err.message);
+      return res.status(403).json({ error: "Token non valido" });
+    }
+
     const utente_id = decoded.id; // Estrai l'ID utente dal token
+    console.log("✅ Token valido - ID utente:", utente_id);
 
-    console.log("Id utente:", utente_id);
-    console.log("Id PG:", req.params.id);
+    // 🔸 Controlla che l'ID del personaggio sia numerico (per evitare SQL injection)
+    const personaggio_id = parseInt(req.params.id, 10);
+    if (isNaN(personaggio_id)) {
+      console.error("❌ ID personaggio non valido:", req.params.id);
+      return res.status(400).json({ error: "ID personaggio non valido" });
+    }
+    console.log("🔹 ID PG richiesto:", personaggio_id);
+
     // 🔹 Cerca il personaggio per ID e verifica che appartenga all'utente loggato
-    const [rows] = await db.query("SELECT * FROM personaggi WHERE id = ? AND utente_id = ?", [req.params.id, utente_id]);
+    const [rows] = await db.query("SELECT * FROM personaggi WHERE id = ? AND utente_id = ?", [personaggio_id, utente_id]);
 
     if (rows.length === 0) {
+      console.warn("⚠️ Nessun personaggio trovato con ID:", personaggio_id, "per utente ID:", utente_id);
       return res.status(404).json({ message: "Personaggio non trovato" });
     }
-    
+
+    console.log("✅ Personaggio trovato:", rows[0]); 
     res.json(rows[0]); // 🔹 Invia i dettagli del personaggio
+
   } catch (error) {
-    console.error("Errore nel recupero del personaggio:", error);
+    console.error("❌ Errore nel recupero del personaggio:", error);
     res.status(500).json({ error: error.message });
   }
 });
-
 
 // Non lo so
 app.get("/api/personaggi", async (req, res) => {
