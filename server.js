@@ -96,6 +96,34 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
+// Nuovo personaggio
+app.post("/api/aggiungi-personaggio", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Token mancante" });
+
+    const decoded = jwt.verify(token, "supersegreto");
+    const utente_id = decoded.id; 
+
+    const { nome, velocita, forza, destrezza, costituzione, punti_vita } = req.body;
+
+    // Controllo server-side
+    if (forza > 15 || destrezza > 15 || costituzione > 15) {
+      return res.status(400).json({ message: "Le statistiche non possono superare 15." });
+    }
+
+    await db.query(
+      "INSERT INTO personaggi (utente_id, nome, velocita, forza, destrezza, costituzione, punti_vita) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [utente_id, nome, velocita, forza, destrezza, costituzione, punti_vita]
+    );
+
+    res.status(201).json({ message: "Personaggio aggiunto con successo" });
+  } catch (error) {
+    console.error("Errore nell'aggiunta del personaggio:", error);
+    res.status(500).json({ error: "Errore nel server" });
+  }
+});
+
 // Recupero personaggi dell'utente
 app.get("/api/listapersonaggi/:utente_id", (req, res) => {
   console.log("Inizio ricerca personaggi");
@@ -113,7 +141,6 @@ app.get("/api/listapersonaggi/:utente_id", (req, res) => {
 });
 
 // Dettagli personaggio
-
 app.get("/api/personaggi/:id", async (req, res) => { 
   try {
     console.log("🔹 Inizio ricerca dettaglichar");
