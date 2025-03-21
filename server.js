@@ -168,7 +168,7 @@ app.get("/api/personaggi/:id", async (req, res) => {
 });
 
 // Non lo so
-app.get("/api/personaggi", async (req, res) => {
+app.get("/api/listapersonaggi", async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1]; // 🔹 Estrae il token
     if (!token) return res.status(401).json({ message: "Token mancante" });
