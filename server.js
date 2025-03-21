@@ -79,8 +79,8 @@ app.post("/api/login", async (req, res) => {
           return res.status(500).json({ error: "Errore: nessuna password trovata per questo utente" });
       }
 
-      console.log("Password ricevuta:", password);
-      console.log("Hash nel database:", user.password_hash);
+      //console.log("Password ricevuta:", password);
+      //console.log("Hash nel database:", user.password_hash);
 
       const match = await bcrypt.compare(password, user.password_hash);
       if (!match) {
@@ -120,13 +120,15 @@ app.get("/api/personaggi/:id", async (req, res) => {
     const decoded = jwt.verify(token, "supersegreto"); // Decodifica il token
     const utente_id = decoded.id; // Estrai l'ID utente dal token
 
+    console.log("Id utente:", utente_id);
+    console.log("Id PG:", req.params.id);
     // 🔹 Cerca il personaggio per ID e verifica che appartenga all'utente loggato
     const [rows] = await db.query("SELECT * FROM personaggi WHERE id = ? AND utente_id = ?", [req.params.id, utente_id]);
 
     if (rows.length === 0) {
       return res.status(404).json({ message: "Personaggio non trovato" });
     }
-
+    
     res.json(rows[0]); // 🔹 Invia i dettagli del personaggio
   } catch (error) {
     console.error("Errore nel recupero del personaggio:", error);
