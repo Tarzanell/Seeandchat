@@ -3,6 +3,8 @@ const cors = require("cors");
 const mysql = require("mysql2/promise");
 const app = express();
 const bcrypt = require("bcrypt");
+const multer = require("multer");
+const path = require("path");
 
 
 app.use(cors());
@@ -113,8 +115,8 @@ app.post("/api/aggiungi-personaggio", async (req, res) => {
     }
 
     await db.query(
-      "INSERT INTO personaggi (utente_id, nome, velocita, forza, destrezza, costituzione, punti_vita) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      [utente_id, nome, velocita, forza, destrezza, costituzione, punti_vita]
+      "INSERT INTO personaggi (nome, velocita, forza, destrezza, costituzione, punti_vita, utente_id, token_img) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [nome, velocita, forza, destrezza, costituzione, punti_vita, utente_id, token_img]
     );
 
     res.status(201).json({ message: "Personaggio aggiunto con successo" });
@@ -237,6 +239,46 @@ app.get("/api/listapersonaggi", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// 🔹 Configurazione multer per il caricamento
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/"); // Cartella dove salvare le immagini
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname)); // Rinomina il file con timestamp
+  }
+});
+const upload = multer({
+  storage,
+  limits: { fileSize: 100 * 1024 }, // 100 KB massimo (puoi cambiarlo)
+  fileFilter: (req, file, cb) => {
+    const filetypes = /jpeg|jpg|png/;
+    const mimetype = filetypes.test(file.mimetype);
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error("Solo file .jpeg, .jpg o .png sono ammessi"));
+    }
+  }
+});
+
+// 🔥 API per caricare l'immagine del token
+app.post("/api/upload", upload.single("token"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "Nessun file caricato" });
+    }
+
+    res.json({ filename: req.file.filename });
+  } catch (error) {
+    res.status(500).json({ error: "Errore nel caricamento dell'immagine" });
+  }
+});
+
+
 
 //Cos'è sta roba?
 const os = require("os");

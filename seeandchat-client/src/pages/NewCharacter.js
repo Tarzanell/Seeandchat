@@ -9,7 +9,10 @@ function AddCharacter({ onCharacterAdded }) {
     destrezza: 10,
     costituzione: 10,
     punti_vita: 100,
+    token_img: "",
   });
+
+  const [file, setFile] = useState(null);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -23,6 +26,10 @@ function AddCharacter({ onCharacterAdded }) {
 
     setFormData((prev) => ({ ...prev, [name]: newValue }));
   };
+  
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
 
   const handleNameChange = (e) => {
     const { name, value } = e.target;
@@ -31,42 +38,61 @@ function AddCharacter({ onCharacterAdded }) {
     setFormData((prev) => ({ ...prev, [name]: newValue }));
   };
 
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
 
-    const response = await fetch("http://217.154.16.188:3001/api/aggiungi-personaggio", {
+    let imageName = "";
+    if (file) {
+      const formDataImg = new FormData();
+      formDataImg.append("token", file);
+
+      const imgResponse = await fetch("http://217.154.16.188:3001/api/upload", {
+        method: "POST",
+        body: formDataImg,
+      });
+
+      const imgData = await imgResponse.json();
+      if (imgResponse.ok) {
+        imageName = imgData.filename;
+      } else {
+        alert("Errore nel caricamento dell'immagine.");
+        return;
+      }
+    }
+
+    const response = await fetch("http://217.154.16.188:3001/api/personaggi", {
       method: "POST",
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(formData),
+      body: JSON.stringify({ ...formData, token_img: imageName }),
     });
 
     if (response.ok) {
       alert("Personaggio aggiunto!");
       navigate("/characters");
-      //navigate("/characters")
-      if (onCharacterAdded) {
-        onCharacterAdded();
-      } // Aggiorna la lista
     } else {
-      alert("Errore nell'aggiunta del personaggio.");
+      alert("Errore nella creazione del personaggio.");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input type="text" name="nome" placeholder="Nome" value={formData.nome} onChange={handleNameChange} required />
-      <input type="number" name="velocita" placeholder="Velocità" value={formData.velocita} onChange={handleChange} required />
-      <input type="number" name="forza" placeholder="Forza (max 15)" value={formData.forza} onChange={handleChange} required />
-      <input type="number" name="destrezza" placeholder="Destrezza (max 15)" value={formData.destrezza} onChange={handleChange} required />
-      <input type="number" name="costituzione" placeholder="Costituzione (max 15)" value={formData.costituzione} onChange={handleChange} required />
-      <input type="number" name="punti_vita" placeholder="Punti Vita" value={formData.punti_vita} onChange={handleChange} required />
-      <button type="submit">Aggiungi</button>
-    </form>
+    <div>
+      <h2>Nuovo Personaggio</h2>
+      <form onSubmit={handleSubmit}>
+        <input type="text" name="nome" placeholder="Nome" value={formData.nome} onChange={handleChange} required />
+        <input type="number" name="forza" value={formData.forza} onChange={handleChange} required />
+        <input type="number" name="destrezza" value={formData.destrezza} onChange={handleChange} required />
+        <input type="number" name="costituzione" value={formData.costituzione} onChange={handleChange} required />
+        <input type="number" name="punti_vita" value={formData.punti_vita} onChange={handleChange} required />
+        <input type="file" accept="image/png, image/jpeg" onChange={handleFileChange} required />
+        <button type="submit">Crea</button>
+      </form>
+    </div>
   );
 }
 
-export default AddCharacter;
+export default NewCharacter;
