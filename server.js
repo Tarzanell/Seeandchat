@@ -97,7 +97,7 @@ app.post("/api/login", async (req, res) => {
 });
 
 // Recupero personaggi dell'utente
-app.get("/api/personaggi/:utente_id", (req, res) => {
+app.get("/api/listapersonaggi/:utente_id", (req, res) => {
   console.log("Inizio ricerca personaggi");
   const utente_id = req.params.utente_id;
   db.query("SELECT * FROM personaggi WHERE utente_id = ?", [utente_id], (err, result) => {
@@ -192,7 +192,7 @@ const serverIP = Object.values(interfaces)
   .find((iface) => iface.family === "IPv4" && !iface.internal)?.address || "localhost";
 
   console.log(app._router.stack.map(r => r.route && r.route.path).filter(r => r));
-  
+
 app.listen(3001, "0.0.0.0", () => {
   console.log(`Server avviato su http://${serverIP}:3001`);
 });
