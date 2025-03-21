@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Characters from "./pages/Characters";
 import CharacterDetails from "./pages/CharacterDetails";
+import NewCharacter from "./pages/NewCharacter";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/characters" element={<Characters />} />
+        <Route path="/new-character" element={<NewCharacter />} />
         <Route path="/character/:id" element={<CharacterDetails />} />
       </Routes>
     </Router>

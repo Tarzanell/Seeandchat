@@ -1,14 +1,16 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function AddCharacter({ onCharacterAdded }) {
   const [formData, setFormData] = useState({
-    nome: "",
+    nome: "Nome",
     velocita: 500,
     forza: 10,
     destrezza: 10,
     costituzione: 10,
     punti_vita: 100,
   });
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -18,6 +20,13 @@ function AddCharacter({ onCharacterAdded }) {
     if (["forza", "destrezza", "costituzione"].includes(name) && newValue > 15) {
       newValue = 15;
     }
+
+    setFormData((prev) => ({ ...prev, [name]: newValue }));
+  };
+
+  const handleNameChange = (e) => {
+    const { name, value } = e.target;
+    let newValue = value;
 
     setFormData((prev) => ({ ...prev, [name]: newValue }));
   };
@@ -37,7 +46,11 @@ function AddCharacter({ onCharacterAdded }) {
 
     if (response.ok) {
       alert("Personaggio aggiunto!");
-      onCharacterAdded(); // Aggiorna la lista
+      navigate("/characters");
+      //navigate("/characters")
+      if (onCharacterAdded) {
+        onCharacterAdded();
+      } // Aggiorna la lista
     } else {
       alert("Errore nell'aggiunta del personaggio.");
     }
@@ -45,7 +58,7 @@ function AddCharacter({ onCharacterAdded }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <input type="text" name="nome" placeholder="Nome" value={formData.nome} onChange={handleChange} required />
+      <input type="text" name="nome" placeholder="Nome" value={formData.nome} onChange={handleNameChange} required />
       <input type="number" name="velocita" placeholder="Velocità" value={formData.velocita} onChange={handleChange} required />
       <input type="number" name="forza" placeholder="Forza (max 15)" value={formData.forza} onChange={handleChange} required />
       <input type="number" name="destrezza" placeholder="Destrezza (max 15)" value={formData.destrezza} onChange={handleChange} required />
