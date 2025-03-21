@@ -114,7 +114,53 @@ app.get("/api/personaggi/:utente_id", (req, res) => {
 
 // Dettagli personaggio
 
-app.get("/api/personaggi/:id", async (req, res) => { 
+app.get("/api/personaggi/1", async (req, res) => { 
+  try {
+    console.log("🔹 Inizio ricerca dettaglichar");
+
+    // 🔸 Controlla se arriva il token nell'header della richiesta
+    const authHeader = req.headers.authorization;
+    console.log("🔹 Header Authorization:", authHeader);
+    
+    if (!authHeader) {
+      console.error("❌ Token mancante!");
+      return res.status(401).json({ message: "Token mancante" });
+    }
+
+    const token = authHeader.split(" ")[1];
+    console.log("🔹 Token ricevuto:", token);
+
+    // 🔸 Decodifica il token
+    let decoded;
+    try {
+      decoded = jwt.verify(token, "supersegreto");
+    } catch (err) {
+      console.error("❌ Errore nella decodifica del token:", err.message);
+      return res.status(403).json({ error: "Token non valido" });
+    }
+
+    const utente_id = decoded.id; // Estrai l'ID utente dal token
+    console.log("✅ Token valido - ID utente:", utente_id);
+
+ 
+    // 🔹 Cerca il personaggio per ID e verifica che appartenga all'utente loggato
+    const [rows] = await db.query("SELECT * FROM personaggi WHERE id = 1 AND utente_id = ?", [personaggio_id, utente_id]);
+
+    if (rows.length === 0) {
+      console.warn("⚠️ Nessun personaggio trovato con ID:", personaggio_id, "per utente ID:", utente_id);
+      return res.status(404).json({ message: "Personaggio non trovato" });
+    }
+
+    console.log("✅ Personaggio trovato:", rows[0]); 
+    res.json(rows[0]); // 🔹 Invia i dettagli del personaggio
+
+  } catch (error) {
+    console.error("❌ Errore nel recupero del personaggio:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/*app.get("/api/personaggi/:id", async (req, res) => { 
   try {
     console.log("🔹 Inizio ricerca dettaglichar");
 
@@ -165,7 +211,7 @@ app.get("/api/personaggi/:id", async (req, res) => {
     console.error("❌ Errore nel recupero del personaggio:", error);
     res.status(500).json({ error: error.message });
   }
-});
+});*/
 
 // Non lo so
 app.get("/api/personaggi", async (req, res) => {
