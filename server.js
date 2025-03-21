@@ -114,6 +114,7 @@ app.get("/api/personaggi/:utente_id", (req, res) => {
 
 app.get("/api/personaggi/:id", async (req, res) => {
   try {
+    console.log("Inizio ricerca dettaglichar");
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) return res.status(401).json({ message: "Token mancante" });
 
