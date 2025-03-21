@@ -64,6 +64,7 @@ app.post("/api/register", async (req, res) => {
 
 // Login utente
 app.post("/api/login", async (req, res) => {
+  console.log("Inizio login");
   try {
       const { username, password } = req.body;
       const [rows] = await db.query("SELECT * FROM utenti WHERE username = ?", [username]);
@@ -97,6 +98,7 @@ app.post("/api/login", async (req, res) => {
 
 // Recupero personaggi dell'utente
 app.get("/api/personaggi/:utente_id", (req, res) => {
+  console.log("Inizio ricerca personaggi");
   const utente_id = req.params.utente_id;
   db.query("SELECT * FROM personaggi WHERE utente_id = ?", [utente_id], (err, result) => {
     if (err) {
