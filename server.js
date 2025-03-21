@@ -124,6 +124,33 @@ app.post("/api/aggiungi-personaggio", async (req, res) => {
   }
 });
 
+// Cancella personaggio
+app.delete("/api/personaggi/:id", async (req, res) => {
+  try {
+    console.log("Tentativo di eliminare il personaggio con ID:", req.params.id);
+
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Token mancante" });
+
+    const decoded = jwt.verify(token, "supersegreto");
+    const utente_id = decoded.id;
+
+    // 🔹 Controlla che il personaggio appartenga all'utente
+    const [rows] = await db.query("SELECT * FROM personaggi WHERE id = ? AND utente_id = ?", [req.params.id, utente_id]);
+    
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Personaggio non trovato o non autorizzato" });
+    }
+
+    await db.query("DELETE FROM personaggi WHERE id = ?", [req.params.id]);
+    res.json({ message: "Personaggio eliminato con successo" });
+
+  } catch (error) {
+    console.error("Errore nell'eliminazione:", error);
+    res.status(500).json({ error: "Errore del server" });
+  }
+});
+
 // Recupero personaggi dell'utente
 app.get("/api/listapersonaggi/:utente_id", (req, res) => {
   console.log("Inizio ricerca personaggi");
