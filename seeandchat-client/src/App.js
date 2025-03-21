@@ -3,6 +3,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Characters from "./pages/Characters";
+import CharacterDetails from "./pages/CharacterDetails";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/characters" element={<Characters />} />
+        <Route path="/character/:id" element={<CharacterDetails />} />
       </Routes>
     </Router>
   );

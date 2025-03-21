@@ -8,7 +8,7 @@ function Characters() {
   useEffect(() => {
     const fetchCharacters = async () => {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://217.154.16.188:3001/api/personaggi", {
+      const response = await fetch("http://217.154.16.188:3001/api/listapersonaggi", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();

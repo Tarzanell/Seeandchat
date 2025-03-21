@@ -18,15 +18,20 @@ function Login() {
       });
   
       console.log("Risposta ricevuta:", response);
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Errore nel login:", errorData);
-        alert("Login fallito: " + errorData.message);
-        return;
-      }
-  
       const data = await response.json();
+
+
+       if (response.ok) {
+        localStorage.removeItem("token"); // 🔹 Rimuove il vecchio token
+        localStorage.setItem("token", data.token); // 🔹 Salva il nuovo token
+        console.log("Token salvato:", data.token);
+       navigate("/characters");
+        } 
+      else {
+        alert("Login fallito: " + data.message);
+        }
+  
+      
       console.log("Dati ricevuti dal server:", data);
   
       if (data.token) {

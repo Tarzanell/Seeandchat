@@ -8,33 +8,20 @@ function Characters() {
   useEffect(() => {
     const fetchCharacters = async () => {
       const token = localStorage.getItem("token");
-      console.log("Invio richiesta a:", "http://217.154.16.188:3001/api/personaggi");
-  
-      try {
-        const response = await fetch("http://217.154.16.188:3001/api/personaggi", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-  
-        console.log("Risposta ricevuta:", response);
-  
-        const data = await response.json();
-        if (response.ok) {
-          console.log("Dati ricevuti:", data);
-          setCharacters(data);
-        } else {
-          console.error("Errore nel recupero dei personaggi:", data);
-          alert("Errore nel recupero dei personaggi.");
-        }
-      } catch (error) {
-        console.error("Errore di connessione:", error);
-        alert("Errore di connessione al server.");
+      const response = await fetch("http://217.154.16.188:3001/api/listapersonaggi", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setCharacters(data);
+      } else {
+        alert("Errore nel recupero dei personaggi.");
       }
     };
-  
+
     fetchCharacters();
   }, []);
 
-  
   return (
     <div>
       <h2>Seleziona un personaggio</h2>
