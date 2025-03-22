@@ -107,7 +107,7 @@ app.post("/api/aggiungi-personaggio", async (req, res) => {
     const decoded = jwt.verify(token, "supersegreto");
     const utente_id = decoded.id; 
 
-    const { nome, velocita, forza, destrezza, costituzione, punti_vita } = req.body;
+    const { nome, velocita, forza, destrezza, costituzione, punti_vita, token_img } = req.body;
 
     // Controllo server-side
     if (forza > 15 || destrezza > 15 || costituzione > 15) {
@@ -251,7 +251,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({
   storage,
-  limits: { fileSize: 100 * 1024 }, // 100 KB massimo (puoi cambiarlo)
+  limits: { fileSize: 500 * 1024 }, // 500 KB massimo (puoi cambiarlo)
   fileFilter: (req, file, cb) => {
     const filetypes = /jpeg|jpg|png/;
     const mimetype = filetypes.test(file.mimetype);
