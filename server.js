@@ -9,6 +9,7 @@ const path = require("path");
 
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static('uploads'));
 
 const db = mysql.createPool({
   host: "217.154.16.188",
