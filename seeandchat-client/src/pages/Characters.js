@@ -41,20 +41,34 @@ function Characters() {
   return (
     <div>
       <h2>Seleziona un personaggio</h2>
-      {characters.length > 0 ? (
-        <ul>
-          {characters.map((char) => (
-            <li key={char.id}>
-              <span onClick={() => navigate(`/character/${char.id}`)} style={{ cursor: "pointer", marginRight: "10px" }}>
-                {char.nome}
-              </span>
-              <button onClick={() => handleDelete(char.id)}>❌ Cancella</button> {/* 🔹 Bottone di cancellazione */}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>Nessun personaggio trovato.</p>
-      )}
+{characters.length > 0 ? (
+  <ul>
+    {characters.map((char) => (
+      <li key={char.id} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        {/* 🔹 Mostra l'immagine del personaggio se esiste */}
+        {char.token_img && (
+          <img
+            src={`http://217.154.16.188:3001/uploads/${char.token_img}`}
+            alt={char.nome}
+            width="50"
+            height="50"
+            style={{ borderRadius: "5px" }}
+          />
+        )}
+
+        {/* 🔹 Nome del personaggio con navigazione ai dettagli */}
+        <span onClick={() => navigate(`/character/${char.id}`)} style={{ cursor: "pointer", flex: 1 }}>
+          {char.nome}
+        </span>
+
+        {/* 🔹 Bottone per cancellare il personaggio */}
+        <button onClick={() => handleDelete(char.id)}>❌ Cancella</button>
+      </li>
+    ))}
+  </ul>
+) : (
+  <p>Nessun personaggio trovato.</p>
+)}
       
       {/* 🔹 Tasto per creare un nuovo personaggio */}
       <button onClick={() => navigate("/new-character")}>➕ Nuovo Personaggio</button>

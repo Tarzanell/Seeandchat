@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function AddCharacter({ onCharacterAdded }) {
+function NewCharacter({ onCharacterAdded }) {
   const [formData, setFormData] = useState({
     nome: "Nome",
     velocita: 500,
@@ -62,7 +62,7 @@ function AddCharacter({ onCharacterAdded }) {
       }
     }
 
-    const response = await fetch("http://217.154.16.188:3001/api/personaggi", {
+    const response = await fetch("http://217.154.16.188:3001/api/aggiungi-personaggio", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -83,7 +83,7 @@ function AddCharacter({ onCharacterAdded }) {
     <div>
       <h2>Nuovo Personaggio</h2>
       <form onSubmit={handleSubmit}>
-        <input type="text" name="nome" placeholder="Nome" value={formData.nome} onChange={handleChange} required />
+        <input type="text" name="nome" placeholder="Nome" value={formData.nome} onChange={handleNameChange} required />
         <input type="number" name="forza" value={formData.forza} onChange={handleChange} required />
         <input type="number" name="destrezza" value={formData.destrezza} onChange={handleChange} required />
         <input type="number" name="costituzione" value={formData.costituzione} onChange={handleChange} required />
