@@ -21,6 +21,7 @@ const db = mysql.createPool({
   queueLimit: 0
 });
 
+
 async function testDbConnection() {
   try {
     const connection = await db.getConnection();
@@ -36,10 +37,9 @@ testDbConnection();
 
 const jwt = require("jsonwebtoken"); // Importa il modulo JWT
 const SECRET_KEY = "supersegreto"; // Sostituiscilo con una chiave segreta più sicura
-
 function generateToken(user) {
   return jwt.sign(
-      { id: user.id, username: user.username },
+      { id: user.id, username: user.username, is_dm: user.is_dm },
       SECRET_KEY,
       { expiresIn: "1h" } // Il token scade in 1 ora
   );
@@ -67,7 +67,7 @@ app.post("/api/register", async (req, res) => {
 
 // Login utente
 app.post("/api/login", async (req, res) => {
-  console.log("Inizio login");
+  //console.log("Inizio login");
   try {
       const { username, password } = req.body;
       const [rows] = await db.query("SELECT * FROM utenti WHERE username = ?", [username]);
@@ -224,6 +224,18 @@ app.get("/api/personaggi/:id", async (req, res) => {
   }
 });
 
+// Visualizzazione Mappe
+app.get("/api/tutte-le-mappe", async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM mappe");
+    res.json(rows);
+  } catch (error) {
+    console.error("Errore nel recupero mappe:", error);
+    res.status(500).json({ error: "Errore del server" });
+  }
+});
+
+
 // Non lo so
 app.get("/api/listapersonaggi", async (req, res) => {
   try {
@@ -241,17 +253,19 @@ app.get("/api/listapersonaggi", async (req, res) => {
   }
 });
 
-// 🔹 Configurazione multer per il caricamento
-const storage = multer.diskStorage({
+// Configurazione multer per tokens
+const storageToken = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/"); // Cartella dove salvare le immagini
+    cb(null, "uploads/tokens"); // Cartella dove salvare i token
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + path.extname(file.originalname)); // Rinomina il file con timestamp
   }
 });
+
+// Configurazione middleware upload tokens
 const upload = multer({
-  storage,
+  storage: storageToken,
   limits: { fileSize: 500 * 1024 }, // 500 KB massimo (puoi cambiarlo)
   fileFilter: (req, file, cb) => {
     const filetypes = /jpeg|jpg|png/;
@@ -266,7 +280,7 @@ const upload = multer({
   }
 });
 
-// 🔥 API per caricare l'immagine del token
+// Caricare immagine token PG
 app.post("/api/upload", upload.single("token"), async (req, res) => {
   try {
     if (!req.file) {
@@ -280,6 +294,56 @@ app.post("/api/upload", upload.single("token"), async (req, res) => {
 });
 
 
+// Configurazione multer per mappe
+const storageMappe = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/mappe/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+
+// Configurazione middleware upload mappe
+const uploadMappa = multer({ storage: storageMappe });
+
+// Caricamento immagine mappa.
+app.post("/api/carica-mappa", uploadMappa.single("immagine"), async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Token mancante" });
+
+    const decoded = jwt.verify(token, "supersegreto");
+    const utente_id = decoded.id;
+
+    const [rows] = await db.query("SELECT is_dm FROM utenti WHERE id = ?", [utente_id]);
+    if (!rows[0]?.is_dm) return res.status(403).json({ message: "Accesso negato" });
+
+    const nome = req.body.nome;
+    const immagine = req.file.filename;
+
+    await db.query("INSERT INTO mappe (nome, immagine) VALUES (?, ?)", [nome, immagine]);
+    res.status(201).json({ message: "Mappa caricata con successo" });
+
+  } catch (error) {
+    console.error("Errore nel caricamento mappa:", error);
+    res.status(500).json({ error: "Errore del server" });
+  }
+});
+
+// Recupero dati mappa
+app.get("/api/mappe/:id", async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM mappe WHERE id = ?", [req.params.id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Mappa non trovata" });
+    }
+    res.json(rows[0]);
+  } catch (error) {
+    console.error("Errore nel recupero mappa:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 //Cos'è sta roba?
 const os = require("os");
