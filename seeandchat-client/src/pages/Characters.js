@@ -8,11 +8,13 @@ function Characters() {
 
   const token = localStorage.getItem("token");
   let isDm = false;
+  let userId = 0;
 
   if (token) {
     try {
       const decoded = jwtDecode(token);
       isDm = decoded.is_dm;
+      userId = decoded.id;
     } catch (error) {
       console.error("Errore nella decodifica del token:", error);
     }
@@ -77,9 +79,8 @@ function Characters() {
               <button onClick={() => navigate("/mappa", {
               state: {
               character: char,
-              userId: userData.id,     // già estratto da jwt
-              isDm: userData.is_dm
-              }
+              userId,     // già estratto da jwt
+              isDm,}
               })}>
               Utilizza
               </button>

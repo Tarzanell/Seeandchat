@@ -3,7 +3,8 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import Token from "../components/Token";
 
-function GameMap({ character, userId, isDm, mappa_id }) {
+function GameMap({ character, userId, isDm}) {
+  const mappa_id = character.mappa_id;
   const [mapImage, setMapImage] = useState(null);
   const [tokens, setTokens] = useState([]);
 
@@ -18,6 +19,8 @@ function GameMap({ character, userId, isDm, mappa_id }) {
         const tokenData = await resTokens.json();
         setTokens(tokenData);
         console.log("Token presenti:", tokenData);
+        console.log("Mappaid:", mappa_id);
+        console.log("Personaggio:", character);
       } catch (err) {
         console.error("Errore nel caricamento di mappa o token:", err);
       }

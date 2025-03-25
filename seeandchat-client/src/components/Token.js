@@ -19,8 +19,8 @@ function Token({ token, positionStyle, character, userId, isDm }) {
 
       try {
         const authToken = localStorage.getItem("token");
-        await fetch("http://217.154.16.188:3001/api/aggiorna-posizione-token", {
-          method: "PUT",
+        await fetch("http://217.154.16.188:3001/api/posizione", {
+          method: "PATCH",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${authToken}`,
