@@ -257,7 +257,7 @@ app.get("/api/tokens/:mappa_id", async (req, res) => {
 });
 
 // Aggiornamento posizione token dopo drag
-app.patch("/api/token/:id/posizione", async (req, res) => {
+app.patch("/api/token/posizione", async (req, res) => {
   try {
     const tokenId = req.params.id;
     const { pos_x, pos_y } = req.body;
