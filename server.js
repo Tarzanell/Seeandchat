@@ -118,7 +118,7 @@ app.post("/api/aggiungi-personaggio", async (req, res) => {
 
     const [_, result] = await db.query(
       "INSERT INTO personaggi (nome, velocita, forza, destrezza, costituzione, punti_vita, utente_id, token_img, mappa_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      [nome, velocita, forza, destrezza, costituzione, punti_vita, utente_id, token_img]
+      [nome, velocita, forza, destrezza, costituzione, punti_vita, utente_id, token_img, 1]
     );
 
 
