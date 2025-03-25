@@ -256,6 +256,40 @@ app.get("/api/tokens/:mappa_id", async (req, res) => {
   }
 });
 
+// Aggiornamento posizione token dopo drag
+app.patch("/api/token/:id/posizione", async (req, res) => {
+  try {
+    const tokenId = req.params.id;
+    const { pos_x, pos_y } = req.body;
+
+    // Autenticazione
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ message: "Token mancante" });
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, "supersegreto");
+
+    // Controllo autorizzazione (solo proprietario o DM)
+    const [rows] = await db.query("SELECT proprietario_id FROM tokens WHERE id = ?", [tokenId]);
+    if (rows.length === 0) return res.status(404).json({ message: "Token non trovato" });
+
+    const tokenDb = rows[0];
+    const isOwner = tokenDb.proprietario_id === decoded.id;
+    if (!isOwner && !decoded.is_dm) {
+      return res.status(403).json({ message: "Non autorizzato a spostare questo token" });
+    }
+
+    // Aggiorna posizione
+    await db.query("UPDATE tokens SET pos_x = ?, pos_y = ? WHERE id = ?", [pos_x, pos_y, tokenId]);
+    res.json({ message: "Posizione aggiornata con successo" });
+
+  } catch (error) {
+    console.error("Errore aggiornamento posizione:", error);
+    res.status(500).json({ error: "Errore del server" });
+  }
+});
+
+
 // Non lo so
 app.get("/api/listapersonaggi", async (req, res) => {
   try {

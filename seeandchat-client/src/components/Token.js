@@ -1,53 +1,55 @@
-import React, { useState } from "react";
-import { useDrag, useDrop } from "react-dnd";
+import React from "react";
+import { useDrag } from "react-dnd";
 
-function Token({ character, userId, isDm }) {
-  const [position, setPosition] = useState({ x: character.pos_x || 0, y: character.pos_y || 0 });
-
-  const canDrag = isDm || character.proprietario_id === userId;
-
-  const [, drag] = useDrag({
+function Token({ token, positionStyle, character, userId, isDm }) {
+  const [{ isDragging }, drag] = useDrag({
     type: "TOKEN",
-    item: { type: "TOKEN" },
-    canDrag,
-  });
+    item: { id: token.id },
+    end: async (item, monitor) => {
+      const offset = monitor.getDifferenceFromInitialOffset();
+      if (!offset) return;
 
-  const [, drop] = useDrop({
-    accept: "TOKEN",
-    drop: (item, monitor) => {
-      if (!canDrag) return;
+      const deltaX = Math.round(offset.x / 50);
+      const deltaY = Math.round(offset.y / 50);
+      const newX = Math.max(0, Math.min(9, token.pos_x + deltaX));
+      const newY = Math.max(0, Math.min(9, token.pos_y + deltaY));
 
-      const delta = monitor.getDifferenceFromInitialOffset();
-      if (!delta) return;
+      // 🔒 Solo se sei il proprietario o un DM puoi spostare
+      if (token.proprietario_id !== userId && !isDm) return;
 
-      const newX = Math.round((position.x * 50 + delta.x) / 50);
-      const newY = Math.round((position.y * 50 + delta.y) / 50);
-
-      setPosition({
-        x: Math.max(0, Math.min(9, newX)),
-        y: Math.max(0, Math.min(9, newY)),
-      });
-
-      // (Opzionale) Qui potresti anche fare una chiamata API per salvare il nuovo posizionamento nel DB
+      try {
+        const authToken = localStorage.getItem("token");
+        await fetch("http://217.154.16.188:3001/api/aggiorna-posizione-token", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({ id: token.id, pos_x: newX, pos_y: newY }),
+        });
+      } catch (err) {
+        console.error("Errore nell'aggiornamento posizione:", err);
+      }
     },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
   });
 
   return (
     <div
-      ref={(node) => drag(drop(node))}
+      ref={drag}
       style={{
-        width: "50px",
-        height: "50px",
+        ...positionStyle,
+        opacity: isDragging ? 0.5 : 1,
+        cursor: "move",
         position: "absolute",
-        left: `${position.x * 50}px`,
-        top: `${position.y * 50}px`,
-        cursor: canDrag ? "move" : "not-allowed",
       }}
     >
       <img
-        src={`http://217.154.16.188:3001/uploads/tokens/${character.token_img}`}
-        alt={character.nome}
-        style={{ width: "100%", height: "100%" }}
+        src={`http://217.154.16.188:3001/uploads/tokens/${token.immagine}`}
+        alt="Token"
+        style={{ width: "50px", height: "50px" }}
       />
     </div>
   );
