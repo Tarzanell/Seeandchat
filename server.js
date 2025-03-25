@@ -116,12 +116,12 @@ app.post("/api/aggiungi-personaggio", async (req, res) => {
       return res.status(400).json({ message: "Le statistiche non possono superare 15." });
     }
 
-    await db.query(
-      "INSERT INTO personaggi (nome, velocita, forza, destrezza, costituzione, punti_vita, utente_id, token_img) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-      [nome, velocita, forza, destrezza, costituzione, punti_vita, utente_id, token_img]
+    const [_, result] = await db.query(
+      "INSERT INTO personaggi (nome, velocita, forza, destrezza, costituzione, punti_vita, utente_id, token_img, mappa_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      [nome, velocita, forza, destrezza, costituzione, punti_vita, utente_id, token_img, mappa_id]
     );
 
-    const personaggioId = result.insertId;
+   const personaggioId = result.insertId;
 
     await db.query(
       "INSERT INTO tokens (id, mappa_id, categoria, proprietario_id, posizione_x, posizione_y, immagine) VALUES (?, ?, ?, ?, ?, ?, ?)",
