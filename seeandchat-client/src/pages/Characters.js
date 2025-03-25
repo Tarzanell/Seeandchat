@@ -1,19 +1,32 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 function Characters() {
   const [characters, setCharacters] = useState([]);
   const navigate = useNavigate();
 
+  const token = localStorage.getItem("token");
+  let isDm = false;
+
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      isDm = decoded.is_dm;
+    } catch (error) {
+      console.error("Errore nella decodifica del token:", error);
+    }
+  }
+
   useEffect(() => {
-    fetchCharacters(); // 🔹 Carica i personaggi all'avvio
+    fetchCharacters();
   }, []);
 
   const fetchCharacters = async () => {
-    const token = localStorage.getItem("token");
     const response = await fetch("http://217.154.16.188:3001/api/listapersonaggi", {
       headers: { Authorization: `Bearer ${token}` },
     });
+
     const data = await response.json();
     if (response.ok) {
       setCharacters(data);
@@ -22,9 +35,7 @@ function Characters() {
     }
   };
 
-  // 🔥 Funzione per cancellare un personaggio
   const handleDelete = async (id) => {
-    const token = localStorage.getItem("token");
     const response = await fetch(`http://217.154.16.188:3001/api/personaggi/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
@@ -32,7 +43,7 @@ function Characters() {
 
     if (response.ok) {
       alert("Personaggio eliminato!");
-      setCharacters(characters.filter((char) => char.id !== id)); // 🔹 Aggiorna la lista dopo la cancellazione
+      setCharacters(characters.filter((char) => char.id !== id));
     } else {
       alert("Errore nella cancellazione del personaggio.");
     }
@@ -41,37 +52,46 @@ function Characters() {
   return (
     <div>
       <h2>Seleziona un personaggio</h2>
-{characters.length > 0 ? (
-  <ul>
-    {characters.map((char) => (
-      <li key={char.id} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-        {/* 🔹 Mostra l'immagine del personaggio se esiste */}
-        {char.token_img && (
-          <img
-            src={`http://217.154.16.188:3001/uploads/${char.token_img}`}
-            alt={char.nome}
-            width="50"
-            height="50"
-            style={{ borderRadius: "5px" }}
-          />
-        )}
+      {characters.length > 0 ? (
+        <ul>
+          {characters.map((char) => (
+            <li key={char.id} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              {char.token_img && (
+                <img
+                  src={`http://217.154.16.188:3001/uploads/tokens/${char.token_img}`}
+                  alt={char.nome}
+                  width="50"
+                  height="50"
+                  style={{ borderRadius: "5px" }}
+                />
+              )}
 
-        {/* 🔹 Nome del personaggio con navigazione ai dettagli */}
-        <span onClick={() => navigate(`/character/${char.id}`)} style={{ cursor: "pointer", flex: 1 }}>
-          {char.nome}
-        </span>
+              <span
+                onClick={() => navigate(`/character/${char.id}`)}
+                style={{ cursor: "pointer", flex: 1 }}
+              >
+                {char.nome}
+              </span>
 
-        {/* 🔹 Bottone per cancellare il personaggio */}
-        <button onClick={() => handleDelete(char.id)}>❌ Cancella</button>
-      </li>
-    ))}
-  </ul>
-) : (
-  <p>Nessun personaggio trovato.</p>
-)}
-      
-      {/* 🔹 Tasto per creare un nuovo personaggio */}
+              <button onClick={() => handleDelete(char.id)}>❌ Cancella</button>
+              <button onClick={() => navigate("/mappa", { state: { character: char } })}>
+                Utilizza
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>Nessun personaggio trovato.</p>
+      )}
+
       <button onClick={() => navigate("/new-character")}>➕ Nuovo Personaggio</button>
+
+      {isDm && (
+        <>
+          <button onClick={() => navigate("/carica-mappa")}>Carica Mappa</button>
+          <button onClick={() => navigate("/visualizza-mappe")}>Visualizza Mappe</button>
+        </>
+      )}
     </div>
   );
 }

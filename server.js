@@ -235,6 +235,17 @@ app.get("/api/tutte-le-mappe", async (req, res) => {
   }
 });
 
+// Restituisce tutti i token di una determinata mappa
+app.get("/api/tokens/:mappa_id", async (req, res) => {
+  try {
+    const mappa_id = parseInt(req.params.mappa_id, 10);
+    const [rows] = await db.query("SELECT * FROM tokens WHERE mappa_id = ?", [mappa_id]);
+    res.json(rows);
+  } catch (error) {
+    console.error("Errore nel recupero dei token:", error);
+    res.status(500).json({ error: "Errore del server" });
+  }
+});
 
 // Non lo so
 app.get("/api/listapersonaggi", async (req, res) => {

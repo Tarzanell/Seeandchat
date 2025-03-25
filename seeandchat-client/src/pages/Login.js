@@ -17,7 +17,7 @@ function Login() {
         body: JSON.stringify({ username, password }),
       });
   
-      console.log("Risposta ricevuta:", response);
+      //console.log("Risposta ricevuta:", response);
       const data = await response.json();
 
 
@@ -34,14 +34,15 @@ function Login() {
       
       console.log("Dati ricevuti dal server:", data);
   
-      if (data.token) {
+      /*if (data.token) {
         localStorage.setItem("token", data.token);
         console.log("Token salvato:", data.token);
         navigate("/characters");
       } else {
         console.error("Token non ricevuto!");
         alert("Errore: nessun token ricevuto.");
-      }
+      }*/
+     
     } catch (error) {
       console.error("Errore durante la fetch:", error);
       alert("Errore di connessione al server.");
