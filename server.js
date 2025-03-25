@@ -107,6 +107,7 @@ app.post("/api/aggiungi-personaggio", async (req, res) => {
 
     const decoded = jwt.verify(token, "supersegreto");
     const utente_id = decoded.id; 
+    const username = decoded.username;
 
     const { nome, velocita, forza, destrezza, costituzione, punti_vita, token_img } = req.body;
 
@@ -118,6 +119,13 @@ app.post("/api/aggiungi-personaggio", async (req, res) => {
     await db.query(
       "INSERT INTO personaggi (nome, velocita, forza, destrezza, costituzione, punti_vita, utente_id, token_img) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
       [nome, velocita, forza, destrezza, costituzione, punti_vita, utente_id, token_img]
+    );
+
+    const personaggioId = result.insertId;
+
+    await db.query(
+      "INSERT INTO tokens (id, mappa_id, categoria, proprietario_id, posizione_x, posizione_y, immagine) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [personaggioId, 1, "personaggio", username, 0, 0, token_img]
     );
 
     res.status(201).json({ message: "Personaggio aggiunto con successo" });
