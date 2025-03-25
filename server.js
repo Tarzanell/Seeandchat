@@ -280,7 +280,7 @@ app.patch("/api/token/:id/posizione", async (req, res) => {
     }
 
     // Aggiorna posizione
-    await db.query("UPDATE tokens SET pos_x = ?, pos_y = ? WHERE id = ?", [pos_x, pos_y, tokenId]);
+    await db.query("UPDATE tokens SET posizione_x = ?, posizione_y = ? WHERE id = ?", [pos_x, pos_y, tokenId]);
     res.json({ message: "Posizione aggiornata con successo" });
 
   } catch (error) {
