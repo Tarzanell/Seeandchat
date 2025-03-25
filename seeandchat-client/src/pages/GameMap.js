@@ -3,7 +3,7 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import Token from "../components/Token";
 
-function GameMap({ character, mappa_id }) {
+function GameMap({ character, userId, isDm, mappa_id }) {
   const [mapImage, setMapImage] = useState(null);
   const [tokens, setTokens] = useState([]);
 
@@ -17,6 +17,7 @@ function GameMap({ character, mappa_id }) {
         const resTokens = await fetch(`http://217.154.16.188:3001/api/tokens/${mappa_id}`);
         const tokenData = await resTokens.json();
         setTokens(tokenData);
+        console.log("Token presenti:", tokenData);
       } catch (err) {
         console.error("Errore nel caricamento di mappa o token:", err);
       }
@@ -43,17 +44,20 @@ function GameMap({ character, mappa_id }) {
           backgroundImage: `url(http://217.154.16.188:3001/uploads/mappe/${mapImage})`,
           backgroundSize: "cover",
           position: "relative",
-        }}
-      >
+        }}>
+      
         {tokens.map((token, idx) => {
           const overlapping = tokens.filter(t => t.pos_x === token.pos_x && t.pos_y === token.pos_y);
           const positionStyle = getTokenStyle(token, idx, overlapping);
-
-          return <Token key={token.id} token={token} positionStyle={positionStyle} />;
-        })}
+          
+          return <Token character={character} userId={userId} isDm={isDm} key={token.id} token={token} positionStyle={positionStyle} />;
+         })}
       </div>
     </DndProvider>
   );
+
+
+
 }
 
 export default GameMap;

@@ -74,8 +74,14 @@ function Characters() {
               </span>
 
               <button onClick={() => handleDelete(char.id)}>❌ Cancella</button>
-              <button onClick={() => navigate("/mappa", { state: { character: char } })}>
-                Utilizza
+              <button onClick={() => navigate("/mappa", {
+              state: {
+              character: char,
+              userId: userData.id,     // già estratto da jwt
+              isDm: userData.is_dm
+              }
+              })}>
+              Utilizza
               </button>
             </li>
           ))}

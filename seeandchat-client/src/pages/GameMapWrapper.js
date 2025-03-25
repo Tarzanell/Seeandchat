@@ -6,12 +6,16 @@ function GameMapWrapper() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  if (!location.state?.character) {
+  const character = location.state?.character;
+  const userId = location.state?.userId;
+  const isDm = location.state?.isDm;
+
+  if (!character) {
     navigate("/characters");
     return null;
   }
 
-  return <GameMap character={location.state.character} />;
+  return <GameMap character={character} userId={userId} isDm={isDm} />;
 }
 
 export default GameMapWrapper;

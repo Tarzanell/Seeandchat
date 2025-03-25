@@ -82,15 +82,33 @@ function NewCharacter({ onCharacterAdded }) {
   return (
     <div>
       <h2>Nuovo Personaggio</h2>
-      <form onSubmit={handleSubmit}>
-        <input type="text" name="nome" placeholder="Nome" value={formData.nome} onChange={handleNameChange} required />
-        <input type="number" name="forza" value={formData.forza} onChange={handleChange} required />
-        <input type="number" name="destrezza" value={formData.destrezza} onChange={handleChange} required />
-        <input type="number" name="costituzione" value={formData.costituzione} onChange={handleChange} required />
-        <input type="number" name="punti_vita" value={formData.punti_vita} onChange={handleChange} required />
-        <input type="file" accept="image/png, image/jpeg" onChange={handleFileChange} required />
-        <button type="submit">Crea</button>
-      </form>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px", maxWidth: "300px" }}>
+  <label>
+    Nome:
+    <input type="text" name="nome" value={formData.nome} onChange={handleNameChange} required />
+  </label>
+  <label>
+    Forza:
+    <input type="number" name="forza" value={formData.forza} onChange={handleChange} required />
+  </label>
+  <label>
+    Destrezza:
+    <input type="number" name="destrezza" value={formData.destrezza} onChange={handleChange} required />
+  </label>
+  <label>
+    Costituzione:
+    <input type="number" name="costituzione" value={formData.costituzione} onChange={handleChange} required />
+  </label>
+  <label>
+    Punti Vita:
+    <input type="number" name="punti_vita" value={formData.punti_vita} onChange={handleChange} required />
+  </label>
+  <label>
+    Token (immagine):
+    <input type="file" accept="image/png, image/jpeg" onChange={handleFileChange} required />
+  </label>
+  <button type="submit">Crea</button>
+</form>
     </div>
   );
 }
