@@ -274,7 +274,9 @@ app.patch("/api/token/:id/posizione", async (req, res) => {
     if (rows.length === 0) return res.status(404).json({ message: "Token non trovato" });
 
     const tokenDb = rows[0];
-    const isOwner = tokenDb.proprietario_id === decoded.id;
+    const isOwner = tokenDb.proprietario_id === decoded.username;
+    console.log("Proprietario:", tokenDb.proprietario_id);
+    console.log("Utente:", decoded.username);
     if (!isOwner && !decoded.is_dm) {
       return res.status(403).json({ message: "Non autorizzato a spostare questo token" });
     }
