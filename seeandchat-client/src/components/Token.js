@@ -1,7 +1,7 @@
 import React from "react";
 import { useDrag } from "react-dnd";
 
-function Token({ token, positionStyle, character, userId, isDm }) {
+function Token({ token, positionStyle, character, userId, isDm, setTokens }) {
   const [{ isDragging }, drag] = useDrag({
     type: "TOKEN",
     item: { id: token.id },
@@ -9,24 +9,48 @@ function Token({ token, positionStyle, character, userId, isDm }) {
       const offset = monitor.getDifferenceFromInitialOffset();
       if (!offset) return;
 
+      const Vmax = character.velocita;
+
       const deltaX = Math.round(offset.x / 50);
       const deltaY = Math.round(offset.y / 50);
-      const newX = Math.max(0, Math.min(9, token.pos_x + deltaX));
-      const newY = Math.max(0, Math.min(9, token.pos_y + deltaY));
+      const newX = Math.max(0, Math.min(9, token.posizione_x + deltaX));
+      const newY = Math.max(0, Math.min(9, token.posizione_y + deltaY));
+      /*console.log("posxvecchia:", token.posizione_x);
+      console.log("offsetx:", offset.x);
+      console.log("newposx:", newX);
+      console.log("posybecchia:", token.posizione_y);
+      console.log("offsety:", offset.y);
+      console.log("newposy:", newY);
+      console.log("idToken:", token.id);*/
+      console.log("Velocità:", Vmax);
+      
+      
+        
 
       // 🔒 Solo se sei il proprietario o un DM puoi spostare
       if (token.proprietario_id !== userId && !isDm) return;
-
+      if (offset.x > 200)
+        {alert("Slow down baby."); return;} 
       try {
         const authToken = localStorage.getItem("token");
-        await fetch("http://217.154.16.188:3001/api/posizione", {
+        await fetch(`http://217.154.16.188:3001/api/token/${token.id}/posizione`, {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${authToken}`,
           },
-          body: JSON.stringify({ id: token.id, pos_x: newX, pos_y: newY }),
+          body: JSON.stringify({ posizione_x: newX, posizione_y: newY }),
         });
+
+        // 🔄 Aggiorna stato locale dopo spostamento
+        setTokens(prevTokens =>
+        prevTokens.map(t =>
+        t.id === token.id
+        ? { ...t, posizione_x: newX, posizione_y: newY }
+        : t
+  )
+);
+
       } catch (err) {
         console.error("Errore nell'aggiornamento posizione:", err);
       }

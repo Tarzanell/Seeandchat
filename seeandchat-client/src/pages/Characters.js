@@ -14,7 +14,7 @@ function Characters() {
     try {
       const decoded = jwtDecode(token);
       isDm = decoded.is_dm;
-      userId = decoded.id;
+      userId = decoded.username;
     } catch (error) {
       console.error("Errore nella decodifica del token:", error);
     }

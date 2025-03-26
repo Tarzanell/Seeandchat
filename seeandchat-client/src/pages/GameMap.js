@@ -18,9 +18,6 @@ function GameMap({ character, userId, isDm}) {
         const resTokens = await fetch(`http://217.154.16.188:3001/api/tokens/${mappa_id}`);
         const tokenData = await resTokens.json();
         setTokens(tokenData);
-        console.log("Token presenti:", tokenData);
-        console.log("Mappaid:", mappa_id);
-        console.log("Personaggio:", character);
       } catch (err) {
         console.error("Errore nel caricamento di mappa o token:", err);
       }
@@ -33,8 +30,8 @@ function GameMap({ character, userId, isDm}) {
   const getTokenStyle = (token, index, tokensAtSamePosition) => {
     const offset = tokensAtSamePosition.indexOf(token) * 50; // 🔹 50px di offset
     return {
-      left: `${token.pos_x * 50 + offset}px`,
-      top: `${token.pos_y * 50}px`
+      left: `${token.posizione_x * 50 + offset}px`,
+      top: `${token.posizione_y * 50}px`
     };
   };
 
@@ -50,10 +47,10 @@ function GameMap({ character, userId, isDm}) {
         }}>
       
         {tokens.map((token, idx) => {
-          const overlapping = tokens.filter(t => t.pos_x === token.pos_x && t.pos_y === token.pos_y);
+          const overlapping = tokens.filter(t => t.posizione_x === token.posizione_x && t.posizione_y === token.posizione_y);
           const positionStyle = getTokenStyle(token, idx, overlapping);
           
-          return <Token character={character} userId={userId} isDm={isDm} key={token.id} token={token} positionStyle={positionStyle} />;
+          return <Token character={character} userId={userId} isDm={isDm} key={token.id} token={token} positionStyle={positionStyle} setTokens={setTokens} />;
          })}
       </div>
     </DndProvider>
