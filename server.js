@@ -260,7 +260,7 @@ app.get("/api/tokens/:mappa_id", async (req, res) => {
 app.patch("/api/token/:id/posizione", async (req, res) => {
   try {
     const tokenId = req.params.id;
-    const { pos_x, pos_y } = req.body;
+    const { posizione_x, posizione_y } = req.body;
 
     // Autenticazione
     const authHeader = req.headers.authorization;
