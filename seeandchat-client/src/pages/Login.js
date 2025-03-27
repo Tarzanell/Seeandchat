@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -25,7 +26,12 @@ function Login() {
         localStorage.removeItem("token"); // 🔹 Rimuove il vecchio token
         localStorage.setItem("token", data.token); // 🔹 Salva il nuovo token
         console.log("Token salvato:", data.token);
-       navigate("/characters");
+        const decoded = jwtDecode(data.token);
+        if (decoded.is_dm) {
+          navigate("/dmdashboard");
+        } else {
+          navigate("/characters");
+        }
         } 
       else {
         alert("Login fallito: " + data.message);
