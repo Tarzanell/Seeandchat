@@ -404,10 +404,11 @@ app.get("/api/mappe/:id", async (req, res) => {
 });
 
 // Configurazione multer spawners
-const uploadArchetipo = upload.single("immagine");
+const uploadMulter = multer({ storage: storageToken });
+const uploadArchetipo = uploadMulter.single("immagine");
 
 // Caricamento archetipo mob
-app.post("/api/nuovo-archetipo-mob", uploadArchetipo.single("immagine"), async (req, res) => {
+app.post("/api/nuovo-archetipo-mob", uploadArchetipo, async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) return res.status(401).json({ message: "Token mancante" });
@@ -427,7 +428,7 @@ app.post("/api/nuovo-archetipo-mob", uploadArchetipo.single("immagine"), async (
 });
 
 // Caricamento archetipo oggetto
-app.post("/api/nuovo-archetipo-oggetto", uploadArchetipo.single("immagine"), async (req, res) => {
+app.post("/api/nuovo-archetipo-oggetto", uploadArchetipo, async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) return res.status(401).json({ message: "Token mancante" });
@@ -447,7 +448,7 @@ app.post("/api/nuovo-archetipo-oggetto", uploadArchetipo.single("immagine"), asy
 });
 
 // Caricamento NPC
-app.post("/api/nuovo-npc", uploadArchetipo.single("immagine"), async (req, res) => {
+app.post("/api/nuovo-npc", uploadArchetipo, async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) return res.status(401).json({ message: "Token mancante" });
