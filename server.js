@@ -350,6 +350,7 @@ app.post("/api/upload", upload.single("token"), async (req, res) => {
   }
 });
 
+const uploadArchetipo = multer({ storage: upload });
 
 // Configurazione multer per mappe
 const storageMappe = multer.diskStorage({
@@ -401,6 +402,87 @@ app.get("/api/mappe/:id", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// Caricamento archetipo mob
+app.post("/api/nuovo-archetipo-mob", uploadArchetipo.single("immagine"), async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Token mancante" });
+
+    const decoded = jwt.verify(token, "supersegreto");
+    if (!decoded.is_dm) return res.status(403).json({ message: "Non autorizzato" });
+
+    const nome = req.body.nome;
+    const immagine = req.file.filename;
+
+    await db.query(`INSERT INTO archetipi_mob (nome, immagine) VALUES (?, ?)`, [nome, immagine]);
+    res.status(201).json({ message: "Archetipo creato con successo" });
+  } catch (error) {
+    console.error(`Errore /api/nuovo-archetipo-mob:`, error);
+    res.status(500).json({ error: "Errore del server" });
+  }
+});
+
+
+app.post("/api/nuovo-archetipo-oggetto", uploadArchetipo.single("immagine"), async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Token mancante" });
+
+    const decoded = jwt.verify(token, "supersegreto");
+    if (!decoded.is_dm) return res.status(403).json({ message: "Non autorizzato" });
+
+    const nome = req.body.nome;
+    const immagine = req.file.filename;
+
+    await db.query(`INSERT INTO archetipi_oggetti (nome, immagine) VALUES (?, ?)`, [nome, immagine]);
+    res.status(201).json({ message: "Archetipo creato con successo" });
+  } catch (error) {
+    console.error(`Errore /api/nuovo-archetipo-oggetto:`, error);
+    res.status(500).json({ error: "Errore del server" });
+  }
+});
+
+// Caricamento NPC
+app.post("/api/nuovo-npc", uploadArchetipo.single("immagine"), async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Token mancante" });
+
+    const decoded = jwt.verify(token, "supersegreto");
+    if (!decoded.is_dm) return res.status(403).json({ message: "Non autorizzato" });
+
+    const nome = req.body.nome;
+    const immagine = req.file.filename;
+
+    await db.query(`INSERT INTO npc (nome, immagine) VALUES (?, ?)`, [nome, immagine]);
+    res.status(201).json({ message: "Archetipo creato con successo" });
+  } catch (error) {
+    console.error(`Errore /api/nuovo-npc:`, error);
+    res.status(500).json({ error: "Errore del server" });
+  }
+});
+
+//Caricamento transizione
+app.post("/api/nuova-transizione", uploadArchetipo.single("immagine"), async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Token mancante" });
+
+    const decoded = jwt.verify(token, "supersegreto");
+    if (!decoded.is_dm) return res.status(403).json({ message: "Non autorizzato" });
+
+    const nome = req.body.nome;
+    const immagine = req.file.filename;
+
+    await db.query(`INSERT INTO transizioni (nome, immagine) VALUES (?, ?)`, [nome, immagine]);
+    res.status(201).json({ message: "Archetipo creato con successo" });
+  } catch (error) {
+    console.error(`Errore /api/nuovo-archetipo-mob:`, error);
+    res.status(500).json({ error: "Errore del server" });
+  }
+});
+
 
 //Cos'è sta roba?
 const os = require("os");
