@@ -689,7 +689,7 @@ app.post("/api/nuova-transizione", uploadArchetipo, async (req, res) => {
 });
 
 // Recupero destinazione transizioni
-app.get("/api/transizioni/:id", async (req, res) => {
+/*app.get("/api/transizioni/:id", async (req, res) => {
   try {
     const [rows] = await db.query("SELECT * FROM transizioni WHERE id = ?", [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ message: "Transizione non trovata" });
@@ -698,20 +698,50 @@ app.get("/api/transizioni/:id", async (req, res) => {
     console.error("Errore transizione:", err);
     res.status(500).json({ error: "Errore del server" });
   }
+});*/
+
+// Recupera un token transizione in base al fatherid (mapref)
+app.get("/api/token-transizione-da-mapref/:mapref", async (req, res) => {
+  try {
+    const { mapref } = req.params;
+    const [rows] = await db.query(
+      "SELECT * FROM tokens WHERE categoria = 'transizione' AND fatherid = ?",
+      [mapref]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Token transizione di destinazione non trovato" });
+    }
+
+    res.json(rows[0]);
+  } catch (err) {
+    console.error("Errore nella ricerca del token transizione:", err);
+    res.status(500).json({ message: "Errore del server" });
+  }
 });
 
 // Cambio mappa token
 app.patch("/api/token/:id/cambia-mappa", async (req, res) => {
   try {
-    const token = req.headers.authorization?.split(" ")[1];
-    const decoded = jwt.verify(token, "supersegreto");
-    const { nuova_mappa_id } = req.body;
+    const { nuova_mappa_id, nuova_posizione_x, nuova_posizione_y } = req.body;
+    const tokenUtente = req.headers.authorization?.split(" ")[1];
+    const decoded = jwt.verify(tokenUtente, "supersegreto");
 
-    const [personaggi] = await db.query("SELECT * FROM tokens WHERE id = ? AND proprietario_id = ?", [req.params.id, decoded.username]);
-    if (personaggi.length === 0) return res.status(403).json({ message: "Non autorizzato" });
+    const tokenId = req.params.id;
 
-    await db.query("UPDATE tokens SET mappa_id = ? WHERE id = ?", [nuova_mappa_id, req.params.id]);
-    res.json({ message: "Mappa aggiornata" });
+    const [rows] = await db.query("SELECT * FROM tokens WHERE id = ? AND categoria = 'personaggio'", [tokenId]);
+    if (rows.length === 0) return res.status(403).json({ message: "Token non trovato o non valido" });
+
+    // Check se l'utente è il proprietario
+    if (rows[0].proprietario_id !== decoded.username && !decoded.is_dm)
+      return res.status(403).json({ message: "Non autorizzato" });
+
+    await db.query(
+      "UPDATE tokens SET mappa_id = ?, posizione_x = ?, posizione_y = ? WHERE id = ?",
+      [nuova_mappa_id, nuova_posizione_x, nuova_posizione_y, tokenId]
+    );
+
+    res.json({ message: "Mappa e posizione aggiornate" });
   } catch (err) {
     console.error("Errore cambio mappa:", err);
     res.status(500).json({ message: "Errore del server" });
