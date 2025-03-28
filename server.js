@@ -668,6 +668,35 @@ app.post("/api/nuova-transizione", uploadArchetipo, async (req, res) => {
   }
 });
 
+// Recupero destinazione transizioni
+app.get("/api/transizioni/:id", async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM transizioni WHERE id = ?", [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ message: "Transizione non trovata" });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error("Errore transizione:", err);
+    res.status(500).json({ error: "Errore del server" });
+  }
+});
+
+// Cambio mappa personaggio
+app.patch("/api/personaggio/:id/cambia-mappa", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    const decoded = jwt.verify(token, "supersegreto");
+    const { nuova_mappa_id } = req.body;
+
+    const [personaggi] = await db.query("SELECT * FROM personaggi WHERE id = ? AND utente_id = ?", [req.params.id, decoded.id]);
+    if (personaggi.length === 0) return res.status(403).json({ message: "Non autorizzato" });
+
+    await db.query("UPDATE personaggi SET mappa_id = ? WHERE id = ?", [nuova_mappa_id, req.params.id]);
+    res.json({ message: "Mappa aggiornata" });
+  } catch (err) {
+    console.error("Errore cambio mappa:", err);
+    res.status(500).json({ message: "Errore del server" });
+  }
+});
 
 //Cos'è sta roba?
 const os = require("os");
