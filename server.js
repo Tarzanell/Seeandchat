@@ -687,10 +687,10 @@ app.patch("/api/token/:id/cambia-mappa", async (req, res) => {
     const decoded = jwt.verify(token, "supersegreto");
     const { nuova_mappa_id } = req.body;
 
-    const [personaggi] = await db.query("SELECT * FROM personaggi WHERE id = ? AND utente_id = ?", [req.params.id, decoded.id]);
+    const [personaggi] = await db.query("SELECT * FROM tokens WHERE id = ? AND utente_id = ?", [req.params.id, decoded.id]);
     if (personaggi.length === 0) return res.status(403).json({ message: "Non autorizzato" });
 
-    await db.query("UPDATE personaggi SET mappa_id = ? WHERE id = ?", [nuova_mappa_id, req.params.id]);
+    await db.query("UPDATE tokens SET mappa_id = ? WHERE id = ?", [nuova_mappa_id, req.params.id]);
     res.json({ message: "Mappa aggiornata" });
   } catch (err) {
     console.error("Errore cambio mappa:", err);
