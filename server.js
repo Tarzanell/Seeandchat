@@ -125,8 +125,8 @@ app.post("/api/aggiungi-personaggio", async (req, res) => {
     const personaggioId = result.insertId;
 
     await db.query(
-      "INSERT INTO tokens (id, mappa_id, categoria, proprietario_id, posizione_x, posizione_y, immagine) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      [personaggioId, 1, "personaggio", username, 0, 0, token_img]
+      "INSERT INTO tokens (id, mappa_id, categoria, proprietario_id, posizione_x, posizione_y, immagine, nome, fatherid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      [personaggioId, 1, "personaggio", username, 0, 0, token_img, nome, personaggioId]
     );
 
     res.status(201).json({ message: "Personaggio aggiunto con successo" });
@@ -275,8 +275,8 @@ app.patch("/api/token/:id/posizione", async (req, res) => {
 
     const tokenDb = rows[0];
     const isOwner = tokenDb.proprietario_id === decoded.username;
-    console.log("Proprietario:", tokenDb.proprietario_id);
-    console.log("Utente:", decoded.username);
+    //console.log("Proprietario:", tokenDb.proprietario_id);
+    //console.log("Utente:", decoded.username);
     
     if (!isOwner && !decoded.is_dm) {
       return res.status(403).json({ message: "Non autorizzato a spostare questo token" });
@@ -380,29 +380,25 @@ app.post("/api/spawn-npc", async (req, res) => {
     const decoded = jwt.verify(token, "supersegreto");
     if (!decoded.is_dm) return res.status(403).json({ message: "Non autorizzato" });
 
-    // 🔹 Recupera i dati dell’archetipo NPC
     const [npcData] = await db.query("SELECT * FROM npc WHERE id = ?", [id]);
     if (npcData.length === 0) return res.status(404).json({ message: "NPC non trovato" });
 
     const { nome, immagine } = npcData[0];
 
-    // 🔹 Verifica se esiste già un token di questo NPC
     const [existing] = await db.query(
-      "SELECT * FROM tokens WHERE nome = ? AND categoria = 'npc'",
-      [nome]
+      "SELECT * FROM tokens WHERE categoria = 'npc' AND fatherid = ?",
+      [id]
     );
 
     if (existing.length > 0) {
-      // Se esiste già, lo spostiamo sulla mappa attuale
       await db.query("UPDATE tokens SET mappa_id = ? WHERE id = ?", [mappa_id, existing[0].id]);
       const [updated] = await db.query("SELECT * FROM tokens WHERE id = ?", [existing[0].id]);
       return res.json(updated[0]);
     } else {
-      // Se non esiste, lo creiamo da zero
       const [result] = await db.query(
-        `INSERT INTO tokens (nome, immagine, mappa_id, categoria, posizione_x, posizione_y, proprietario_id)
-         VALUES (?, ?, ?, 'npc', 0, 0, ?)`,
-        [nome, immagine, mappa_id, "DM"]
+        `INSERT INTO tokens (nome, immagine, mappa_id, categoria, posizione_x, posizione_y, proprietario_id, fatherid)
+         VALUES (?, ?, ?, 'npc', 0, 0, ?, ?)`,
+        [nome, immagine, mappa_id, "DM", id]
       );
       const [nuovo] = await db.query("SELECT * FROM tokens WHERE id = ?", [result.insertId]);
       res.json(nuovo[0]);
@@ -421,16 +417,14 @@ app.post("/api/spawn-transizione", async (req, res) => {
     const decoded = jwt.verify(token, "supersegreto");
     if (!decoded.is_dm) return res.status(403).json({ message: "Non autorizzato" });
 
-    // 🔸 Recupera info dalla tabella transizioni
     const [transData] = await db.query("SELECT * FROM transizioni WHERE id = ?", [id]);
     if (transData.length === 0) return res.status(404).json({ message: "Transizione non trovata" });
 
     const { nome, immagine } = transData[0];
 
-    // 🔹 Verifica se esiste già un token con lo stesso nome e categoria
     const [existing] = await db.query(
-      "SELECT * FROM tokens WHERE nome = ? AND categoria = 'transizione'",
-      [nome]
+      "SELECT * FROM tokens WHERE categoria = 'transizione' AND fatherid = ?",
+      [id]
     );
 
     if (existing.length > 0) {
@@ -439,9 +433,9 @@ app.post("/api/spawn-transizione", async (req, res) => {
       return res.json(updated[0]);
     } else {
       const [result] = await db.query(
-        `INSERT INTO tokens (nome, immagine, mappa_id, categoria, posizione_x, posizione_y, proprietario_id)
-         VALUES (?, ?, ?, 'transizione', 0, 0, ?)`,
-        [nome, immagine, mappa_id, "DM"]
+        `INSERT INTO tokens (nome, immagine, mappa_id, categoria, posizione_x, posizione_y, proprietario_id, fatherid)
+         VALUES (?, ?, ?, 'transizione', 0, 0, ?, ?)`,
+        [nome, immagine, mappa_id, "DM", id]
       );
       const [nuovo] = await db.query("SELECT * FROM tokens WHERE id = ?", [result.insertId]);
       res.json(nuovo[0]);
