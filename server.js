@@ -781,7 +781,7 @@ app.get("/api/chat/:mappa_id/:token_id", async (req, res) => {
       const dy = (mittenteToken.posizione_y - mioToken.posizione_y) * 50;
       const distanza = Math.sqrt(dx * dx + dy * dy);
 
-      let contenuto = msg.testo;
+      let contenuto = msg.messaggio;
 
       if (msg.voce === "Sussurrando" && distanza > 50) {
         contenuto = contenuto.replace(/<[^>]+>/g, "*parla a voce troppo bassa*");
