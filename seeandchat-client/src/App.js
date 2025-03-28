@@ -15,6 +15,8 @@ import NuovoArchetipoOggetto from "./pages/NuovoArchetipoOggetto";
 import NuovoArchetipoMob from "./pages/NuovoArchetipoMob";
 import NuovoNPC from "./pages/NuovoNPC"
 import VisualizzaArchetipi from "./pages/VisualizzaArchetipi";
+import VisualizzaTokens from "./pages/VisualizzaTokens";
+
 
 function App() {
   return (
@@ -36,6 +38,7 @@ function App() {
         <Route path="/nuovo-archetipo-mob" element={<NuovoArchetipoMob />} />
         <Route path="/nuovo-npc" element={<NuovoNPC />} />
         <Route path="/visualizza-archetipi" element={<VisualizzaArchetipi />} />
+        <Route path="/visualizza-tokens" element={<VisualizzaTokens />} />
        </Routes>
     </Router>
   );

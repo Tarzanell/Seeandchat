@@ -15,6 +15,7 @@ function DMDashboard() {
       <button onClick={() => navigate("/nuovo-npc")}>Nuovo NPC</button>
       <button onClick={() => navigate("/nuova-transizione")}>Nuova Transizione</button>
       <button onClick={() => navigate("/visualizza-archetipi")}>Visualizza Archetipi</button>
+      <button onClick={() => navigate("/visualizza-tokens")}>Visualizza Tokens</button>
     </div>
   );
 }

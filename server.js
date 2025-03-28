@@ -338,6 +338,36 @@ app.delete("/api/archetipi-oggetti/:id", async (req, res) => {
   res.json({ message: "Archetipo oggetto eliminato" });
 });
 
+
+// Visualizza tokens filtrati per categoria
+app.get("/api/tokens-filtrati", async (req, res) => {
+  try {
+    const categorie = req.query.categorie; // comma-separated string
+    if (!categorie) return res.status(400).json({ message: "Nessuna categoria specificata" });
+
+    const categorieArray = categorie.split(",");
+    const placeholders = categorieArray.map(() => "?").join(",");
+    const [rows] = await db.query(`SELECT * FROM tokens WHERE categoria IN (${placeholders})`, categorieArray);
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Errore nel recupero token filtrati:", error);
+    res.status(500).json({ error: "Errore del server" });
+  }
+});
+
+// Cancella un token
+app.delete("/api/token/:id", async (req, res) => {
+  try {
+    const tokenId = req.params.id;
+    await db.query("DELETE FROM tokens WHERE id = ?", [tokenId]);
+    res.json({ message: "Token eliminato" });
+  } catch (error) {
+    console.error("Errore nella cancellazione token:", error);
+    res.status(500).json({ error: "Errore del server" });
+  }
+});
+
 // Non lo so
 app.get("/api/listapersonaggi", async (req, res) => {
   try {
