@@ -5,32 +5,68 @@ import Token from "../components/Token";
 import SpawnNpcTransizione from "../components/SpawnNpcTransizione";
 
 function GameMap({ character, userId, isDm }) {
-  const mappa_id = character.mappa_id;
-  const [mapImage, setMapImage] = useState(null);
+  const [mioToken, setMioToken] = useState(null);
   const [tokens, setTokens] = useState([]);
+  const [mapImage, setMapImage] = useState(null);
   const [mapWidth, setMapWidth] = useState(10);
   const [mapHeight, setMapHeight] = useState(10);
 
+  // 🔁 Recupera il token associato al personaggio
   useEffect(() => {
+    const fetchMioToken = async () => {
+      try {
+        const res = await fetch(`http://217.154.16.188:3001/api/miotoken/${character.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          setMioToken(data);
+        } else {
+          console.error("Token del personaggio non trovato.");
+        }
+      } catch (err) {
+        console.error("Errore nel recupero mioToken:", err);
+      }
+    };
+
+    fetchMioToken();
+  }, [character.id]);
+
+  // 🔁 Carica la mappa e i token relativi a mioToken.mappa_id
+  useEffect(() => {
+    if (!mioToken) return;
+
     const fetchMapAndTokens = async () => {
       try {
-        const resMap = await fetch(`http://217.154.16.188:3001/api/mappe/${mappa_id}`);
+        const [resMap, resTokens] = await Promise.all([
+          fetch(`http://217.154.16.188:3001/api/mappe/${mioToken.mappa_id}`),
+          fetch(`http://217.154.16.188:3001/api/tokens/${mioToken.mappa_id}`)
+        ]);
+
+        if (!resMap.ok || !resTokens.ok) {
+          throw new Error("Errore nel caricamento dati");
+        }
+
         const mapData = await resMap.json();
+        const tokenData = await resTokens.json();
+
         setMapImage(mapData.immagine);
         setMapWidth(mapData.larghezza || 10);
         setMapHeight(mapData.altezza || 10);
-
-        const resTokens = await fetch(`http://217.154.16.188:3001/api/tokens/${mappa_id}`);
-        const tokenData = await resTokens.json();
         setTokens(tokenData);
       } catch (err) {
-        console.error("Errore nel caricamento di mappa o token:", err);
+        console.error("Errore nel caricamento mappa o token:", err);
       }
     };
 
     fetchMapAndTokens();
-  }, [mappa_id]);
+  }, [mioToken]);
 
+  // 🔁 Se i token cambiano, aggiorna mioToken se presente nella lista
+  useEffect(() => {
+    const aggiornato = tokens.find(t => t.categoria === "personaggio" && t.fatherid === character.id);
+    if (aggiornato) setMioToken(aggiornato);
+  }, [tokens, character.id]);
+
+  // 💡 Calcolo stile per ogni token
   const getTokenStyle = (token, index, tokensAtSamePosition) => {
     const offset = tokensAtSamePosition.indexOf(token) * 50;
     return {
@@ -38,6 +74,8 @@ function GameMap({ character, userId, isDm }) {
       top: `${token.posizione_y * 50}px`,
     };
   };
+
+  if (!mioToken) return <div>Caricamento token del personaggio...</div>;
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -51,7 +89,7 @@ function GameMap({ character, userId, isDm }) {
         }}
       >
         {isDm && (
-          <SpawnNpcTransizione mappaId={character.mappa_id} setTokens={setTokens} />
+          <SpawnNpcTransizione mappaId={mioToken.mappa_id} setTokens={setTokens} />
         )}
 
         {tokens.map((token, idx) => {
@@ -64,6 +102,7 @@ function GameMap({ character, userId, isDm }) {
             <Token
               key={token.id}
               token={token}
+              characterToken={mioToken}
               positionStyle={positionStyle}
               character={character}
               userId={userId}
