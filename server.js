@@ -748,6 +748,90 @@ app.patch("/api/token/:id/cambia-mappa", async (req, res) => {
   }
 });
 
+//Recupero messaggi
+app.get("/api/chat/:mappa_id/:token_id", async (req, res) => {
+  try {
+    const mappa_id = parseInt(req.params.mappa_id);
+    const token_id = parseInt(req.params.token_id);
+
+    const [tokenRows] = await db.query("SELECT * FROM tokens WHERE id = ?", [token_id]);
+    if (tokenRows.length === 0) return res.status(404).json({ error: "Token non trovato" });
+
+    const mioToken = tokenRows[0];
+
+    const [chatRows] = await db.query(
+      "SELECT * FROM chat WHERE mappa_id = ? ORDER BY timestamp ASC",
+      [mappa_id]
+    );
+
+    const [tokenChat] = await db.query(
+      "SELECT id, nome, posizione_x, posizione_y FROM tokens WHERE mappa_id = ?",
+      [mappa_id]
+    );
+
+    const tokenMap = Object.fromEntries(tokenChat.map(t => [t.nome, t]));
+
+    const messaggiCensurati = chatRows.map(msg => {
+      const mittenteToken = tokenMap[msg.nome_personaggio];
+      if (!mittenteToken) {
+        return { ...msg, contenuto: "*mittente non trovato*" };
+      }
+
+      const dx = (mittenteToken.posizione_x - mioToken.posizione_x) * 50;
+      const dy = (mittenteToken.posizione_y - mioToken.posizione_y) * 50;
+      const distanza = Math.sqrt(dx * dx + dy * dy);
+
+      let contenuto = msg.testo;
+
+      if (msg.voce === "Sussurrando" && distanza > 50) {
+        contenuto = contenuto.replace(/<[^>]+>/g, "*parla a voce troppo bassa*");
+      } else if (msg.voce === "Parlando" && distanza > 150) {
+        contenuto = "*troppo lontano per sentire*";
+      } else if (msg.voce === "Urlando" && distanza > 300) {
+        contenuto = "*troppo lontano per sentire*";
+      }
+
+      return {
+        id: msg.id,
+        nome_personaggio: msg.nome_personaggio,
+        voce: msg.voce,
+        linguaggio: msg.linguaggio,
+        contenuto,
+        timestamp: msg.timestamp,
+      };
+    });
+
+    res.json(messaggiCensurati);
+  } catch (err) {
+    console.error("Errore nel recupero chat censurata:", err);
+    res.status(500).json({ error: "Errore server" });
+  }
+});
+
+// Invio messaggi
+app.post("/api/chat", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    const decoded = jwt.verify(token, "supersegreto");
+
+    const { testo, mappa_id, nome_personaggio, voce, linguaggio } = req.body;
+
+    if (!testo || testo.length > 1000) {
+      return res.status(400).json({ error: "Messaggio vuoto o troppo lungo" });
+    }
+
+    await db.query(
+      "INSERT INTO chat (testo, mappa_id, nome_personaggio, voce, linguaggio, timestamp) VALUES (?, ?, ?, ?, ?, NOW())",
+      [testo, mappa_id, nome_personaggio, voce, linguaggio]
+    );
+
+    res.status(201).json({ message: "Messaggio inviato" });
+  } catch (err) {
+    console.error("Errore nell'invio del messaggio:", err);
+    res.status(500).json({ error: "Errore server" });
+  }
+});
+
 //Cos'è sta roba?
 const os = require("os");
 const interfaces = os.networkInterfaces();

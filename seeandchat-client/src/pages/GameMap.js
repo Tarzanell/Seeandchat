@@ -3,6 +3,7 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import Token from "../components/Token";
 import SpawnNpcTransizione from "../components/SpawnNpcTransizione";
+import ChatBox from "../components/ChatBox";
 
 function GameMap({ character, userId, isDm }) {
   const [mioToken, setMioToken] = useState(null);
@@ -114,6 +115,7 @@ function GameMap({ character, userId, isDm }) {
           );
         })}
       </div>
+      <ChatBox character={character} mioToken={mioToken} />
     </DndProvider>
   );
 }
