@@ -821,7 +821,7 @@ app.post("/api/chat", async (req, res) => {
     }
 
     await db.query(
-      "INSERT INTO chat (testo, mappa_id, nome_personaggio, voce, linguaggio, timestamp) VALUES (?, ?, ?, ?, ?, NOW())",
+      "INSERT INTO chat (messaggio, mappa_id, nome_personaggio, voce, linguaggio, timestamp) VALUES (?, ?, ?, ?, ?, NOW())",
       [testo, mappa_id, nome_personaggio, voce, linguaggio]
     );
 
