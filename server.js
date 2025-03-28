@@ -413,12 +413,17 @@ app.post("/api/spawn-transizione", async (req, res) => {
     const decoded = jwt.verify(token, "supersegreto");
     if (!decoded.is_dm) return res.status(403).json({ message: "Non autorizzato" });
 
+    // 🔸 Recupera info dalla tabella transizioni
     const [transData] = await db.query("SELECT * FROM transizioni WHERE id = ?", [id]);
     if (transData.length === 0) return res.status(404).json({ message: "Transizione non trovata" });
 
     const { nome, immagine } = transData[0];
 
-    const [existing] = await db.query("SELECT * FROM tokens WHERE nome = ? AND categoria = 'transizione'", [nome]);
+    // 🔹 Verifica se esiste già un token con lo stesso nome e categoria
+    const [existing] = await db.query(
+      "SELECT * FROM tokens WHERE nome = ? AND categoria = 'transizione'",
+      [nome]
+    );
 
     if (existing.length > 0) {
       await db.query("UPDATE tokens SET mappa_id = ? WHERE id = ?", [mappa_id, existing[0].id]);
@@ -426,8 +431,9 @@ app.post("/api/spawn-transizione", async (req, res) => {
       return res.json(updated[0]);
     } else {
       const [result] = await db.query(
-        "INSERT INTO tokens (nome, immagine, mappa_id, categoria, posizione_x, posizione_y) VALUES (?, ?, ?, 'transizione', 0, 0)",
-        [nome, immagine, mappa_id]
+        `INSERT INTO tokens (nome, immagine, mappa_id, categoria, posizione_x, posizione_y, proprietario_id)
+         VALUES (?, ?, ?, 'transizione', 0, 0, ?)`,
+        [nome, immagine, mappa_id, "DM"]
       );
       const [nuovo] = await db.query("SELECT * FROM tokens WHERE id = ?", [result.insertId]);
       res.json(nuovo[0]);
