@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import Token from "../components/Token";
+import SpawnNpcTransizione from "../components/SpawnNpcTransizione";
 
 function GameMap({ character, userId, isDm}) {
   const mappa_id = character.mappa_id;
@@ -9,6 +10,7 @@ function GameMap({ character, userId, isDm}) {
   const [tokens, setTokens] = useState([]);
   const [mapWidth, setMapWidth] = useState(10);
   const [mapHeight, setMapHeight] = useState(10);
+  const [showSpawnPanel, setShowSpawnPanel] = useState(false);
 
   useEffect(() => {
     const fetchMapAndTokens = async () => {
@@ -40,6 +42,8 @@ function GameMap({ character, userId, isDm}) {
   };
 
   return (
+    
+
     <DndProvider backend={HTML5Backend}>
       <div
         style={{
@@ -50,12 +54,24 @@ function GameMap({ character, userId, isDm}) {
           position: "relative",
         }}>
       
+        {isDm && (
+          <button onClick={() => setShowSpawnPanel(!showSpawnPanel)} style={{ position: "absolute", top: "10px", right: "10px", zIndex: 10 }}>
+          Spawn NPC/Transizione
+          </button>
+          )}
+    
+        {showSpawnPanel && (
+          <SpawnNpcTransizione mappaId={character.mappa_id} setTokens={setTokens} />
+        )}
+
         {tokens.map((token, idx) => {
           const overlapping = tokens.filter(t => t.posizione_x === token.posizione_x && t.posizione_y === token.posizione_y);
           const positionStyle = getTokenStyle(token, idx, overlapping);
           
           return <Token character={character} mapWidth={mapWidth} mapHeight={mapHeight} userId={userId} isDm={isDm} key={token.id} token={token} positionStyle={positionStyle} setTokens={setTokens} />;
          })}
+
+
       </div>
     </DndProvider>
   );

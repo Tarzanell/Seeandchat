@@ -338,6 +338,63 @@ app.delete("/api/archetipi-oggetti/:id", async (req, res) => {
   res.json({ message: "Archetipo oggetto eliminato" });
 });
 
+// Spawn NPC
+app.post("/api/spawn-npc", async (req, res) => {
+  try {
+    const { nome, mappa_id } = req.body;
+    const token = req.headers.authorization?.split(" ")[1];
+    const decoded = jwt.verify(token, "supersegreto");
+    if (!decoded.is_dm) return res.status(403).json({ message: "Non autorizzato" });
+
+    const [esistenti] = await db.query("SELECT * FROM tokens WHERE nome = ? AND categoria = 'npc'", [nome]);
+
+    if (esistenti.length > 0) {
+      await db.query("UPDATE tokens SET mappa_id = ? WHERE id = ?", [mappa_id, esistenti[0].id]);
+      const [updated] = await db.query("SELECT * FROM tokens WHERE id = ?", [esistenti[0].id]);
+      return res.json(updated[0]);
+    } else {
+      const [datiNpc] = await db.query("SELECT * FROM npc WHERE nome = ?", [nome]);
+      if (datiNpc.length === 0) return res.status(404).json({ message: "NPC non trovato" });
+
+      const { immagine } = datiNpc[0];
+      const [result] = await db.query("INSERT INTO tokens (nome, immagine, mappa_id, categoria, posizione_x, posizione_y) VALUES (?, ?, ?, 'npc', 0, 0)", [nome, immagine, mappa_id]);
+      const [nuovo] = await db.query("SELECT * FROM tokens WHERE id = ?", [result.insertId]);
+      res.json(nuovo[0]);
+    }
+  } catch (err) {
+    console.error("Errore spawn NPC:", err);
+    res.status(500).json({ message: "Errore server" });
+  }
+});
+
+// Spawn Transizioni
+app.post("/api/spawn-transizione", async (req, res) => {
+  try {
+    const { nome, mappa_id } = req.body;
+    const token = req.headers.authorization?.split(" ")[1];
+    const decoded = jwt.verify(token, "supersegreto");
+    if (!decoded.is_dm) return res.status(403).json({ message: "Non autorizzato" });
+
+    const [esistenti] = await db.query("SELECT * FROM tokens WHERE nome = ? AND categoria = 'transizione'", [nome]);
+
+    if (esistenti.length > 0) {
+      await db.query("UPDATE tokens SET mappa_id = ? WHERE id = ?", [mappa_id, esistenti[0].id]);
+      const [updated] = await db.query("SELECT * FROM tokens WHERE id = ?", [esistenti[0].id]);
+      return res.json(updated[0]);
+    } else {
+      const [dati] = await db.query("SELECT * FROM transizioni WHERE nome = ?", [nome]);
+      if (dati.length === 0) return res.status(404).json({ message: "Transizione non trovata" });
+
+      const { immagine } = dati[0];
+      const [result] = await db.query("INSERT INTO tokens (nome, immagine, mappa_id, categoria, posizione_x, posizione_y) VALUES (?, ?, ?, 'transizione', 0, 0)", [nome, immagine, mappa_id]);
+      const [nuovo] = await db.query("SELECT * FROM tokens WHERE id = ?", [result.insertId]);
+      res.json(nuovo[0]);
+    }
+  } catch (err) {
+    console.error("Errore spawn transizione:", err);
+    res.status(500).json({ message: "Errore server" });
+  }
+});
 
 // Visualizza tokens filtrati per categoria
 app.get("/api/tokens-filtrati", async (req, res) => {
