@@ -256,6 +256,26 @@ app.get("/api/tokens/:mappa_id", async (req, res) => {
   }
 });
 
+// API: Recupera il token associato a un personaggio (via fatherid)
+app.get("/api/miotoken/:characterId", async (req, res) => {
+  try {
+    const characterId = req.params.characterId;
+    const [rows] = await db.query(
+      "SELECT * FROM tokens WHERE categoria = 'personaggio' AND fatherid = ? LIMIT 1",
+      [characterId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Token non trovato per questo personaggio" });
+    }
+
+    res.json(rows[0]);
+  } catch (err) {
+    console.error("Errore nel recupero del token del personaggio:", err);
+    res.status(500).json({ message: "Errore del server" });
+  }
+});
+
 // Aggiornamento posizione token dopo drag
 app.patch("/api/token/:id/posizione", async (req, res) => {
   try {
