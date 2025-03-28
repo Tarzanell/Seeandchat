@@ -680,8 +680,8 @@ app.get("/api/transizioni/:id", async (req, res) => {
   }
 });
 
-// Cambio mappa personaggio
-app.patch("/api/personaggio/:id/cambia-mappa", async (req, res) => {
+// Cambio mappa token
+app.patch("/api/token/:id/cambia-mappa", async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
     const decoded = jwt.verify(token, "supersegreto");
