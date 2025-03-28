@@ -11,9 +11,10 @@ function DMDashboard() {
       <button onClick={() => navigate("/visualizza-mappe")}>👁️ Visualizza Mappe</button>
       <button onClick={() => navigate("/nuovo-spawn")}>➕ Nuovo Spawn</button>
       <button onClick={() => navigate("/nuovo-archetipo-mob")}>Nuovo Mob</button>
-<button onClick={() => navigate("/nuovo-archetipo-oggetto")}>Nuovo Oggetto</button>
-<button onClick={() => navigate("/nuovo-npc")}>Nuovo NPC</button>
-<button onClick={() => navigate("/nuova-transizione")}>Nuova Transizione</button>
+      <button onClick={() => navigate("/nuovo-archetipo-oggetto")}>Nuovo Oggetto</button>
+      <button onClick={() => navigate("/nuovo-npc")}>Nuovo NPC</button>
+      <button onClick={() => navigate("/nuova-transizione")}>Nuova Transizione</button>
+      <button onClick={() => navigate("/visualizza-archetipi")}>Visualizza Archetipi</button>
     </div>
   );
 }

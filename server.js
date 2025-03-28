@@ -292,6 +292,39 @@ app.patch("/api/token/:id/posizione", async (req, res) => {
   }
 });
 
+// Recupera tutti gli archetipi mob
+app.get("/api/archetipi-mob", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Token mancante" });
+
+    const decoded = jwt.verify(token, "supersegreto");
+    if (!decoded.is_dm) return res.status(403).json({ message: "Accesso negato" });
+
+    const [rows] = await db.query("SELECT * FROM archetipi_mob");
+    res.json(rows);
+  } catch (error) {
+    console.error("Errore nel recupero archetipi mob:", error);
+    res.status(500).json({ error: "Errore del server" });
+  }
+});
+
+// Recupera tutti gli archetipi oggetti
+app.get("/api/archetipi-oggetti", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Token mancante" });
+
+    const decoded = jwt.verify(token, "supersegreto");
+    if (!decoded.is_dm) return res.status(403).json({ message: "Accesso negato" });
+
+    const [rows] = await db.query("SELECT * FROM archetipi_oggetti");
+    res.json(rows);
+  } catch (error) {
+    console.error("Errore nel recupero archetipi oggetti:", error);
+    res.status(500).json({ error: "Errore del server" });
+  }
+});
 
 // Non lo so
 app.get("/api/listapersonaggi", async (req, res) => {
@@ -349,7 +382,6 @@ app.post("/api/upload", upload.single("token"), async (req, res) => {
     res.status(500).json({ error: "Errore nel caricamento dell'immagine" });
   }
 });
-
 
 
 // Configurazione multer per mappe
