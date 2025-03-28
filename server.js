@@ -380,21 +380,29 @@ app.post("/api/spawn-npc", async (req, res) => {
     const decoded = jwt.verify(token, "supersegreto");
     if (!decoded.is_dm) return res.status(403).json({ message: "Non autorizzato" });
 
+    // 🔹 Recupera i dati dell’archetipo NPC
     const [npcData] = await db.query("SELECT * FROM npc WHERE id = ?", [id]);
     if (npcData.length === 0) return res.status(404).json({ message: "NPC non trovato" });
 
     const { nome, immagine } = npcData[0];
 
-    const [existing] = await db.query("SELECT * FROM tokens WHERE nome = ? AND categoria = 'npc'", [nome]);
+    // 🔹 Verifica se esiste già un token di questo NPC
+    const [existing] = await db.query(
+      "SELECT * FROM tokens WHERE nome = ? AND categoria = 'npc'",
+      [nome]
+    );
 
     if (existing.length > 0) {
+      // Se esiste già, lo spostiamo sulla mappa attuale
       await db.query("UPDATE tokens SET mappa_id = ? WHERE id = ?", [mappa_id, existing[0].id]);
       const [updated] = await db.query("SELECT * FROM tokens WHERE id = ?", [existing[0].id]);
       return res.json(updated[0]);
     } else {
+      // Se non esiste, lo creiamo da zero
       const [result] = await db.query(
-        "INSERT INTO tokens (nome, immagine, mappa_id, categoria, posizione_x, posizione_y) VALUES (?, ?, ?, 'npc', 0, 0)",
-        [nome, immagine, mappa_id]
+        `INSERT INTO tokens (nome, immagine, mappa_id, categoria, posizione_x, posizione_y, proprietario_id)
+         VALUES (?, ?, ?, 'npc', 0, 0, ?)`,
+        [nome, immagine, mappa_id, "DM"]
       );
       const [nuovo] = await db.query("SELECT * FROM tokens WHERE id = ?", [result.insertId]);
       res.json(nuovo[0]);
