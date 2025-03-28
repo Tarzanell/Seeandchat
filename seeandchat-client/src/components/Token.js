@@ -1,53 +1,30 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useDrag } from "react-dnd";
-import { useEffect } from "react";
 import dragPreviewImg from "../assets/token_drag_preview.png";
-import { getDragPreviewOffset } from 'react-dnd-html5-backend'; // opzionale
-
-
-
 
 function Token({ token, characterToken, positionStyle, character, userId, isDm, setTokens, mapWidth, mapHeight }) {
-    
 
-    const [{ isDragging }, drag, dragPreview] = useDrag({
-  
+  const [{ isDragging }, drag, dragPreview] = useDrag({
     type: "TOKEN",
     item: { id: token.id },
     end: async (item, monitor) => {
-      
       const offset = monitor.getDifferenceFromInitialOffset();
       if (!offset) return;
+
       const dx = offset.x;
       const dy = offset.y;
       const magnitude = Math.sqrt(dx * dx + dy * dy);
 
       const deltaX = Math.round(dx / 50);
       const deltaY = Math.round(dy / 50);
-
       const newX = Math.max(0, Math.min(mapWidth - 1, token.posizione_x + deltaX));
       const newY = Math.max(0, Math.min(mapHeight - 1, token.posizione_y + deltaY));
-      /*console.log("posxvecchia:", token.posizione_x);
-      console.log("offsetx:", offset.x);
-      console.log("newposx:", newX);
-      console.log("posybecchia:", token.posizione_y);
-      console.log("offsety:", offset.y);
-      console.log("newposy:", newY);
-      console.log("idToken:", token.id);
-      console.log("Velocità:", Vmax);
-      console.log("Movimento:", magnitude);*/
-      
-      
-        
 
-      // 🔒 Solo se sei il proprietario o un DM puoi spostare
       if (token.proprietario_id !== userId && !isDm) return;
       if (magnitude > character.velocita) {
         alert("Slow down baby.");
         return;
       }
-
-    
 
       try {
         const authToken = localStorage.getItem("token");
@@ -60,15 +37,11 @@ function Token({ token, characterToken, positionStyle, character, userId, isDm, 
           body: JSON.stringify({ posizione_x: newX, posizione_y: newY }),
         });
 
-        // 🔄 Aggiorna stato locale dopo spostamento
         setTokens(prevTokens =>
-        prevTokens.map(t =>
-        t.id === token.id
-        ? { ...t, posizione_x: newX, posizione_y: newY }
-        : t
-  )
-);
-
+          prevTokens.map(t =>
+            t.id === token.id ? { ...t, posizione_x: newX, posizione_y: newY } : t
+          )
+        );
       } catch (err) {
         console.error("Errore nell'aggiornamento posizione:", err);
       }
@@ -78,47 +51,43 @@ function Token({ token, characterToken, positionStyle, character, userId, isDm, 
     }),
   });
 
-  
-
   useEffect(() => {
     const img = new Image();
     img.src = dragPreviewImg;
     img.onload = () => {
       dragPreview(img, { captureDraggingState: true });
     };
-    }, []);
-
-
+  }, []);
 
   const handleClick = async () => {
+    if (token.categoria !== "transizione" || !characterToken) return;
 
-    console.log("Click su", token.categoria);
-    console.log("Tuo character:", characterToken);
-    if (token.categoria !== "transizione" || !characterToken) return;  
     const dx = (token.posizione_x - characterToken.posizione_x) * 50;
     const dy = (token.posizione_y - characterToken.posizione_y) * 50;
     const distanza = Math.sqrt(dx * dx + dy * dy);
-
-    console.log("X target",token.posizione_x);
-    console.log("Y target", token.posizione_y);
-    console.log("X tuo", characterToken.posizione_x);
-    console.log("Y tuo", characterToken.posizione_y);
-    console.log("Distanza:", distanza);
-
     if (distanza > 50) return;
-    console.log("Abbastanza vicino");
-    const conferma = window.confirm("Vuoi cambiare mappa?");
+
+    const conferma = window.confirm("Vuoi attraversare questa transizione?");
     if (!conferma) return;
-  
+
     try {
-      const res = await fetch(`http://217.154.16.188:3001/api/transizioni/${token.fatherid}`);
-      const data = await res.json();
-  
-      if (!data.mapref) {
-        alert("Questa transizione non porta da nessuna parte.");
+      const resTrans = await fetch(`http://217.154.16.188:3001/api/transizioni/${token.fatherid}`);
+      const data = await resTrans.json();
+      const targetFatherId = data.mapref;
+
+      if (!targetFatherId) {
+        alert("Questa transizione non è collegata a nulla.");
         return;
       }
-  
+
+      const resTokenTarget = await fetch(`http://217.154.16.188:3001/api/token-transizione-da-mapref/${targetFatherId}`);
+      if (!resTokenTarget.ok) {
+        alert("Transizione di destinazione non trovata.");
+        return;
+      }
+
+      const tokenTarget = await resTokenTarget.json();
+
       const authToken = localStorage.getItem("token");
       await fetch(`http://217.154.16.188:3001/api/token/${characterToken.id}/cambia-mappa`, {
         method: "PATCH",
@@ -126,14 +95,18 @@ function Token({ token, characterToken, positionStyle, character, userId, isDm, 
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
         },
-        body: JSON.stringify({ nuova_mappa_id: data.mapref }),
+        body: JSON.stringify({
+          nuova_mappa_id: tokenTarget.mappa_id,
+          nuova_posizione_x: tokenTarget.posizione_x,
+          nuova_posizione_y: tokenTarget.posizione_y+1,
+        }),
       });
-  
-      alert("Sei stato trasportato nella nuova mappa!");
-      window.location.reload();  // oppure aggiorna mappa con useEffect
+
+      alert("Transizione completata.");
+      window.location.reload();
     } catch (err) {
-      console.error("Errore nella transizione:", err);
-      alert("Errore nel cambio mappa.");
+      console.error("Errore durante la transizione:", err);
+      alert("Errore durante la transizione.");
     }
   };
 
