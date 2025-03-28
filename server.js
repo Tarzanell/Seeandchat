@@ -689,7 +689,7 @@ app.post("/api/nuova-transizione", uploadArchetipo, async (req, res) => {
 });
 
 // Recupero destinazione transizioni
-/*app.get("/api/transizioni/:id", async (req, res) => {
+app.get("/api/transizioni/:id", async (req, res) => {
   try {
     const [rows] = await db.query("SELECT * FROM transizioni WHERE id = ?", [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ message: "Transizione non trovata" });
@@ -698,7 +698,7 @@ app.post("/api/nuova-transizione", uploadArchetipo, async (req, res) => {
     console.error("Errore transizione:", err);
     res.status(500).json({ error: "Errore del server" });
   }
-});*/
+});
 
 // Recupera un token transizione in base al fatherid (mapref)
 app.get("/api/token-transizione-da-mapref/:mapref", async (req, res) => {
