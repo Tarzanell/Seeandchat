@@ -687,7 +687,7 @@ app.patch("/api/token/:id/cambia-mappa", async (req, res) => {
     const decoded = jwt.verify(token, "supersegreto");
     const { nuova_mappa_id } = req.body;
 
-    const [personaggi] = await db.query("SELECT * FROM tokens WHERE id = ? AND utente_id = ?", [req.params.id, decoded.id]);
+    const [personaggi] = await db.query("SELECT * FROM tokens WHERE id = ? AND proprietario = ?", [req.params.id, decoded.username]);
     if (personaggi.length === 0) return res.status(403).json({ message: "Non autorizzato" });
 
     await db.query("UPDATE tokens SET mappa_id = ? WHERE id = ?", [nuova_mappa_id, req.params.id]);
