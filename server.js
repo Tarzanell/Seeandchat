@@ -326,6 +326,40 @@ app.get("/api/archetipi-oggetti", async (req, res) => {
   }
 });
 
+// Recupera tutti gli NPC
+app.get("/api/npc", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Token mancante" });
+
+    const decoded = jwt.verify(token, "supersegreto");
+    if (!decoded.is_dm) return res.status(403).json({ message: "Non autorizzato" });
+
+    const [rows] = await db.query("SELECT * FROM npc");
+    res.json(rows);
+  } catch (error) {
+    console.error("Errore nel recupero NPC:", error);
+    res.status(500).json({ error: "Errore server" });
+  }
+});
+
+// Recupera tutte le transizioni
+app.get("/api/transizioni", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Token mancante" });
+
+    const decoded = jwt.verify(token, "supersegreto");
+    if (!decoded.is_dm) return res.status(403).json({ message: "Non autorizzato" });
+
+    const [rows] = await db.query("SELECT * FROM transizioni");
+    res.json(rows);
+  } catch (error) {
+    console.error("Errore nel recupero Transizioni:", error);
+    res.status(500).json({ error: "Errore server" });
+  }
+});
+
 // Cancella archetipi mob
 app.delete("/api/archetipi-mob/:id", async (req, res) => {
   await db.query("DELETE FROM archetipi_mob WHERE id = ?", [req.params.id]);
