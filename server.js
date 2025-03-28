@@ -326,6 +326,18 @@ app.get("/api/archetipi-oggetti", async (req, res) => {
   }
 });
 
+// Cancella archetipi mob
+app.delete("/api/archetipi-mob/:id", async (req, res) => {
+  await db.query("DELETE FROM archetipi_mob WHERE id = ?", [req.params.id]);
+  res.json({ message: "Archetipo mob eliminato" });
+});
+
+// Cancella archetipi
+app.delete("/api/archetipi-oggetti/:id", async (req, res) => {
+  await db.query("DELETE FROM archetipi_oggetti WHERE id = ?", [req.params.id]);
+  res.json({ message: "Archetipo oggetto eliminato" });
+});
+
 // Non lo so
 app.get("/api/listapersonaggi", async (req, res) => {
   try {
