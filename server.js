@@ -845,7 +845,7 @@ app.post("/api/personaggi", upload.single("immagine"), async (req, res) => {
     const [result] = await db.query(
       `INSERT INTO personaggi 
       (nome, eta, altezza, peso, razza, classe, descrizione, utente_id,
-       \`FOR\`, \`DES\`, \`COS\`, \`INT\`, \`SAG\`, \`CHA\`, immagine)
+       forza, destrezza, costituzione, INTELLIGENZA, SAGGEZZA, CARISMA, immagine)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         formData.nome,
