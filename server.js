@@ -833,7 +833,7 @@ app.post("/api/chat", async (req, res) => {
 });
 
 // Nuovo Nuovo Personaggio
-app.post("/api/personaggi", upload.single("immagine"), async (req, res) => {
+app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
     const decoded = jwt.verify(token, "supersegreto");
@@ -875,6 +875,7 @@ app.post("/api/personaggi", upload.single("immagine"), async (req, res) => {
       [formData.nome, filename, 1, decoded.id, personaggio_id]
     );
 
+  
     res.status(201).json({ message: "Personaggio creato" });
   } catch (err) {
     console.error("Errore creazione personaggio:", err);
