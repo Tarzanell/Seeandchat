@@ -16,6 +16,7 @@ import NuovoArchetipoMob from "./pages/NuovoArchetipoMob";
 import NuovoNPC from "./pages/NuovoNPC"
 import VisualizzaArchetipi from "./pages/VisualizzaArchetipi";
 import VisualizzaTokens from "./pages/VisualizzaTokens";
+import NewNewCharacter from "./pages/CharacterCreationWizard";
 
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/characters" element={<Characters />} />
         <Route path="/new-character" element={<NewCharacter />} />
+        <Route path="/new-new-character" element={<NewNewCharacter />} />
         <Route path="/character/:id" element={<CharacterDetails />} />
         <Route path="/mappa" element={<GameMapWrapper />} />
         <Route path="/carica-mappa" element={<CaricaMappa />} />

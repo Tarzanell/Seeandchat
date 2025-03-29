@@ -1,6 +1,27 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+
+const razze = {
+  Umano: { FOR: 1, DES: 1, COS: 1, INT: 1, SAG: 1, CHA: 1 },
+  Elfo: { DES: 2, INT: 1 },
+  Nano: { COS: 2, SAG: 1 },
+  Halfling: { DES: 2, CHA: 1 },
+  Tiefling: { INT: 1, CHA: 2 },
+  Mezzorco: { FOR: 2, COS: 1 },
+  Dragonide: { FOR: 2, CHA: 1 },
+  Gnomi: { INT: 2 },
+  Mezzuomo: { DES: 2 },
+  Mezzelfo: { CHA: 2 }, // Aggiungeremo selezione bonus custom
+};
+
+const costi = {
+  8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9
+};
+
+const stats = ["FOR", "DES", "COS", "INT", "SAG", "CHA"];
+
+
 function NewCharacter({ onCharacterAdded }) {
   const [formData, setFormData] = useState({
     nome: "Nome",

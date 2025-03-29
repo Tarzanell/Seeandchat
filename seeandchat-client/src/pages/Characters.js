@@ -92,6 +92,7 @@ function Characters() {
       )}
 
       <button onClick={() => navigate("/new-character")}>➕ Nuovo Personaggio</button>
+      <button onClick={() => navigate("/new-new-character")}>➕ Nuovo Personaggio PROVA</button>
 
       {isDm && (
         <>
