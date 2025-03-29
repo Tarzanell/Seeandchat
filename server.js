@@ -832,6 +832,56 @@ app.post("/api/chat", async (req, res) => {
   }
 });
 
+// Nuovo Nuovo Personaggio
+app.post("/api/personaggi", upload.single("immagine"), async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    const decoded = jwt.verify(token, "supersegreto");
+
+    const formData = JSON.parse(req.body.formData);
+    const filename = req.file.filename;
+
+    // Inserisci personaggio
+    const [result] = await db.query(
+      `INSERT INTO personaggi 
+      (nome, eta, altezza, peso, razza, classe, descrizione, utente_id,
+       FOR, DES, COS, INT, SAG, CHA, immagine)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        formData.nome,
+        formData.eta,
+        formData.altezza,
+        formData.peso,
+        formData.razza,
+        formData.classe,
+        formData.descrizione || "",
+        decoded.id,
+        formData.stats.FOR,
+        formData.stats.DES,
+        formData.stats.COS,
+        formData.stats.INT,
+        formData.stats.SAG,
+        formData.stats.CHA,
+        filename,
+      ]
+    );
+
+    const personaggio_id = result.insertId;
+
+    // Crea token
+    await db.query(
+      `INSERT INTO tokens (nome, immagine, mappa_id, categoria, proprietario_id, posizione_x, posizione_y, fatherid)
+       VALUES (?, ?, ?, 'personaggio', ?, 0, 0, ?)`,
+      [formData.nome, filename, 1, decoded.id, personaggio_id]
+    );
+
+    res.status(201).json({ message: "Personaggio creato" });
+  } catch (err) {
+    console.error("Errore creazione personaggio:", err);
+    res.status(500).json({ error: "Errore del server" });
+  }
+});
+
 //Cos'è sta roba?
 const os = require("os");
 const interfaces = os.networkInterfaces();
