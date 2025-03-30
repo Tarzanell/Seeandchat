@@ -974,8 +974,8 @@ async function spostaTokenOfflineNelLimbo() {
       UPDATE tokens
       SET last_mapId = mappa_id
       WHERE categoria = 'personaggio'
-        AND personaggio_id IN (
-          SELECT id FROM utenti
+        AND proprietario_id IN (
+          SELECT username FROM utenti
           WHERE ultimo_ping < NOW() - INTERVAL 30 SECOND
         )
         AND mappa_id != 999
@@ -986,8 +986,8 @@ async function spostaTokenOfflineNelLimbo() {
       UPDATE tokens
       SET mappa_id = 4
       WHERE categoria = 'personaggio'
-        AND personaggio_id IN (
-          SELECT id FROM utenti
+        AND proprietario_id IN (
+          SELECT username FROM utenti
           WHERE ultimo_ping < NOW() - INTERVAL 30 SECOND
         )
     `);
@@ -1006,8 +1006,8 @@ async function riportaTokenDalLimbo() {
       SET mappa_id = last_mapId
       WHERE categoria = 'personaggio'
         AND mappa_id = 4
-        AND personaggio_id IN (
-          SELECT id FROM utenti
+        AND proprietario_id IN (
+          SELECT username FROM utenti
           WHERE ultimo_ping >= NOW() - INTERVAL 30 SECOND
         )
         AND last_mapId IS NOT NULL
