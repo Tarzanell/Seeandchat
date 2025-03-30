@@ -994,6 +994,24 @@ app.get("/api/token/:id", async (req, res) => {
   }
 });
 
+// Recupera descrizione personaggio da fatherid del token
+app.get("/api/personaggio-da-token/:tokenId", async (req, res) => {
+  try {
+    const tokenId = req.params.tokenId;
+    const [rows] = await db.query(`
+      SELECT p.descrizione
+      FROM tokens t
+      JOIN personaggi p ON t.fatherid = p.id
+      WHERE t.id = ? AND t.categoria = 'personaggio'
+    `, [tokenId]);
+
+    if (rows.length === 0) return res.status(404).json({ message: "Descrizione non trovata" });
+    res.json({ descrizione: rows[0].descrizione });
+  } catch (err) {
+    console.error("Errore nel recupero descrizione:", err);
+    res.status(500).json({ error: "Errore del server" });
+  }
+});
 
 //Cos'è sta roba?
 const os = require("os");
