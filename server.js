@@ -951,6 +951,19 @@ app.get("/api/ping", async (req, res) => {
   }
 });
 
+// Recupero token da ID
+app.get("/api/token/:id", async (req, res) => {
+  try {
+    const tokenId = parseInt(req.params.id);
+    const [rows] = await db.query("SELECT * FROM tokens WHERE id = ?", [tokenId]);
+    if (rows.length === 0) return res.status(404).json({ message: "Token non trovato" });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error("Errore nel recupero token:", err);
+    res.status(500).json({ error: "Errore server" });
+  }
+});
+
 
 //Cos'è sta roba?
 const os = require("os");
