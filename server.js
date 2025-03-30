@@ -737,8 +737,8 @@ app.patch("/api/token/:id/cambia-mappa", async (req, res) => {
       return res.status(403).json({ message: "Non autorizzato" });
 
     await db.query(
-      "UPDATE tokens SET mappa_id = ?, posizione_x = ?, posizione_y = ? WHERE id = ?",
-      [nuova_mappa_id, nuova_posizione_x, nuova_posizione_y, tokenId]
+      "UPDATE tokens SET mappa_id = ?, last_mapId, posizione_x = ?, posizione_y = ? WHERE id = ?",
+      [nuova_mappa_id, nuova_mappa_id, nuova_posizione_x, nuova_posizione_y, tokenId]
     );
 
     res.json({ message: "Mappa e posizione aggiornate" });
@@ -964,3 +964,62 @@ const serverIP = Object.values(interfaces)
 app.listen(3001, "0.0.0.0", () => {
   console.log(`Server avviato su http://${serverIP}:3001`);
 });
+
+
+// Spostamento tokens offline nel limbo
+async function spostaTokenOfflineNelLimbo() {
+  try {
+    // Salva la mappa attuale prima di spostare
+    await db.query(`
+      UPDATE tokens
+      SET last_mapId = mappa_id
+      WHERE categoria = 'personaggio'
+        AND personaggio_id IN (
+          SELECT id FROM utenti
+          WHERE ultimo_ping < NOW() - INTERVAL 30 SECOND
+        )
+        AND mappa_id != 999
+    `);
+
+    // Sposta nel limbo
+    const [risultato] = await db.query(`
+      UPDATE tokens
+      SET mappa_id = 4
+      WHERE categoria = 'personaggio'
+        AND personaggio_id IN (
+          SELECT id FROM utenti
+          WHERE ultimo_ping < NOW() - INTERVAL 30 SECOND
+        )
+    `);
+
+    console.log(`[Limbo] ${risultato.affectedRows} token spostati nel limbo.`);
+  } catch (err) {
+    console.error("Errore nello spostamento token nel limbo:", err);
+  }
+}
+
+
+async function riportaTokenDalLimbo() {
+  try {
+    const [risultato] = await db.query(`
+      UPDATE tokens
+      SET mappa_id = last_mapId
+      WHERE categoria = 'personaggio'
+        AND mappa_id = 4
+        AND personaggio_id IN (
+          SELECT id FROM utenti
+          WHERE ultimo_ping >= NOW() - INTERVAL 30 SECOND
+        )
+        AND last_mapId IS NOT NULL
+    `);
+
+    console.log(`[Ritorno] ${risultato.affectedRows} token riportati nella mappa originale.`);
+  } catch (err) {
+    console.error("Errore nel ritorno token dal limbo:", err);
+  }
+}
+
+setInterval(() => {
+  spostaTokenOfflineNelLimbo();
+  riportaTokenDalLimbo();
+}, 60000); // ogni 60 secondi
