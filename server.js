@@ -937,7 +937,7 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
         formData.peso,
         formData.razza,
         formData.classe,
-        formData.descrizione || "",
+        formData.descrizione || "Culo",
         decoded.id,
         formData.stats.FOR,
         formData.stats.DES,
