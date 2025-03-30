@@ -982,22 +982,24 @@ app.listen(3001, "0.0.0.0", () => {
 // Spostamento tokens offline nel limbo
 async function spostaTokenOfflineNelLimbo() {
   try {
-   /* // Salva la mappa attuale prima di spostare
+    // Salva la mappa attuale prima di spostare
     await db.query(`
       UPDATE tokens
-      SET last_mapId = mappa_id
+      SET last_mapId = mappa_id,
+          lastpos_x = posizione_x, 
+          lastpos_y = posizione_y
       WHERE categoria = 'personaggio'
         AND proprietario_id IN (
           SELECT id FROM utenti
           WHERE ultimo_ping < NOW() - INTERVAL 30 SECOND
         )
-        AND mappa_id != 999
-    `);*/
+        AND mappa_id != 4
+    `);
 
     // Sposta nel limbo
     const [risultato] = await db.query(`
       UPDATE tokens
-      SET mappa_id = 4
+      SET mappa_id = 4 
       WHERE categoria = 'personaggio'
         AND proprietario_id IN (
           SELECT id FROM utenti
@@ -1016,7 +1018,9 @@ async function riportaTokenDalLimbo() {
   try {
     const [risultato] = await db.query(`
       UPDATE tokens
-      SET mappa_id = last_mapId
+      SET mappa_id = last_mapId,
+          posizione_x = lastpos_x, 
+          posizione_y = lastpos_y
       WHERE categoria = 'personaggio'
         AND mappa_id = 4
         AND proprietario_id IN (
