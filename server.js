@@ -969,7 +969,7 @@ app.listen(3001, "0.0.0.0", () => {
 // Spostamento tokens offline nel limbo
 async function spostaTokenOfflineNelLimbo() {
   try {
-    // Salva la mappa attuale prima di spostare
+   /* // Salva la mappa attuale prima di spostare
     await db.query(`
       UPDATE tokens
       SET last_mapId = mappa_id
@@ -979,7 +979,7 @@ async function spostaTokenOfflineNelLimbo() {
           WHERE ultimo_ping < NOW() - INTERVAL 30 SECOND
         )
         AND mappa_id != 999
-    `);
+    `);*/
 
     // Sposta nel limbo
     const [risultato] = await db.query(`
