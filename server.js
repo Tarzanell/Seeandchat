@@ -754,16 +754,20 @@ app.get("/api/chat/:mappa_id/:token_id", async (req, res) => {
     const mappa_id = parseInt(req.params.mappa_id);
     const token_id = parseInt(req.params.token_id);
 
-    const [tokenRows] = await db.query("SELECT * FROM tokens WHERE id = ?", [token_id]);
+    //Mette in mioToken il proprio token
+    const [tokenRows] = await db.query(
+      "SELECT * FROM tokens WHERE id = ?", [token_id]);
     if (tokenRows.length === 0) return res.status(404).json({ error: "Token non trovato" });
 
     const mioToken = tokenRows[0];
 
+    //Mette in chatrows tutti i messaggi inviati nella mappa
     const [chatRows] = await db.query(
       "SELECT * FROM chat WHERE mappa_id = ? ORDER BY timestamp ASC",
       [mappa_id]
     );
 
+    //Mette in tokenChat tutti i token presenti in mappa e registra posizione
     const [tokenChat] = await db.query(
       "SELECT id, nome, posizione_x, posizione_y FROM tokens WHERE mappa_id = ?",
       [mappa_id]
@@ -805,7 +809,7 @@ app.get("/api/chat/:mappa_id/:token_id", async (req, res) => {
     const logsDaSalvare = messaggiCensurati.map(msg => {
       return `[${msg.timestamp}] ${msg.nome_personaggio} in ${mappa_id}: ${msg.contenuto}`;
     });
-    console.log("Messaggi da salvare:", logsDaSalvare);
+    
 
     // ⚠️ Scegli solo uno dei due blocchi qui sotto:
 
@@ -857,7 +861,7 @@ app.get("/api/chat-log/:personaggio_id", async (req, res) => {
   }
 });
 
-// Invio messaggi
+// Invio messaggi in DB chat
 app.post("/api/chat", async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
@@ -931,6 +935,22 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
     res.status(500).json({ error: "Errore del server" });
   }
 });
+
+// Ping online
+app.get("/api/ping", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    const decoded = jwt.verify(token, "supersegreto");
+
+    await db.query("UPDATE utenti SET ultimo_ping = NOW() WHERE id = ?", [decoded.id]);
+
+    res.status(200).json({ ok: true });
+  } catch (err) {
+    console.error("Errore nel ping online:", err);
+    res.status(500).json({ error: "Errore server" });
+  }
+});
+
 
 //Cos'è sta roba?
 const os = require("os");
