@@ -810,16 +810,16 @@ app.get("/api/chat/:mappa_id/:token_id", async (req, res) => {
     // ⚠️ Scegli solo uno dei due blocchi qui sotto:
 
     // ✅ OPZIONE 1: SALVA SOLO L’ULTIMO MESSAGGIO
-    const ultimo = messaggiCensurati[messaggiCensurati.length - 1];
+    /*const ultimo = messaggiCensurati[messaggiCensurati.length - 1];
     if (ultimo) {
       await db.query(
         "INSERT INTO chat_logs (personaggio_id, timestamp, mittente, mappa_id, messaggio) VALUES (?, ?, ?, ?, ?)",
         [mioToken.fatherid, ultimo.timestamp, ultimo.nome_personaggio, mappa_id, ultimo.contenuto]
       );
-    }
+    }*/
 
     // ✅ OPZIONE 2: SALVA SOLO I NON-DUPLICATI (commenta la 1 se usi questa)
-    /*
+    
     for (const msg of messaggiCensurati) {
       const [esiste] = await db.query(
         "SELECT id FROM chat_logs WHERE personaggio_id = ? AND timestamp = ? AND mittente = ? AND messaggio = ?",
@@ -833,7 +833,7 @@ app.get("/api/chat/:mappa_id/:token_id", async (req, res) => {
         );
       }
     }
-    */
+    
 
     res.status(200).json({ ok: true });
 
