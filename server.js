@@ -748,7 +748,7 @@ app.patch("/api/token/:id/cambia-mappa", async (req, res) => {
   }
 });
 
-//Recupero messaggi
+//Ricezione messaggi per personaggio
 app.get("/api/chat/:mappa_id/:token_id", async (req, res) => {
   try {
     const mappa_id = parseInt(req.params.mappa_id);
@@ -801,9 +801,39 @@ app.get("/api/chat/:mappa_id/:token_id", async (req, res) => {
       };
     });
 
-    res.json(messaggiCensurati);
+    const logsDaSalvare = messaggiCensurati.map(msg => {
+      return `[${msg.timestamp}] ${msg.nome_personaggio} in ${mappa_id}: ${msg.contenuto}`;
+    });
+    
+    const [personaggio] = await db.query("SELECT * FROM personaggi WHERE id = ?", [mioToken.fatherid]);
+    const chatLogCorrente = personaggio[0].chatLog || "";
+    const nuovoLog = chatLogCorrente + "\n" + logsDaSalvare.join("\n");
+    
+    const insertLogs = logsDaSalvare.map(log => {
+      return db.query(
+        "INSERT INTO chat_logs (personaggio_id, timestamp, mittente, mappa_id, messaggio) VALUES (?, ?, ?, ?, ?)",
+        [mioToken.fatherid, msg.timestamp, msg.nome_personaggio, mappa_id, msg.contenuto]
+      );
+    });
+    
+    await Promise.all(insertLogs);
+
   } catch (err) {
     console.error("Errore nel recupero chat censurata:", err);
+    res.status(500).json({ error: "Errore server" });
+  }
+});
+
+// Visualizzazione messaggi
+app.get("/api/chat-log/:personaggio_id", async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      "SELECT * FROM chat_logs WHERE personaggio_id = ? ORDER BY timestamp ASC",
+      [req.params.personaggio_id]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error("Errore nel recupero chat log:", err);
     res.status(500).json({ error: "Errore server" });
   }
 });
