@@ -801,23 +801,41 @@ app.get("/api/chat/:mappa_id/:token_id", async (req, res) => {
       };
     });
 
+    // Debug (opzionale)
     const logsDaSalvare = messaggiCensurati.map(msg => {
       return `[${msg.timestamp}] ${msg.nome_personaggio} in ${mappa_id}: ${msg.contenuto}`;
     });
-    
-    console.log("Messaggio da salvare:", logsDaSalvare);
+    console.log("Messaggi da salvare:", logsDaSalvare);
 
-    /*const [personaggio] = await db.query("SELECT * FROM personaggi WHERE id = ?", [mioToken.fatherid]);
-    const chatLogCorrente = personaggio[0].chatLog || "";
-    const nuovoLog = chatLogCorrente + "\n" + logsDaSalvare.join("\n");*/
-    
+    // ⚠️ Scegli solo uno dei due blocchi qui sotto:
+
+    // ✅ OPZIONE 1: SALVA SOLO L’ULTIMO MESSAGGIO
     const ultimo = messaggiCensurati[messaggiCensurati.length - 1];
-await db.query(
-  "INSERT INTO chat_logs (personaggio_id, timestamp, mittente, mappa_id, messaggio) VALUES (?, ?, ?, ?, ?)",
-  [mioToken.fatherid, ultimo.timestamp, ultimo.nome_personaggio, mappa_id, ultimo.contenuto]
-);
-    
-    await Promise.all(insertLogs);
+    if (ultimo) {
+      await db.query(
+        "INSERT INTO chat_logs (personaggio_id, timestamp, mittente, mappa_id, messaggio) VALUES (?, ?, ?, ?, ?)",
+        [mioToken.fatherid, ultimo.timestamp, ultimo.nome_personaggio, mappa_id, ultimo.contenuto]
+      );
+    }
+
+    // ✅ OPZIONE 2: SALVA SOLO I NON-DUPLICATI (commenta la 1 se usi questa)
+    /*
+    for (const msg of messaggiCensurati) {
+      const [esiste] = await db.query(
+        "SELECT id FROM chat_logs WHERE personaggio_id = ? AND timestamp = ? AND mittente = ? AND messaggio = ?",
+        [mioToken.fatherid, msg.timestamp, msg.nome_personaggio, msg.contenuto]
+      );
+
+      if (esiste.length === 0) {
+        await db.query(
+          "INSERT INTO chat_logs (personaggio_id, timestamp, mittente, mappa_id, messaggio) VALUES (?, ?, ?, ?, ?)",
+          [mioToken.fatherid, msg.timestamp, msg.nome_personaggio, mappa_id, msg.contenuto]
+        );
+      }
+    }
+    */
+
+    res.status(200).json({ ok: true });
 
   } catch (err) {
     console.error("Errore nel recupero chat censurata:", err);
