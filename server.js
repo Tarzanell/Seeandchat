@@ -737,7 +737,7 @@ app.patch("/api/token/:id/cambia-mappa", async (req, res) => {
       return res.status(403).json({ message: "Non autorizzato" });
 
     await db.query(
-      "UPDATE tokens SET mappa_id = ?, last_mapId, posizione_x = ?, posizione_y = ? WHERE id = ?",
+      "UPDATE tokens SET mappa_id = ?, last_mapId = ?, posizione_x = ?, posizione_y = ? WHERE id = ?",
       [nuova_mappa_id, nuova_mappa_id, nuova_posizione_x, nuova_posizione_y, tokenId]
     );
 
