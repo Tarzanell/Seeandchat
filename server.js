@@ -790,7 +790,10 @@ app.get("/api/chat/:mappa_id/:token_id", async (req, res) => {
 
     //Mette in chatrows tutti i messaggi inviati nella mappa
     const [chatRows] = await db.query(
-      "SELECT * FROM chat WHERE mappa_id = ? ORDER BY timestamp ASC",
+      `SELECT * FROM chat 
+       WHERE mappa_id = ? 
+         AND timestamp >= NOW() - INTERVAL 5 SECOND
+       ORDER BY timestamp ASC`,
       [mappa_id]
     );
 
