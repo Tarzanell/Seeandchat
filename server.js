@@ -805,9 +805,11 @@ app.get("/api/chat/:mappa_id/:token_id", async (req, res) => {
       return `[${msg.timestamp}] ${msg.nome_personaggio} in ${mappa_id}: ${msg.contenuto}`;
     });
     
-    const [personaggio] = await db.query("SELECT * FROM personaggi WHERE id = ?", [mioToken.fatherid]);
+    console.log("Messaggio da salvare:", logsDaSalvare);
+
+    /*const [personaggio] = await db.query("SELECT * FROM personaggi WHERE id = ?", [mioToken.fatherid]);
     const chatLogCorrente = personaggio[0].chatLog || "";
-    const nuovoLog = chatLogCorrente + "\n" + logsDaSalvare.join("\n");
+    const nuovoLog = chatLogCorrente + "\n" + logsDaSalvare.join("\n");*/
     
     const insertLogs = logsDaSalvare.map(log => {
       return db.query(
