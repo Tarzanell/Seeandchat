@@ -811,12 +811,11 @@ app.get("/api/chat/:mappa_id/:token_id", async (req, res) => {
     const chatLogCorrente = personaggio[0].chatLog || "";
     const nuovoLog = chatLogCorrente + "\n" + logsDaSalvare.join("\n");*/
     
-    const insertLogs = messaggiCensurati.map(msg => {
-      return db.query(
-        "INSERT INTO chat_logs (personaggio_id, timestamp, mittente, mappa_id, messaggio) VALUES (?, ?, ?, ?, ?)",
-        [mioToken.fatherid, msg.timestamp, msg.nome_personaggio, mappa_id, msg.contenuto]
-      );
-    });
+    const ultimo = messaggiCensurati[messaggiCensurati.length - 1];
+await db.query(
+  "INSERT INTO chat_logs (personaggio_id, timestamp, mittente, mappa_id, messaggio) VALUES (?, ?, ?, ?, ?)",
+  [mioToken.fatherid, ultimo.timestamp, ultimo.nome_personaggio, mappa_id, ultimo.contenuto]
+);
     
     await Promise.all(insertLogs);
 
