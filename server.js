@@ -748,6 +748,33 @@ app.patch("/api/token/:id/cambia-mappa", async (req, res) => {
   }
 });
 
+// Esci dal limbo
+app.patch("/api/exitlimbo/:token_id", async (req, res) => {
+  try {
+    const tokenId = req.params.token_id;
+    const tokenUtente = req.headers.authorization?.split(" ")[1];
+    const decoded = jwt.verify(tokenUtente, "supersegreto");
+
+    const [rows] = await db.query("SELECT * FROM tokens WHERE id = ? AND categoria = 'personaggio'", [tokenId]);
+    if (rows.length === 0) return res.status(404).json({ message: "Token non trovato" });
+
+    const token = rows[0];
+
+    if (token.proprietario_id != decoded.username && !decoded.is_dm)
+      return res.status(403).json({ message: "Non autorizzato" });
+
+    await db.query(
+      `UPDATE tokens SET mappa_id = ?, posizione_x = ?, posizione_y = ? WHERE id = ?`,
+      [token.last_mapId, token.lastpos_x, token.lastpos_y, tokenId]
+    );
+
+    res.json({ message: "Uscita dal limbo completata" });
+  } catch (err) {
+    console.error("Errore uscita dal limbo:", err);
+    res.status(500).json({ message: "Errore server" });
+  }
+});
+
 //Ricezione messaggi per personaggio
 app.get("/api/chat/:mappa_id/:token_id", async (req, res) => {
   try {
