@@ -776,10 +776,11 @@ app.patch("/api/exitlimbo/:token_id", async (req, res) => {
 });
 
 //Ricezione messaggi per personaggio
-app.get("/api/chat/:mappa_id/:token_id", async (req, res) => {
+app.get("/api/chat/:mappa_id/:token_id/:mapNome", async (req, res) => {
   try {
     const mappa_id = parseInt(req.params.mappa_id);
     const token_id = parseInt(req.params.token_id);
+    const mapNome = req.params.mapNome;
 
     //Mette in mioToken il proprio token
     const [tokenRows] = await db.query(
@@ -820,10 +821,8 @@ app.get("/api/chat/:mappa_id/:token_id", async (req, res) => {
       if (msg.voce === "Sussurrando" && distanza > 50) {
         contenuto = contenuto.replace(/<[^>]+>/g, "*parla a voce troppo bassa*");
       } else if (msg.voce === "Parlando" && distanza > 150) {
-        contenuto = "*troppo lontano per sentire*";
-      } else if (msg.voce === "Urlando" && distanza > 300) {
-        contenuto = "*troppo lontano per sentire*";
-      }
+        contenuto = contenuto.replace(/<[^>]+>/g, "*Troppo lontano per sentire*");
+      } 
 
       return {
         id: msg.id,
@@ -832,6 +831,7 @@ app.get("/api/chat/:mappa_id/:token_id", async (req, res) => {
         linguaggio: msg.linguaggio,
         contenuto,
         timestamp: msg.timestamp,
+        nome_mappa:mapNome,
       };
     });
 
@@ -862,8 +862,8 @@ app.get("/api/chat/:mappa_id/:token_id", async (req, res) => {
 
       if (esiste.length === 0) {
         await db.query(
-          "INSERT INTO chat_logs (personaggio_id, timestamp, mittente, mappa_id, messaggio) VALUES (?, ?, ?, ?, ?)",
-          [mioToken.fatherid, msg.timestamp, msg.nome_personaggio, mappa_id, msg.contenuto]
+          "INSERT INTO chat_logs (personaggio_id, timestamp, mittente, mappa_id, messaggio, nome_mappa) VALUES (?, ?, ?, ?, ?, ?)",
+          [mioToken.fatherid, msg.timestamp, msg.nome_personaggio, mappa_id, msg.contenuto, nome_mappa]
         );
       }
     }
