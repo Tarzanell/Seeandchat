@@ -831,7 +831,6 @@ app.get("/api/chat/:mappa_id/:token_id/:mapNome", async (req, res) => {
         linguaggio: msg.linguaggio,
         contenuto,
         timestamp: msg.timestamp,
-        nome_mappa:mapNome,
       };
     });
 
@@ -863,7 +862,7 @@ app.get("/api/chat/:mappa_id/:token_id/:mapNome", async (req, res) => {
       if (esiste.length === 0) {
         await db.query(
           "INSERT INTO chat_logs (personaggio_id, timestamp, mittente, mappa_id, messaggio, nome_mappa) VALUES (?, ?, ?, ?, ?, ?)",
-          [mioToken.fatherid, msg.timestamp, msg.nome_personaggio, mappa_id, msg.contenuto, nome_mappa]
+          [mioToken.fatherid, msg.timestamp, msg.nome_personaggio, mappa_id, msg.contenuto, mapNome]
         );
       }
     }
@@ -1061,7 +1060,7 @@ async function spostaTokenOfflineNelLimbo() {
 }
 
 
-async function riportaTokenDalLimbo() {
+/*async function riportaTokenDalLimbo() {
   try {
     const [risultato] = await db.query(`
       UPDATE tokens
@@ -1081,9 +1080,9 @@ async function riportaTokenDalLimbo() {
   } catch (err) {
     console.error("Errore nel ritorno token dal limbo:", err);
   }
-}
+}*/
 
 setInterval(() => {
   spostaTokenOfflineNelLimbo();
-  riportaTokenDalLimbo();
+  //riportaTokenDalLimbo();
 }, 60000); // ogni 60 secondi
