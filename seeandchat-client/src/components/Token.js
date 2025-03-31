@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useDrag } from "react-dnd";
 import dragPreviewImg from "../assets/token_drag_preview.png";
 
-function Token({ token, characterToken, positionStyle, character, userId, isDm, setTokens, mapWidth, mapHeight, setDragStartPos }) {
+function Token({ token, characterToken, positionStyle, character, userId, isDm, setTokens, mapWidth, mapHeight, dragStartPos, setDragStartPos, mousePos, setMousePos, isCombat, remainingMovement, setRemainingMovement, velocity }) {
+
   const [showOpzioni, setShowOpzioni] = useState(false);
   const [showDescrizione, setShowDescrizione] = useState(false);
   const [descrizione, setDescrizione] = useState("");
@@ -22,7 +23,37 @@ function Token({ token, characterToken, positionStyle, character, userId, isDm, 
     }
   }; 
 
-  const [{ isDragging }, drag, dragPreview] = useDrag({
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      document.body._lastKnownMouseEvent = e;
+    };
+    document.addEventListener("mousemove", handleMouseMove);
+    return () => document.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  useEffect(() => {
+    let animationFrame;
+    const updateMouse = () => {
+      const mapElement = document.getElementById("mappa");
+      const e = document.body._lastKnownMouseEvent;
+      if (mapElement && e) {
+        const rect = mapElement.getBoundingClientRect();
+        setMousePos({
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top
+        });
+      }
+      animationFrame = requestAnimationFrame(updateMouse);
+    };
+
+    if (dragStartPos) {
+      animationFrame = requestAnimationFrame(updateMouse);
+    }
+
+    return () => cancelAnimationFrame(animationFrame);
+  }, [dragStartPos]);
+
+  const [{ isDragging }, drag] = useDrag({
     type: "TOKEN",
     item: () => {
       setDragStartPos({
@@ -33,22 +64,29 @@ function Token({ token, characterToken, positionStyle, character, userId, isDm, 
     },
     end: async (item, monitor) => {
       setDragStartPos(null);
+      setMousePos(null);
       const offset = monitor.getDifferenceFromInitialOffset();
       if (!offset) return;
 
       const dx = offset.x;
       const dy = offset.y;
       const magnitude = Math.sqrt(dx * dx + dy * dy);
-
       const deltaX = Math.round(dx / 50);
       const deltaY = Math.round(dy / 50);
       const newX = Math.max(0, Math.min(mapWidth - 1, token.posizione_x + deltaX));
       const newY = Math.max(0, Math.min(mapHeight - 1, token.posizione_y + deltaY));
 
       if (token.proprietario_id !== userId && !isDm) return;
-      if (magnitude > character.velocita) {
-        alert("Slow down baby.");
+
+      const movementCost = magnitude;
+      if (isCombat && remainingMovement !== null && movementCost > remainingMovement) {
+        alert("Hai finito il movimento per questo turno.");
         return;
+      }
+        console.log("isCombat:", isCombat);
+      if (isCombat) {
+        setRemainingMovement(prev => Math.max(0, prev - movementCost));
+        console.log("Movimento rimanente:", remainingMovement);
       }
 
       try {
@@ -75,14 +113,6 @@ function Token({ token, characterToken, positionStyle, character, userId, isDm, 
       isDragging: monitor.isDragging(),
     }),
   });
-
-  useEffect(() => {
-    const img = new Image();
-    img.src = dragPreviewImg;
-    img.onload = () => {
-      dragPreview(img, { captureDraggingState: true });
-    };
-  }, [dragPreview, token.posizione_x, token.posizione_y]);
 
   const handleClick = async () => {
     if (showOpzioni || showDescrizione) return;

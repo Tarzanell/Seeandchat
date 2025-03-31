@@ -13,6 +13,10 @@ function GameMap({ character, userId, isDm, mioToken, setMioToken }) {
   const [mapWidth, setMapWidth] = useState(10);
   const [mapHeight, setMapHeight] = useState(10);
   const [dragStartPos, setDragStartPos] = useState(null);
+  const [mousePos, setMousePos] = useState(null);
+  const [isCombat, setIsCombat] = useState(false);
+  const [velocity, setVelocity] = useState(null);
+  const [remainingMovement, setRemainingMovement] = useState(null);
 
   useEffect(() => {
     if (mioToken) {
@@ -41,6 +45,14 @@ function GameMap({ character, userId, isDm, mioToken, setMioToken }) {
     fetchMioToken();
   }, [character.id, setMioToken]);
 
+
+  useEffect(() => {
+    if (isCombat && character?.velocita) {
+      setRemainingMovement(character.velocita);
+    }
+  }, [isCombat, character.velocita, mioTokenState?.mappa_id]);
+
+
   useEffect(() => {
     if (!mioTokenState) return;
 
@@ -62,12 +74,17 @@ function GameMap({ character, userId, isDm, mioToken, setMioToken }) {
         setMapWidth(mapData.larghezza || 10);
         setMapHeight(mapData.altezza || 10);
         setTokens(tokenData);
+        setIsCombat(mapData.isCombat);
+        setVelocity(mapData.velocity);
       } catch (err) {
         console.error("Errore nel caricamento mappa o token:", err);
       }
     };
 
+
     fetchMapAndTokens();
+    const interval = setInterval(fetchMapAndTokens, 5000);
+    return () => clearInterval(interval);
   }, [mioTokenState?.mappa_id]);
 
   useEffect(() => {
@@ -82,6 +99,12 @@ function GameMap({ character, userId, isDm, mioToken, setMioToken }) {
       top: `${token.posizione_y * 50}px`,
     };
   };
+
+  const handleFineTurno = () => {
+    setRemainingMovement(character.velocita); // resetta movimento
+    alert("Turno finito."); // opzionale
+  };
+
 
   if (!mioTokenState) return <div>Caricamento token del personaggio...</div>;
 
@@ -109,6 +132,9 @@ function GameMap({ character, userId, isDm, mioToken, setMioToken }) {
           const positionStyle = getTokenStyle(token, idx, overlapping);
 
           return (
+            /*
+            mousePos,  */
+
             <Token
               key={token.id}
               token={token}
@@ -121,10 +147,23 @@ function GameMap({ character, userId, isDm, mioToken, setMioToken }) {
               mapWidth={mapWidth}
               mapHeight={mapHeight}
               setDragStartPos={setDragStartPos}
-            />
+              setMousePos={setMousePos} // <-- aggiungi questo
+              isCombat = {isCombat}
+              velocity = {velocity}
+              remainingMovement = {remainingMovement}
+              setRemainingMovement = {setRemainingMovement}
+/>
           );
         })}
       </div>
+
+        // Se iscombat = true compare tasto fine turno
+      {isCombat && (
+        <div style={{ marginTop: "10px", textAlign: "center" }}>
+          <button onClick={handleFineTurno}>Fine turno</button>
+          <div style={{ marginTop: "5px" }}>Movimento rimanente: {remainingMovement}</div>
+        </div>
+)}
       <ChatBox character={character} mioToken={mioTokenState} />
       <input type="hidden" value={JSON.stringify(mioTokenState)} id="token-json" />
     </DndProvider>
