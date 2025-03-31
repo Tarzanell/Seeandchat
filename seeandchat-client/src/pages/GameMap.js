@@ -4,22 +4,32 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import Token from "../components/Token";
 import SpawnNpcTransizione from "../components/SpawnNpcTransizione";
 import ChatBox from "../components/ChatBox";
+import CustomDragLayer from "../components/CustomDragLayer";
 
-function GameMap({ character, userId, isDm }) {
-  const [mioToken, setMioToken] = useState(null);
+function GameMap({ character, userId, isDm, mioToken, setMioToken }) {
+  const [mioTokenState, setMioTokenState] = useState(null);
   const [tokens, setTokens] = useState([]);
   const [mapImage, setMapImage] = useState(null);
   const [mapWidth, setMapWidth] = useState(10);
   const [mapHeight, setMapHeight] = useState(10);
+  const [dragStartPos, setDragStartPos] = useState(null);
 
-  // 🔁 Recupera il token associato al personaggio
+  useEffect(() => {
+    if (mioToken) {
+      setMioTokenState(mioToken);
+    }
+  }, [mioToken]);
+
   useEffect(() => {
     const fetchMioToken = async () => {
       try {
         const res = await fetch(`http://217.154.16.188:3001/api/miotoken/${character.id}`);
         if (res.ok) {
           const data = await res.json();
-          setMioToken(data);
+          setMioTokenState(data);
+          if (typeof setMioToken === "function") {
+            setMioToken(data);
+          }
         } else {
           console.error("Token del personaggio non trovato.");
         }
@@ -29,17 +39,16 @@ function GameMap({ character, userId, isDm }) {
     };
 
     fetchMioToken();
-  }, [character.id]);
+  }, [character.id, setMioToken]);
 
-  // 🔁 Carica la mappa e i token relativi a mioToken.mappa_id
   useEffect(() => {
-    if (!mioToken) return;
+    if (!mioTokenState) return;
 
     const fetchMapAndTokens = async () => {
       try {
         const [resMap, resTokens] = await Promise.all([
-          fetch(`http://217.154.16.188:3001/api/mappe/${mioToken.mappa_id}`),
-          fetch(`http://217.154.16.188:3001/api/tokens/${mioToken.mappa_id}`)
+          fetch(`http://217.154.16.188:3001/api/mappe/${mioTokenState.mappa_id}`),
+          fetch(`http://217.154.16.188:3001/api/tokens/${mioTokenState.mappa_id}`)
         ]);
 
         if (!resMap.ok || !resTokens.ok) {
@@ -59,15 +68,13 @@ function GameMap({ character, userId, isDm }) {
     };
 
     fetchMapAndTokens();
-  }, [mioToken]);
+  }, [mioTokenState?.mappa_id]);
 
-  // 🔁 Se i token cambiano, aggiorna mioToken se presente nella lista
   useEffect(() => {
     const aggiornato = tokens.find(t => t.categoria === "personaggio" && t.fatherid === character.id);
-    if (aggiornato) setMioToken(aggiornato);
+    if (aggiornato) setMioTokenState(aggiornato);
   }, [tokens, character.id]);
 
-  // 💡 Calcolo stile per ogni token
   const getTokenStyle = (token, index, tokensAtSamePosition) => {
     const offset = tokensAtSamePosition.indexOf(token) * 50;
     return {
@@ -76,11 +83,13 @@ function GameMap({ character, userId, isDm }) {
     };
   };
 
-  if (!mioToken) return <div>Caricamento token del personaggio...</div>;
+  if (!mioTokenState) return <div>Caricamento token del personaggio...</div>;
 
   return (
     <DndProvider backend={HTML5Backend}>
+      <CustomDragLayer dragStartPos={dragStartPos} />
       <div
+        id="mappa"
         style={{
           width: `${mapWidth * 50}px`,
           height: `${mapHeight * 50}px`,
@@ -90,7 +99,7 @@ function GameMap({ character, userId, isDm }) {
         }}
       >
         {isDm && (
-          <SpawnNpcTransizione mappaId={mioToken.mappa_id} setTokens={setTokens} />
+          <SpawnNpcTransizione mappaId={mioTokenState.mappa_id} setTokens={setTokens} />
         )}
 
         {tokens.map((token, idx) => {
@@ -103,7 +112,7 @@ function GameMap({ character, userId, isDm }) {
             <Token
               key={token.id}
               token={token}
-              characterToken={mioToken}
+              characterToken={mioTokenState}
               positionStyle={positionStyle}
               character={character}
               userId={userId}
@@ -111,11 +120,13 @@ function GameMap({ character, userId, isDm }) {
               setTokens={setTokens}
               mapWidth={mapWidth}
               mapHeight={mapHeight}
+              setDragStartPos={setDragStartPos}
             />
           );
         })}
       </div>
-      <ChatBox character={character} mioToken={mioToken} />
+      <ChatBox character={character} mioToken={mioTokenState} />
+      <input type="hidden" value={JSON.stringify(mioTokenState)} id="token-json" />
     </DndProvider>
   );
 }

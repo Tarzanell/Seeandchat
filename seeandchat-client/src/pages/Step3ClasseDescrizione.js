@@ -92,7 +92,7 @@ function Step3ClasseDescrizione({ formData, setFormData, onNext, onBack }) {
 
       <br />
       <button onClick={onBack}>Indietro</button>
-      <button onClick={onNext}>Avanti</button>
+      <button onClick={handleNext}>Avanti</button>
     </div>
   );
 }

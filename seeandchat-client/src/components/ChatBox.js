@@ -1,3 +1,4 @@
+// file in Seeandchat/seeandchat-client/src/components
 import React, { useState, useEffect } from "react";
 
 function ChatBox({ character, mioToken }) {
@@ -6,27 +7,50 @@ function ChatBox({ character, mioToken }) {
   const [voce, setVoce] = useState("Parlando");
   const [linguaggio, setLinguaggio] = useState("Comune");
 
-  const caricaMessaggi = async () => {
+  const caricaChatLog = async () => {
     try {
-      const res = await fetch(`http://217.154.16.188:3001/api/chat/${mioToken.mappa_id}/${mioToken.id}`);
-      const data = await res.json();
-      setMessaggi(data);
+      const res = await fetch(`http://217.154.16.188:3001/api/chat-log/${mioToken.fatherid}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setMessaggi(data);
+      } else {
+        console.error("Errore nel recupero dei log chat.");
+      }
     } catch (err) {
-      console.error("Errore nel recupero chat:", err);
+      console.error("Errore nel recupero chat log:", err);
     }
   };
 
   useEffect(() => {
-    caricaMessaggi();
-    const intervallo = setInterval(caricaMessaggi, 5000); // ogni 5 secondi
+    caricaChatLog();
+    const intervallo = setInterval(caricaChatLog, 5000);
     return () => clearInterval(intervallo);
-  }, [mioToken.mappa_id, mioToken.id]);
+  }, [mioToken.fatherid]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const intervallo = setInterval(() => {
+      fetch(`http://217.154.16.188:3001/api/chat/${mioToken.mappa_id}/${mioToken.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+    }, 5000); // ogni 5 secondi
+  
+    return () => clearInterval(intervallo);
+  }, [mioToken.id, mioToken.mappa_id]);
 
   const inviaMessaggio = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
-
+  
     try {
+      // 1. Invia il messaggio grezzo
       const res = await fetch("http://217.154.16.188:3001/api/chat", {
         method: "POST",
         headers: {
@@ -41,10 +65,18 @@ function ChatBox({ character, mioToken }) {
           linguaggio
         })
       });
-
+  
       if (res.ok) {
         setTesto("");
-        caricaMessaggi(); // aggiorna subito
+  
+        // 2. Esegui censura + salvataggio log per questo personaggio
+        await fetch(`http://217.154.16.188:3001/api/chat/${mioToken.mappa_id}/${mioToken.id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+  
+        caricaChatLog(); // aggiorna subito i messaggi loggati
       } else {
         alert("Errore nell'invio del messaggio.");
       }
@@ -59,7 +91,12 @@ function ChatBox({ character, mioToken }) {
 
       <div style={{ maxHeight: "150px", overflowY: "scroll", marginBottom: "10px", border: "1px solid gray", padding: "5px", backgroundColor: "white" }}>
         {messaggi.map(msg => (
-          <div key={msg.id}><strong>{msg.nome_personaggio}</strong>: {msg.contenuto}</div>
+          <div key={msg.id}>
+            <strong>{msg.mittente}</strong>: {msg.messaggio}
+            <div style={{ fontSize: "0.7em", color: "gray" }}>
+              [{new Date(msg.timestamp).toLocaleTimeString()}] {msg.voce} in {msg.linguaggio}
+            </div>
+          </div>
         ))}
       </div>
 

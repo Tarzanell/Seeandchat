@@ -994,22 +994,21 @@ app.get("/api/token/:id", async (req, res) => {
   }
 });
 
-// Recupera descrizione personaggio da fatherid del token
-app.get("/api/personaggio-da-token/:tokenId", async (req, res) => {
+// Recupera descrizione da token (via fatherid)
+app.get("/api/personaggio-da-token/:token_id", async (req, res) => {
   try {
-    const tokenId = req.params.tokenId;
-    const [rows] = await db.query(`
-      SELECT p.descrizione
-      FROM tokens t
-      JOIN personaggi p ON t.fatherid = p.id
-      WHERE t.id = ? AND t.categoria = 'personaggio'
-    `, [tokenId]);
+    const tokenId = req.params.token_id;
+    const [tokenRows] = await db.query("SELECT fatherid FROM tokens WHERE id = ?", [tokenId]);
+    if (tokenRows.length === 0) return res.status(404).json({ message: "Token non trovato" });
 
-    if (rows.length === 0) return res.status(404).json({ message: "Descrizione non trovata" });
-    res.json({ descrizione: rows[0].descrizione });
+    const fatherId = tokenRows[0].fatherid;
+    const [pgRows] = await db.query("SELECT descrizione FROM personaggi WHERE id = ?", [fatherId]);
+    if (pgRows.length === 0) return res.status(404).json({ message: "Personaggio non trovato" });
+
+    res.json({ descrizione: pgRows[0].descrizione });
   } catch (err) {
     console.error("Errore nel recupero descrizione:", err);
-    res.status(500).json({ error: "Errore del server" });
+    res.status(500).json({ message: "Errore del server" });
   }
 });
 

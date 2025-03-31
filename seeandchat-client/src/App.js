@@ -17,14 +17,15 @@ import NuovoNPC from "./pages/NuovoNPC"
 import VisualizzaArchetipi from "./pages/VisualizzaArchetipi";
 import VisualizzaTokens from "./pages/VisualizzaTokens";
 import NewNewCharacter from "./pages/CharacterCreationWizard";
-
+import PingOnline from "./components/PingOnline";
 
 function App() {
   return (
     <Router>
+      {localStorage.getItem("token") && <PingOnline />}
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<Login />} />       
         <Route path="/register" element={<Register />} />
         <Route path="/characters" element={<Characters />} />
         <Route path="/new-character" element={<NewCharacter />} />
