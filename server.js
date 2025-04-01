@@ -922,7 +922,31 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
 
     const formData = JSON.parse(req.body.formData);
     const filename = req.file.filename;
-
+    const abilitaFlags = {
+      acrobazia: 0,
+      addestrare_animali: 0,
+      arcano: 0,
+      atletica: 0,
+      ingannare: 0,
+      furtivita: 0,
+      indagare: 0,
+      intuizione: 0,
+      intrattenere: 0,
+      intimidire: 0,
+      medicina: 0,
+      natura: 0,
+      percezione: 0,
+      persuasione: 0,
+      religione: 0,
+      rapidita_di_mano: 0,
+      sopravvivenza: 0,
+      storia: 0,
+    };
+    
+    (formData.abilita || []).forEach(ab => {
+      if (ab in abilitaFlags) abilitaFlags[ab] = 1;
+    });
+    
     // Inserisci personaggio
     const [result] = await db.query(
       `INSERT INTO personaggi (
@@ -935,7 +959,7 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
         mr, ma, mo, mp,
         bonus_competenza, ispirazione,
         token_img
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         formData.nome,
         formData.eta,
@@ -973,6 +997,24 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
         formData.mp || 0,
         formData.bonus_competenza || 2,
         formData.ispirazione || false,
+        abilitaFlags.acrobazia,
+        abilitaFlags.addestrare_animali,
+        abilitaFlags.arcano,
+        abilitaFlags.atletica,
+        abilitaFlags.ingannare,
+        abilitaFlags.furtivita,
+        abilitaFlags.indagare,
+        abilitaFlags.intuizione,
+        abilitaFlags.intrattenere,
+        abilitaFlags.intimidire,
+        abilitaFlags.medicina,
+        abilitaFlags.natura,
+        abilitaFlags.percezione,
+        abilitaFlags.persuasione,
+        abilitaFlags.religione,
+        abilitaFlags.rapidita_di_mano,
+        abilitaFlags.sopravvivenza,
+        abilitaFlags.storia,
         filename,
       ]
     );
