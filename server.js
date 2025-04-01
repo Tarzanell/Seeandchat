@@ -934,8 +934,8 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
         dv, dvmax, dvatt,
         mr, ma, mo, mp,
         bonus_competenza, ispirazione,
-        token_img, immagine
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        token_img
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         formData.nome,
         formData.eta,
@@ -974,7 +974,6 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
         formData.bonus_competenza || 2,
         formData.ispirazione || false,
         filename,
-        null // ritratto non ancora implementato
       ]
     );
 
