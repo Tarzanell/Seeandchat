@@ -925,10 +925,17 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
 
     // Inserisci personaggio
     const [result] = await db.query(
-      `INSERT INTO personaggi 
-      (nome, eta, altezza, peso, razza, classe, descrizione, utente_id,
-       forza, destrezza, costituzione, INTELLIGENZA, SAGGEZZA, CARISMA, token_img)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO personaggi (
+        nome, eta, altezza, peso, razza, classe, descrizione, utente_id,
+        forza, destrezza, costituzione, INTELLIGENZA, SAGGEZZA, CARISMA,
+        tsFOR, tsDES, tsCOS, tsINT, tsSAG, tsCHA,
+        CA, iniziativa, velocita, velocita_in_metri,
+        pfmax, pfatt, pftemp,
+        dv, dvmax, dvatt,
+        mr, ma, mo, mp,
+        bonus_competenza, ispirazione,
+        token_img, immagine
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         formData.nome,
         formData.eta,
@@ -936,7 +943,7 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
         formData.peso,
         formData.razza,
         formData.classe,
-        formData.descrizione || "Culo",
+        formData.descrizione || "",
         decoded.id,
         formData.stats.FOR,
         formData.stats.DES,
@@ -944,7 +951,30 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
         formData.stats.INT,
         formData.stats.SAG,
         formData.stats.CHA,
+        formData.tsFOR || false,
+        formData.tsDES || false,
+        formData.tsCOS || false,
+        formData.tsINT || false,
+        formData.tsSAG || false,
+        formData.tsCHA || false,
+        formData.CA || 10,
+        formData.iniziativa || 0,
+        formData.velocita || 450,
+        formData.velocita_in_metri || 9,
+        formData.pfmax || 10,
+        formData.pfatt || formData.pfmax || 10,
+        formData.pftemp || 0,
+        formData.dv || 1,
+        formData.dvmax || 1,
+        formData.dvatt || 1,
+        formData.mr || 0,
+        formData.ma || 0,
+        formData.mo || 0,
+        formData.mp || 0,
+        formData.bonus_competenza || 2,
+        formData.ispirazione || false,
         filename,
+        null // ritratto non ancora implementato
       ]
     );
 
