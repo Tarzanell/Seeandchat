@@ -946,7 +946,7 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
     (formData.abilita || []).forEach(ab => {
       if (ab in abilitaFlags) abilitaFlags[ab] = 1;
     });
-    
+
     // Inserisci personaggio
     const [result] = await db.query(
       `INSERT INTO personaggi (
@@ -958,6 +958,9 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
         dv, dvmax, dvatt,
         mr, ma, mo, mp,
         bonus_competenza, ispirazione,
+        acrobazia, addestrare_animali, arcano, atletica, ingannare, furtivita,
+    indagare, intuizione, intrattenere, intimidire, medicina, natura,
+    percezione, persuasione, religione, rapidita_di_mano, sopravvivenza, storia,
         token_img
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
