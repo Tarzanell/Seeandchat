@@ -12,7 +12,7 @@ const costs = {
 };
 
 const Step2PointBuy = ({ formData, setFormData, onNext, onBack }) => {
-  const [scores, setScores] = useState({
+  const [scores, setScores] = useState(formData.stats || {
     FOR: 8,
     DES: 8,
     COS: 8,
@@ -20,8 +20,8 @@ const Step2PointBuy = ({ formData, setFormData, onNext, onBack }) => {
     SAG: 8,
     CHA: 8,
   });
-
-  const [bonusAScelta, setBonusAScelta] = useState("");
+  
+  const [bonusAScelta, setBonusAScelta] = useState(formData.bonusAScelta || "");
   const [pointsLeft, setPointsLeft] = useState(27);
 
   useEffect(() => {

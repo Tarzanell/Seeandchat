@@ -2,6 +2,32 @@ function Step1BasicInfo({ formData, setFormData, onNext }) {
     const razzeDisponibili = ["Umano", "Nano", "Elfo", "Mezzelfo", "Halfling"];
     const classiDisponibili = ["Guerriero", "Ladro", "Mago", "Chierico", "Bardo"];
   
+    const savingThrowMap = {
+      Guerriero: ["tsFOR", "tsCOS"],
+      Ladro: ["tsDES", "tsINT"],
+      Mago: ["tsINT", "tsSAG"],
+      Chierico: ["tsSAG", "tsCAR"],
+      Bardo: ["tsDES", "tsCAR"],
+    };
+    
+    const handleClasseChange = (classeScelta) => {
+      const nuoviTs = {
+        tsFOR: false,
+        tsDES: false,
+        tsCOS: false,
+        tsINT: false,
+        tsSAG: false,
+        tsCAR: false,
+      };
+    
+      const prof = savingThrowMap[classeScelta] || [];
+      prof.forEach(ts => {
+        nuoviTs[ts] = true;
+      });
+    console.log("TS forza:",nuoviTs);
+      setFormData({ ...formData, classe: classeScelta, ...nuoviTs });
+    };
+
     return (
       <div>
         <label>Nome:</label>
@@ -42,8 +68,8 @@ function Step1BasicInfo({ formData, setFormData, onNext }) {
         <label>Classe:</label>
         <select
           value={formData.classe}
-          onChange={(e) => setFormData({ ...formData, classe: e.target.value })}
-        >
+          onChange={(e) => handleClasseChange(e.target.value)}
+>
           <option value="">-- Scegli classe --</option>
           {classiDisponibili.map((cls) => (
             <option key={cls} value={cls}>{cls}</option>

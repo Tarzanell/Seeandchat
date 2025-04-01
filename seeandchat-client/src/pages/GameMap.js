@@ -17,6 +17,7 @@ function GameMap({ character, userId, isDm, mioToken, setMioToken }) {
   const [isCombat, setIsCombat] = useState(false);
   const [velocity, setVelocity] = useState(null);
   const [remainingMovement, setRemainingMovement] = useState(null);
+  const [mapNome, setmapNome] = useState(null);
 
   useEffect(() => {
     if (mioToken) {
@@ -76,6 +77,7 @@ function GameMap({ character, userId, isDm, mioToken, setMioToken }) {
         setTokens(tokenData);
         setIsCombat(mapData.isCombat);
         setVelocity(mapData.velocity);
+        setmapNome(mapData.nome);
       } catch (err) {
         console.error("Errore nel caricamento mappa o token:", err);
       }
@@ -157,14 +159,14 @@ function GameMap({ character, userId, isDm, mioToken, setMioToken }) {
         })}
       </div>
 
-        // Se iscombat = true compare tasto fine turno
+       
       {isCombat && (
         <div style={{ marginTop: "10px", textAlign: "center" }}>
           <button onClick={handleFineTurno}>Fine turno</button>
           <div style={{ marginTop: "5px" }}>Movimento rimanente: {remainingMovement}</div>
         </div>
 )}
-      <ChatBox character={character} mioToken={mioTokenState} />
+      <ChatBox character={character} mioToken={mioTokenState} mapNome = {mapNome} />
       <input type="hidden" value={JSON.stringify(mioTokenState)} id="token-json" />
     </DndProvider>
   );

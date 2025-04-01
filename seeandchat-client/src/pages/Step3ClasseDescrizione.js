@@ -43,6 +43,7 @@ function Step3ClasseDescrizione({ formData, setFormData, onNext, onBack }) {
   };
 
   const handleNext = () => {
+    console.log("Abilità selezionate:",abilitaSelezionate);
     if (abilitaSelezionate.length !== 2) {
       alert("Seleziona esattamente due abilità.");
       return;

@@ -1,7 +1,7 @@
 // file in Seeandchat/seeandchat-client/src/components
 import React, { useState, useEffect } from "react";
 
-function ChatBox({ character, mioToken }) {
+function ChatBox({ character, mioToken, mapNome }) {
   const [messaggi, setMessaggi] = useState([]);
   const [testo, setTesto] = useState("");
   const [voce, setVoce] = useState("Parlando");
@@ -35,12 +35,14 @@ function ChatBox({ character, mioToken }) {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const intervallo = setInterval(() => {
-      fetch(`http://217.154.16.188:3001/api/chat/${mioToken.mappa_id}/${mioToken.id}`, {
+      fetch(`http://217.154.16.188:3001/api/chat/${mioToken.mappa_id}/${mioToken.id}/${mapNome}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
-    }, 5000); // ogni 5 secondi
+
+
+    }, 2000); // ogni 5 secondi
   
     return () => clearInterval(intervallo);
   }, [mioToken.id, mioToken.mappa_id]);
@@ -70,7 +72,7 @@ function ChatBox({ character, mioToken }) {
         setTesto("");
   
         // 2. Esegui censura + salvataggio log per questo personaggio
-        await fetch(`http://217.154.16.188:3001/api/chat/${mioToken.mappa_id}/${mioToken.id}`, {
+        await fetch(`http://217.154.16.188:3001/api/chat/${mioToken.mappa_id}/${mioToken.id}/${mapNome}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -86,15 +88,15 @@ function ChatBox({ character, mioToken }) {
   };
 
   return (
-    <div style={{ marginTop: "10px", background: "#eee", padding: "10px", borderTop: "1px solid #ccc", maxHeight: "300px", overflowY: "auto" }}>
+    <div style={{ marginTop: "5px", background: "#eee", padding: "10px", borderTop: "1px solid #ccc", maxHeight: "800px", overflowY: "auto" }}>
       <h4>Chat di mappa</h4>
 
-      <div style={{ maxHeight: "150px", overflowY: "scroll", marginBottom: "10px", border: "1px solid gray", padding: "5px", backgroundColor: "white" }}>
+      <div style={{ maxHeight: "300px", overflowY: "scroll", marginBottom: "10px", border: "1px solid gray", padding: "30px", backgroundColor: "white" }}>
         {messaggi.map(msg => (
           <div key={msg.id}>
             <strong>{msg.mittente}</strong>: {msg.messaggio}
-            <div style={{ fontSize: "0.7em", color: "gray" }}>
-              [{new Date(msg.timestamp).toLocaleTimeString()}] {msg.voce} in {msg.linguaggio}
+            <div style={{ fontSize: "1em", color: "gray" }}>
+              [{new Date(msg.timestamp).toLocaleTimeString()}] {msg.voce} in {msg.nome_mappa}
             </div>
           </div>
         ))}

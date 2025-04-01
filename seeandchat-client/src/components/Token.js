@@ -76,6 +76,9 @@ function Token({ token, characterToken, positionStyle, character, userId, isDm, 
       const newX = Math.max(0, Math.min(mapWidth - 1, token.posizione_x + deltaX));
       const newY = Math.max(0, Math.min(mapHeight - 1, token.posizione_y + deltaY));
 
+      console.log("Id proprietario Token:",token.proprietario_id);
+      console.log("Id di chi sta toccando:",userId);
+      
       if (token.proprietario_id !== userId && !isDm) return;
 
       const movementCost = magnitude;
