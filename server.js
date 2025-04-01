@@ -947,6 +947,7 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
       if (ab in abilitaFlags) abilitaFlags[ab] = 1;
     });
 
+    const bonus = calcolaBonusPersonaggio(formData, abilitaFlags);
     // Inserisci personaggio
     const [result] = await db.query(
       `INSERT INTO personaggi (
@@ -959,10 +960,16 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
         mr, ma, mo, mp,
         bonus_competenza, ispirazione,
         acrobazia, addestrare_animali, arcano, atletica, ingannare, furtivita,
-    indagare, intuizione, intrattenere, intimidire, medicina, natura,
-    percezione, persuasione, religione, rapidita_di_mano, sopravvivenza, storia,
+        indagare, intuizione, intrattenere, intimidire, medicina, natura,
+        percezione, persuasione, religione, rapidita_di_mano, sopravvivenza, storia,
+        bFOR, bDES, bCOS, bINT, bSAG, bCHA,
+        btsFOR, btsDES, btsCOS, btsINT, btsSAG, btsCHA,
+        bacrobazia, baddestrare, barcano, batletica, bingannare, bfurtivita,
+        bindagare, bintuizione, bintrattenere, bintimidire, bmedicina, bnatura,
+        bpercezione, bpersuasione, breligione, brepidita, bsopravvivenza, bstoria,
+        biniziativa,
         token_img
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
       [
         formData.nome,
         formData.eta,
@@ -1000,24 +1007,55 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
         formData.mp || 0,
         formData.bonus_competenza || 2,
         formData.ispirazione || false,
-        abilitaFlags.acrobazia,
-        abilitaFlags.addestrare_animali,
-        abilitaFlags.arcano,
-        abilitaFlags.atletica,
-        abilitaFlags.ingannare,
-        abilitaFlags.furtivita,
-        abilitaFlags.indagare,
-        abilitaFlags.intuizione,
-        abilitaFlags.intrattenere,
-        abilitaFlags.intimidire,
-        abilitaFlags.medicina,
-        abilitaFlags.natura,
-        abilitaFlags.percezione,
-        abilitaFlags.persuasione,
-        abilitaFlags.religione,
-        abilitaFlags.rapidita_di_mano,
-        abilitaFlags.sopravvivenza,
-        abilitaFlags.storia,
+        abilitaFlags.acrobazia || 0,
+        abilitaFlags.addestrare_animali || 0,
+        abilitaFlags.arcano || 0,
+        abilitaFlags.atletica || 0,
+        abilitaFlags.ingannare || 0,
+        abilitaFlags.furtivita || 0,
+        abilitaFlags.indagare || 0,
+        abilitaFlags.intuizione || 0,
+        abilitaFlags.intrattenere || 0,
+        abilitaFlags.intimidire || 0,
+        abilitaFlags.medicina || 0,
+        abilitaFlags.natura || 0,
+        abilitaFlags.percezione || 0,
+        abilitaFlags.persuasione || 0,
+        abilitaFlags.religione || 0,
+        abilitaFlags.rapidita_di_mano || 0,
+        abilitaFlags.sopravvivenza || 0,
+        abilitaFlags.storia || 0,
+        bonus.bFOR || 0,
+        bonus.bDES || 0,
+        bonus.bCOS || 0,
+        bonus.bINT || 0,
+        bonus.bSAG || 0,
+        bonus.bCHA || 0,
+        bonus.btsFOR || 0,
+        bonus.btsDES || 0,
+        bonus.btsCOS || 0,
+        bonus.btsINT || 0,
+        bonus.btsSAG || 0,
+        bonus.btsCHA || 0,
+        bonus.bacrobazia || 0,
+        bonus.baddestrare || 0,
+        bonus.barcano || 0,
+        bonus.batletica || 0,
+        bonus.bingannare || 0,
+        bonus.bfurtivita || 0,
+        bonus.bindagare || 0,
+        bonus.bintuizione || 0,
+        bonus.bintrattenere || 0,
+        bonus.bintimidire || 0,
+        bonus.bmedicina || 0,
+        bonus.bnatura || 0,
+        bonus.bpercezione || 0,
+        bonus.bpersuasione || 0,
+        bonus.breligione || 0,
+        bonus.brepidita || 0,
+        bonus.bsopravvivenza || 0,
+        bonus.bstoria || 0,
+        bonus.biniziativa || 0,
         filename,
       ]
     );
@@ -1160,3 +1198,58 @@ setInterval(() => {
   spostaTokenOfflineNelLimbo();
   //riportaTokenDalLimbo();
 }, 60000); // ogni 60 secondi
+
+//Funzione calcolo bonus
+function calcolaBonusPersonaggio(formData, abilitaFlags) {
+  const b = {}; // oggetto dove inseriamo tutto
+
+  // Calcolo bonus statistici
+  b.bFOR = Math.floor((formData.stats.FOR - 10) / 2);
+  b.bDES = Math.floor((formData.stats.DES - 10) / 2);
+  b.bCOS = Math.floor((formData.stats.COS - 10) / 2);
+  b.bINT = Math.floor((formData.stats.INT - 10) / 2);
+  b.bSAG = Math.floor((formData.stats.SAG - 10) / 2);
+  b.bCHA = Math.floor((formData.stats.CHA - 10) / 2);
+
+  // Bonus tiri salvezza
+  const bonusComp = formData.bonus_competenza || 2;
+  b.btsFOR = b.bFOR + bonusComp * (formData.tsFOR ? 1 : 0);
+  b.btsDES = b.bDES + bonusComp * (formData.tsDES ? 1 : 0);
+  b.btsCOS = b.bCOS + bonusComp * (formData.tsCOS ? 1 : 0);
+  b.btsINT = b.bINT + bonusComp * (formData.tsINT ? 1 : 0);
+  b.btsSAG = b.bSAG + bonusComp * (formData.tsSAG ? 1 : 0);
+  b.btsCHA = b.bCHA + bonusComp * (formData.tsCHA ? 1 : 0);
+
+  // Mappa tra abilità e stat rilevante
+  const mappaAbilitaStat = {
+    acrobazia: "bDES",
+    addestrare_animali: "bSAG",
+    arcano: "bINT",
+    atletica: "bFOR",
+    ingannare: "bCHA",
+    furtivita: "bDES",
+    indagare: "bINT",
+    intuizione: "bSAG",
+    intrattenere: "bCHA",
+    intimidire: "bCHA",
+    medicina: "bSAG",
+    natura: "bINT",
+    percezione: "bSAG",
+    persuasione: "bCHA",
+    religione: "bINT",
+    rapidita_di_mano: "bDES",
+    sopravvivenza: "bSAG",
+    storia: "bINT",
+  };
+
+  // Calcolo bonus abilità
+  for (const [abilita, stat] of Object.entries(mappaAbilitaStat)) {
+    const flag = abilitaFlags[abilita] ? 1 : 0;
+    b["b" + abilita] = b[stat] + bonusComp * flag;
+  }
+
+  // Iniziativa = bonus destrezza
+  b.biniziativa = b.bDES;
+
+  return b;
+}
