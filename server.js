@@ -1119,13 +1119,13 @@ app.get("/api/personaggio-da-token/:token_id", async (req, res) => {
   }
 });
 
-// 🔹 CAMBIA BACKGROUND
+// 🔹 CAMBIA BACKGROUND (descrizione del body sarebbe il nuovo BG)
 app.put("/api/personaggi/:id/background", async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
     const decoded = jwt.verify(token, "supersegreto");
 
-    const { BG } = req.body;
+    const { descrizione } = req.body;
     const id = req.params.id;
 
     const [rows] = await db.query("SELECT utente_id FROM personaggi WHERE id = ?", [id]);
@@ -1134,7 +1134,7 @@ app.put("/api/personaggi/:id/background", async (req, res) => {
     const proprietario = rows[0].utente_id;
     if (decoded.id !== proprietario && !decoded.is_dm) return res.status(403).json({ error: "Accesso negato" });
 
-    await db.query("UPDATE personaggi SET BG = ?, BGapproved = false WHERE id = ?", [BG, id]);
+    await db.query("UPDATE personaggi SET BG = ?, BGapproved = false WHERE id = ?", [descrizione, id]);
     res.status(200).json({ message: "Background aggiornato" });
   } catch (err) {
     console.error("Errore update BG:", err);
