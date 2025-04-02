@@ -572,6 +572,14 @@ app.get("/api/mappe/:id", async (req, res) => {
 const uploadMulter = multer({ storage: storageToken });
 const uploadArchetipo = uploadMulter.single("immagine");
 
+// Configurazione multer portraits
+const portraitStorage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, "./uploads/portraits"),
+  filename: (req, file, cb) => cb(null, Date.now() + "_" + file.originalname),
+});
+
+const portraitUpload = multer({ storage: portraitStorage });
+
 // Caricamento archetipo mob
 app.post("/api/nuovo-archetipo-mob", uploadArchetipo, async (req, res) => {
   try {
@@ -879,13 +887,19 @@ app.post("/api/chat", async (req, res) => {
 });
 
 // Nuovo Nuovo Personaggio
-app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => {
+app.post("/api/personaggi", upload.fields([
+  { name: "immagineToken", maxCount: 1 },
+  { name: "portrait", maxCount: 1 }
+]), async (req, res) => {
+  
   try {
     const token = req.headers.authorization?.split(" ")[1];
     const decoded = jwt.verify(token, "supersegreto");
 
     const formData = JSON.parse(req.body.formData);
-    const filename = req.file.filename;
+    const filename = req.files["immagineToken"]?.[0]?.filename || null;
+    const portraitFilename = req.files["portrait"]?.[0]?.filename || null;
+
     const abilitaFlags = {
       acrobazia: 0,
       addestrare_animali: 0,
@@ -938,8 +952,8 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
         bindagare, bintuizione, bintrattenere, bintimidire, bmedicina, bnatura,
         bpercezione, bpersuasione, breligione, brapidita_di_mano, bsopravvivenza, bstoria,
         biniziativa,
-        token_img
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+        token_img, immagine
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
       [
         formData.nome,
         formData.eta,
@@ -1027,6 +1041,7 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
         bonus.bstoria || 0,
         bonus.biniziativa || 0,
         filename,
+        portraitFilename
       ]
     );
 
@@ -1141,28 +1156,6 @@ async function spostaTokenOfflineNelLimbo() {
   }
 }
 
-
-/*async function riportaTokenDalLimbo() {
-  try {
-    const [risultato] = await db.query(`
-      UPDATE tokens
-      SET mappa_id = last_mapId,
-          posizione_x = lastpos_x, 
-          posizione_y = lastpos_y
-      WHERE categoria = 'personaggio'
-        AND mappa_id = 4
-        AND proprietario_id IN (
-          SELECT id FROM utenti
-          WHERE ultimo_ping >= NOW() - INTERVAL 30 SECOND
-        )
-        AND last_mapId IS NOT NULL
-    `);
-
-    console.log(`[Ritorno] ${risultato.affectedRows} token riportati nella mappa originale.`);
-  } catch (err) {
-    console.error("Errore nel ritorno token dal limbo:", err);
-  }
-}*/
 
 setInterval(() => {
   spostaTokenOfflineNelLimbo();
