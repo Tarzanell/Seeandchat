@@ -1166,7 +1166,7 @@ app.put("/api/personaggi/:id/descrizione", async (req, res) => {
 });
 
 // 🔹 CAMBIA TOKEN
-app.put("/api/personaggi/:id/token", upload.single("immagineToken"), async (req, res) => {
+app.put("/api/personaggi/:id/token", upload.single("token"), async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
     const decoded = jwt.verify(token, "supersegreto");
