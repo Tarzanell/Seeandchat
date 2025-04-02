@@ -4,7 +4,6 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Characters from "./pages/Characters";
 import CharacterDetails from "./pages/CharacterDetails";
-import NewCharacter from "./pages/NewCharacter";
 import GameMapWrapper from "./pages/GameMapWrapper";
 import CaricaMappa from "./pages/CaricaMappa";
 import VisualizzaMappe from "./pages/VisualizzaMappe";
@@ -28,7 +27,6 @@ function App() {
         <Route path="/login" element={<Login />} />       
         <Route path="/register" element={<Register />} />
         <Route path="/characters" element={<Characters />} />
-        <Route path="/new-character" element={<NewCharacter />} />
         <Route path="/new-new-character" element={<NewNewCharacter />} />
         <Route path="/character/:id" element={<CharacterDetails />} />
         <Route path="/mappa" element={<GameMapWrapper />} />

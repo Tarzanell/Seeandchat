@@ -52,7 +52,15 @@ function Characters() {
   };
 
   return (
+
+    
+        
     <div>
+
+        {!isDm && <button onClick={() => navigate("/characters")}>Torna ai Personaggi</button>}
+        {isDm && <button onClick={() => navigate("/dmdashboard")}>Vai al DM Dashboard</button>}
+      
+
       <h2>Seleziona un personaggio</h2>
       {characters.length > 0 ? (
         <ul>
@@ -91,8 +99,7 @@ function Characters() {
         <p>Nessun personaggio trovato.</p>
       )}
 
-      <button onClick={() => navigate("/new-character")}>➕ Nuovo Personaggio</button>
-      <button onClick={() => navigate("/new-new-character")}>➕ Nuovo Personaggio PROVA</button>
+      <button onClick={() => navigate("/new-new-character")}>➕ Nuovo Personaggio</button>
 
       {isDm && (
         <>

@@ -1,16 +1,18 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Step4ConfermaUpload({ formData, onBack }) {
-  const [file, setFile] = useState(null);
+  const [fileToken, setFileToken] = useState(null);
+  const [filePortrait, setFilePortrait] = useState(null);
   const [loading, setLoading] = useState(false);
   const [esito, setEsito] = useState("");
+  const navigate = useNavigate();
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
+  const handleTokenChange = (e) => setFileToken(e.target.files[0]);
+  const handlePortraitChange = (e) => setFilePortrait(e.target.files[0]);
 
   const handleSubmit = async () => {
-    if (!file) {
+    if (!fileToken) {
       alert("Devi selezionare un'immagine per il token.");
       return;
     }
@@ -20,7 +22,10 @@ function Step4ConfermaUpload({ formData, onBack }) {
 
     const dataToSend = new FormData();
     dataToSend.append("formData", JSON.stringify(formData));
-    dataToSend.append("immagineToken", file);
+    dataToSend.append("immagineToken", fileToken);
+    if (filePortrait) {
+      dataToSend.append("portrait", filePortrait);
+    }
 
     try {
       const res = await fetch("http://217.154.16.188:3001/api/personaggi", {
@@ -34,6 +39,7 @@ function Step4ConfermaUpload({ formData, onBack }) {
       const resData = await res.json();
       if (res.ok) {
         setEsito("✅ Personaggio creato con successo!");
+        navigate("/characters");
       } else {
         console.error("Errore:", resData);
         setEsito("❌ Errore nella creazione del personaggio.");
@@ -48,11 +54,13 @@ function Step4ConfermaUpload({ formData, onBack }) {
 
   return (
     <div>
-      <h2>Step 4: Conferma e Carica Immagine</h2>
+      <h2>Step 4: Conferma e Carica Immagini</h2>
 
-      <p>Controlla le informazioni, poi scegli un'immagine del token (50x50 consigliato):</p>
+      <p>Scegli un'immagine del token (50x50 consigliato):</p>
+      <input type="file" accept="image/*" onChange={handleTokenChange} />
 
-      <input type="file" accept="image/*" onChange={handleFileChange} />
+      <p>Portrait (opzionale):</p>
+      <input type="file" accept="image/*" onChange={handlePortraitChange} />
 
       <br /><br />
       <button onClick={onBack}>Indietro</button>

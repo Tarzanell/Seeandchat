@@ -50,13 +50,28 @@ function GameMapWrapper() {
   if (!character) return null;
 
   return (
-    <GameMap
-    character={character}
-    userId={userId}
-    isDm={isDm}
-    mioToken={mioToken} // ← AGGIUNGI QUESTO
-    setMioToken={setMioToken}
-  />
+    <div>
+      {/* 🔹 Barra di navigazione fissa */}
+      <div style={{
+        backgroundColor: "#f5f5f5",
+        padding: "10px",
+        borderBottom: "1px solid #ccc",
+        display: "flex",
+        gap: "10px"
+      }}>
+        {!isDm && <button onClick={() => navigate("/characters")}>Torna ai Personaggi</button>}
+        {isDm && <button onClick={() => navigate("/dmdashboard")}>Vai al DM Dashboard</button>}
+      </div>
+
+      {/* 🔸 Mappa */}
+      <GameMap
+        character={character}
+        userId={userId}
+        isDm={isDm}
+        mioToken={mioToken}
+        setMioToken={setMioToken}
+      />
+    </div>
   );
 }
 

@@ -6,8 +6,8 @@ function Step1BasicInfo({ formData, setFormData, onNext }) {
       Guerriero: ["tsFOR", "tsCOS"],
       Ladro: ["tsDES", "tsINT"],
       Mago: ["tsINT", "tsSAG"],
-      Chierico: ["tsSAG", "tsCAR"],
-      Bardo: ["tsDES", "tsCAR"],
+      Chierico: ["tsSAG", "tsCHA"],
+      Bardo: ["tsDES", "tsCHA"],
     };
     
     const handleClasseChange = (classeScelta) => {
@@ -17,16 +17,40 @@ function Step1BasicInfo({ formData, setFormData, onNext }) {
         tsCOS: false,
         tsINT: false,
         tsSAG: false,
-        tsCAR: false,
+        tsCHA: false,
       };
     
+
       const prof = savingThrowMap[classeScelta] || [];
       prof.forEach(ts => {
         nuoviTs[ts] = true;
       });
-    console.log("TS forza:",nuoviTs);
-      setFormData({ ...formData, classe: classeScelta, ...nuoviTs });
+
+      const dadoVita = pfPerClasse[classeScelta] || 8;
+      const pfIniziali = dadoVita;
+
+      setFormData({
+        ...formData,
+        classe: classeScelta,
+        ...nuoviTs,
+        pfmax: pfIniziali,
+        pfatt: pfIniziali,
+        dv: 1,
+        dvmax: 1,
+        dvatt: 1,
+      });
+    
     };
+
+     // Imposta pf iniziali e dado vita per classe
+      const pfPerClasse = {
+        Guerriero: 10,
+        Ladro: 8,
+        Mago: 6,
+        Chierico: 8,
+        Bardo: 8,
+      };
+
 
     return (
       <div>

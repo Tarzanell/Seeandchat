@@ -57,7 +57,12 @@ const Step2PointBuy = ({ formData, setFormData, onNext, onBack }) => {
   };
 
   const handleNext = () => {
-    setFormData({ ...formData, stats: scores, bonusAScelta });
+    const statsConBonus = {};
+    Object.keys(scores).forEach((stat) => {
+    statsConBonus[stat] = scores[stat] + getBonus(stat);
+    });
+
+    setFormData({ ...formData, stats: statsConBonus, bonusAScelta });
     onNext();
   };
 

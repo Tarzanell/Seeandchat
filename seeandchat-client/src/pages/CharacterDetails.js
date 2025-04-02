@@ -1,11 +1,29 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 function CharacterDetails() {
   const { id } = useParams();
   const [character, setCharacter] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  const token = localStorage.getItem("token");
+    let isDm = false;
+    let userId = 0;
+  
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        isDm = decoded.is_dm;
+        userId = decoded.id;
+      } catch (error) {
+        console.error("Errore nella decodifica del token:", error);
+      }
+    }
+
+
 
   useEffect(() => {
     const fetchCharacter = async () => {
@@ -37,20 +55,61 @@ function CharacterDetails() {
   if (!character) return <p>Personaggio non trovato.</p>;
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>{character.nome}</h2>
-      {character.immagine && <img src={`http://217.154.16.188:3001/uploads/tokens/${character.immagine}`} alt="ritratto" width={150} />}
+    <>
+    {/* 🔹 Barra di navigazione fissa */}
+    <div style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      right: 0,
+      backgroundColor: "#f5f5f5",
+      padding: "10px",
+      borderBottom: "1px solid #ccc",
+      display: "flex",
+      gap: "10px",
+      zIndex: 1000
+    }}>
 
+      {!isDm && <button onClick={() => navigate("/characters")}>Torna ai Personaggi</button>}
+      {isDm && <button onClick={() => navigate("/dmdashboard")}>Vai al DM Dashboard</button>}
+      <button onClick={() => navigate("/Characters")}> Torna alla selezione dei personaggi</button>
+     </div>
+
+    {/* 🔹 Contenuto principale */}
+    <div style={{ paddingTop: "40px" }}>
+      <h2>{character.nome}</h2>
+
+      <div style={{ display: "flex", gap: "20px", margin: "20px 0" }}>
+  
+  {character.immagine && (
+    <div style={{ border: "4px solid black", padding: "5px", width: "300px", height: "600px", boxSizing: "border-box" }}>
+      <img
+        src={`http://217.154.16.188:3001/uploads/portraits/${character.immagine}`}
+        alt="Portrait"
+        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+      />
+    </div>
+  )}
+  {character.token_img && (
+    <div style={{ border: "4px solid black", padding: "5px", width: "200px", height: "200px", boxSizing: "border-box" }}>
+      <img
+        src={`http://217.154.16.188:3001/uploads/tokens/${character.token_img}`}
+        alt="Token"
+        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+      />
+    </div>
+  )}
+</div>
       <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
         {/* Attributi */}
         <div style={{ border: "1px solid black", padding: "10px" }}>
           <h3>Attributi</h3>
-          <p>FOR: {character.forza} | {character.bFOR}</p>
-          <p>DES: {character.destrezza} | {character.bDES}</p>
-          <p>COS: {character.costituzione} | {character.bCOS}</p>
-          <p>INT: {character.INTELLIGENZA} | {character.bINT}</p>
-          <p>SAG: {character.SAGGEZZA} | {character.bSAG}</p>
-          <p>CHA: {character.CARISMA} | {character.bCHA}</p>
+          <p>FOR: {character.FOR} | {character.bFOR}</p>
+          <p>DES: {character.DES} | {character.bDES}</p>
+          <p>COS: {character.COS} | {character.bCOS}</p>
+          <p>INT: {character.INT} | {character.bINT}</p>
+          <p>SAG: {character.SAG} | {character.bSAG}</p>
+          <p>CHA: {character.CHA} | {character.bCHA}</p>
         </div>
 
         {/* Tiri Salvezza */}
@@ -79,7 +138,7 @@ function CharacterDetails() {
 
   {[
     ["acrobazia", "bacrobazia"],
-    ["addestrare_animali", "baddestrare"],
+    ["addestrare_animali", "baddestrare_animali"],
     ["arcano", "barcano"],
     ["atletica", "batletica"],
     ["ingannare", "bingannare"],
@@ -93,7 +152,7 @@ function CharacterDetails() {
     ["percezione", "bpercezione"],
     ["persuasione", "bpersuasione"],
     ["religione", "breligione"],
-    ["rapidita_di_mano", "brapidita"],
+    ["rapidita_di_mano", "brapidita_di_mano"],
     ["sopravvivenza", "bsopravvivenza"],
     ["storia", "bstoria"],
   ].map(([abilita, bonus]) => (
@@ -108,7 +167,7 @@ function CharacterDetails() {
         <div style={{ border: "1px solid black", padding: "10px" }}>
           <h3>Combattimento</h3>
           <p>CA: {character.CA}</p>
-          <p>*Iniziativa: {character.iniziativa}</p>
+          <p>*Iniziativa: {character.biniziativa}</p>
           <p>Velocità: {character.velocita_in_metri || character.velocita}</p>
           <p>Ispirazione: {character.ispirazione ? "✓" : ""}</p>
           <p>Bonus competenza: +{character.bonus_competenza}</p>
@@ -162,6 +221,7 @@ function CharacterDetails() {
         <p>{character.note || "Nessuna"}</p>
       </div>
     </div>
+    </>
   );
 }
 
