@@ -913,8 +913,6 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
 
     const bonus = calcolaBonusPersonaggio(formData, abilitaFlags);
     
-    console.log("Dado vita:",formData.pfmax );
-    console.log("Bonus COS:",formData.bCOS );
     formData.pfmax += bonus.bCOS;
     
 
@@ -1194,7 +1192,7 @@ function calcolaBonusPersonaggio(formData, abilitaFlags) {
   // Mappa tra abilità e stat rilevante
   const mappaAbilitaStat = {
     acrobazia: "bDES",
-    addestrare_animali: "bSAG",
+    addestrare: "bSAG",
     arcano: "bINT",
     atletica: "bFOR",
     ingannare: "bCHA",
@@ -1208,7 +1206,7 @@ function calcolaBonusPersonaggio(formData, abilitaFlags) {
     percezione: "bSAG",
     persuasione: "bCHA",
     religione: "bINT",
-    rapidita_di_mano: "bDES",
+    rapidita: "bDES",
     sopravvivenza: "bSAG",
     storia: "bINT",
   };
