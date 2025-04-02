@@ -476,7 +476,7 @@ app.get("/api/listapersonaggi", async (req, res) => {
   }
 });
 
-/*
+
 // Configurazione multer per tokens
 const storageToken = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -487,6 +487,7 @@ const storageToken = multer.diskStorage({
   }
 });
 
+/*
 // Configurazione middleware upload tokens
 const upload = multer({
   storage: storageToken,
