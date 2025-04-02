@@ -923,7 +923,7 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
     const [result] = await db.query(
       `INSERT INTO personaggi (
         nome, eta, altezza, peso, razza, classe, descrizione, utente_id,
-        'FOR', DES, COS, 'INT', SAG, CHA,
+        \`FOR\`, \`DES\`, \`COS\`, \`INT\`, \`SAG\`, \`CHA\`,
         tsFOR, tsDES, tsCOS, tsINT, tsSAG, tsCHA,
         CA, iniziativa, velocita, velocita_in_metri,
         pfmax, pfatt, pftemp,
