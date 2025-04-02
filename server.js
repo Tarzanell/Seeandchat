@@ -503,7 +503,7 @@ const upload = multer({
     }
   }
 });
-*/
+
 
 // Caricare immagine token PG
 app.post("/api/upload", upload.single("token"), async (req, res) => {
@@ -517,7 +517,7 @@ app.post("/api/upload", upload.single("token"), async (req, res) => {
     res.status(500).json({ error: "Errore nel caricamento dell'immagine" });
   }
 });
-
+*/
 
 // Configurazione multer per mappe
 const storageMappe = multer.diskStorage({
