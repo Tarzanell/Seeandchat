@@ -1192,7 +1192,7 @@ app.put("/api/personaggi/:id/token", upload.single("immagineToken"), async (req,
 });
 
 // 🔹 CAMBIA PORTRAIT
-app.put("/api/personaggi/:id/portrait", portraitUpload.single("portrait"), async (req, res) => {
+app.put("/api/personaggi/:id/portrait", upload.single("portrait"), async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
     const decoded = jwt.verify(token, "supersegreto");
