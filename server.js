@@ -914,6 +914,7 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
     const bonus = calcolaBonusPersonaggio(formData, abilitaFlags);
     
     formData.pfmax += bonus.bCOS;
+    formData.pfatt = formData.pfmax;
     
 
 
@@ -933,9 +934,9 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
         percezione, persuasione, religione, rapidita_di_mano, sopravvivenza, storia,
         bFOR, bDES, bCOS, bINT, bSAG, bCHA,
         btsFOR, btsDES, btsCOS, btsINT, btsSAG, btsCHA,
-        bacrobazia, baddestrare, barcano, batletica, bingannare, bfurtivita,
+        bacrobazia, baddestrare_animali, barcano, batletica, bingannare, bfurtivita,
         bindagare, bintuizione, bintrattenere, bintimidire, bmedicina, bnatura,
-        bpercezione, bpersuasione, breligione, brapidita, bsopravvivenza, bstoria,
+        bpercezione, bpersuasione, breligione, brapidita_di_mano, bsopravvivenza, bstoria,
         biniziativa,
         token_img
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
@@ -1007,7 +1008,7 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
         bonus.btsSAG || 0,
         bonus.btsCHA || 0,
         bonus.bacrobazia || 0,
-        bonus.baddestrare || 0,
+        bonus.baddestrare_animali || 0,
         bonus.barcano || 0,
         bonus.batletica || 0,
         bonus.bingannare || 0,
@@ -1021,7 +1022,7 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
         bonus.bpercezione || 0,
         bonus.bpersuasione || 0,
         bonus.breligione || 0,
-        bonus.brapidita || 0,
+        bonus.brapidita_di_mano || 0,
         bonus.bsopravvivenza || 0,
         bonus.bstoria || 0,
         bonus.biniziativa || 0,
@@ -1192,7 +1193,7 @@ function calcolaBonusPersonaggio(formData, abilitaFlags) {
   // Mappa tra abilità e stat rilevante
   const mappaAbilitaStat = {
     acrobazia: "bDES",
-    addestrare: "bSAG",
+    addestrare_animali: "bSAG",
     arcano: "bINT",
     atletica: "bFOR",
     ingannare: "bCHA",
@@ -1206,7 +1207,7 @@ function calcolaBonusPersonaggio(formData, abilitaFlags) {
     percezione: "bSAG",
     persuasione: "bCHA",
     religione: "bINT",
-    rapidita: "bDES",
+    rapidita_di_mano: "bDES",
     sopravvivenza: "bSAG",
     storia: "bINT",
   };
