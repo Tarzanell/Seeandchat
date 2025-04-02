@@ -99,42 +99,6 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// Nuovo personaggio
-app.post("/api/aggiungi-personaggio", async (req, res) => {
-  try {
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) return res.status(401).json({ message: "Token mancante" });
-
-    const decoded = jwt.verify(token, "supersegreto");
-    const utente_id = decoded.id; 
-    const username = decoded.username;
-
-    const { nome, velocita, forza, destrezza, costituzione, punti_vita, token_img } = req.body;
-
-    // Controllo server-side
-    if (forza > 15 || destrezza > 15 || costituzione > 15) {
-      return res.status(400).json({ message: "Le statistiche non possono superare 15." });
-    }
-
-    const [result] = await db.query(
-      "INSERT INTO personaggi (nome, velocita, forza, destrezza, costituzione, punti_vita, utente_id, token_img, mappa_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      [nome, velocita, forza, destrezza, costituzione, punti_vita, utente_id, token_img, 1]
-    );
-
-
-    const personaggioId = result.insertId;
-
-    await db.query(
-      "INSERT INTO tokens (id, mappa_id, categoria, proprietario_id, posizione_x, posizione_y, immagine, nome, fatherid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      [personaggioId, 1, "personaggio", username, 0, 0, token_img, nome, personaggioId]
-    );
-
-    res.status(201).json({ message: "Personaggio aggiunto con successo" });
-  } catch (error) {
-    console.error("Errore nell'aggiunta del personaggio:", error);
-    res.status(500).json({ error: "Errore nel server" });
-  }
-});
 
 // Cancella personaggio
 app.delete("/api/personaggi/:id", async (req, res) => {
@@ -951,7 +915,7 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
     
     console.log("Dado vita:",formData.pfmax );
     console.log("Bonus COS:",formData.bCOS );
-    formData.pfmax += formData.bCOS;
+    formData.pfmax += bonus.bCOS;
     
 
 
@@ -959,7 +923,7 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
     const [result] = await db.query(
       `INSERT INTO personaggi (
         nome, eta, altezza, peso, razza, classe, descrizione, utente_id,
-        forza, destrezza, costituzione, INTELLIGENZA, SAGGEZZA, CARISMA,
+        'FOR', DES, COS, 'INT', SAG, CHA,
         tsFOR, tsDES, tsCOS, tsINT, tsSAG, tsCHA,
         CA, iniziativa, velocita, velocita_in_metri,
         pfmax, pfatt, pftemp,
