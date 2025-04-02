@@ -948,7 +948,11 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
     });
 
     const bonus = calcolaBonusPersonaggio(formData, abilitaFlags);
+    
+    console.log("Dado vita:",formData.pfmax );
+    console.log("Bonus COS:",formData.bCOS );
     formData.pfmax += formData.bCOS;
+    
 
 
     // Inserisci personaggio
