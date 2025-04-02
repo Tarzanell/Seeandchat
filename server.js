@@ -476,6 +476,7 @@ app.get("/api/listapersonaggi", async (req, res) => {
   }
 });
 
+/*
 // Configurazione multer per tokens
 const storageToken = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -502,6 +503,7 @@ const upload = multer({
     }
   }
 });
+*/
 
 // Caricare immagine token PG
 app.post("/api/upload", upload.single("token"), async (req, res) => {
@@ -573,12 +575,20 @@ const uploadMulter = multer({ storage: storageToken });
 const uploadArchetipo = uploadMulter.single("immagine");
 
 // Configurazione multer portraits
-const portraitStorage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "./uploads/portraits"),
-  filename: (req, file, cb) => cb(null, Date.now() + "_" + file.originalname),
+const dynamicStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    if (file.fieldname === "portrait") {
+      cb(null, "./uploads/portraits");
+    } else {
+      cb(null, "./uploads/tokens");
+    }
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "_" + file.originalname);
+  },
 });
 
-const portraitUpload = multer({ storage: portraitStorage });
+const upload = multer({ storage: dynamicStorage });
 
 // Caricamento archetipo mob
 app.post("/api/nuovo-archetipo-mob", uploadArchetipo, async (req, res) => {
