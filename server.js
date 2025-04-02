@@ -948,6 +948,9 @@ app.post("/api/personaggi", upload.single("immagineToken"), async (req, res) => 
     });
 
     const bonus = calcolaBonusPersonaggio(formData, abilitaFlags);
+    formData.pfmax += formData.bCOS;
+
+
     // Inserisci personaggio
     const [result] = await db.query(
       `INSERT INTO personaggi (
