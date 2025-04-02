@@ -48,9 +48,9 @@ function CustomDragLayer({ dragStartPos }) {
     <svg style={layerStyles}>
       <line
         x1={dragStartPos.x}
-        y1={dragStartPos.y}
+        y1={dragStartPos.y + 40}
         x2={coords.x2 - offsetX}
-        y2={coords.y2 - offsetY}
+        y2={coords.y2 - offsetY + 40}
         stroke="black"
         strokeWidth="4"
         strokeDasharray="8,5"

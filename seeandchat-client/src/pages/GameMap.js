@@ -5,6 +5,7 @@ import Token from "../components/Token";
 import SpawnNpcTransizione from "../components/SpawnNpcTransizione";
 import ChatBox from "../components/ChatBox";
 import CustomDragLayer from "../components/CustomDragLayer";
+import MiniSchedaTiri from "../components/MiniSchedaTiri";
 
 function GameMap({ character, userId, isDm, mioToken, setMioToken }) {
   const [mioTokenState, setMioTokenState] = useState(null);
@@ -113,60 +114,64 @@ function GameMap({ character, userId, isDm, mioToken, setMioToken }) {
   return (
     <DndProvider backend={HTML5Backend}>
       <CustomDragLayer dragStartPos={dragStartPos} />
-      <div
-        id="mappa"
-        style={{
-          width: `${mapWidth * 50}px`,
-          height: `${mapHeight * 50}px`,
-          backgroundImage: `url(http://217.154.16.188:3001/uploads/mappe/${mapImage})`,
-          backgroundSize: "cover",
-          position: "relative",
-        }}
-      >
-        {isDm && (
-          <SpawnNpcTransizione mappaId={mioTokenState.mappa_id} setTokens={setTokens} />
-        )}
-
-        {tokens.map((token, idx) => {
-          const overlapping = tokens.filter(
-            (t) => t.posizione_x === token.posizione_x && t.posizione_y === token.posizione_y
-          );
-          const positionStyle = getTokenStyle(token, idx, overlapping);
-
-          return (
-            /*
-            mousePos,  */
-
-            <Token
-              key={token.id}
-              token={token}
-              characterToken={mioTokenState}
-              positionStyle={positionStyle}
-              character={character}
-              userId={userId}
-              isDm={isDm}
-              setTokens={setTokens}
-              mapWidth={mapWidth}
-              mapHeight={mapHeight}
-              setDragStartPos={setDragStartPos}
-              setMousePos={setMousePos} // <-- aggiungi questo
-              isCombat = {isCombat}
-              velocity = {velocity}
-              remainingMovement = {remainingMovement}
-              setRemainingMovement = {setRemainingMovement}
-/>
-          );
-        })}
+  
+      <div style={{ display: "flex", alignItems: "flex-start", gap: "20px" }}>
+        {/* Mappa */}
+        <div
+          id="mappa"
+          style={{
+            width: `${mapWidth * 50}px`,
+            height: `${mapHeight * 50}px`,
+            backgroundImage: `url(http://217.154.16.188:3001/uploads/mappe/${mapImage})`,
+            backgroundSize: "cover",
+            position: "relative",
+          }}
+        >
+          {isDm && (
+            <SpawnNpcTransizione mappaId={mioTokenState.mappa_id} setTokens={setTokens} />
+          )}
+  
+          {tokens.map((token, idx) => {
+            const overlapping = tokens.filter(
+              (t) => t.posizione_x === token.posizione_x && t.posizione_y === token.posizione_y
+            );
+            const positionStyle = getTokenStyle(token, idx, overlapping);
+  
+            return (
+              <Token
+                key={token.id}
+                token={token}
+                characterToken={mioTokenState}
+                positionStyle={positionStyle}
+                character={character}
+                userId={userId}
+                isDm={isDm}
+                setTokens={setTokens}
+                mapWidth={mapWidth}
+                mapHeight={mapHeight}
+                setDragStartPos={setDragStartPos}
+                setMousePos={setMousePos}
+                isCombat={isCombat}
+                velocity={velocity}
+                remainingMovement={remainingMovement}
+                setRemainingMovement={setRemainingMovement}
+              />
+            );
+          })}
+        </div>
+  
+        {/* Mini scheda a fianco */}
+        <MiniSchedaTiri character={character}/>
       </div>
-
-       
-      {isCombat && (
+  
+      {!!isCombat && (
         <div style={{ marginTop: "10px", textAlign: "center" }}>
           <button onClick={handleFineTurno}>Fine turno</button>
           <div style={{ marginTop: "5px" }}>Movimento rimanente: {remainingMovement}</div>
         </div>
-)}
-      <ChatBox character={character} mioToken={mioTokenState} mapNome = {mapNome} />
+      )}
+  
+      <ChatBox character={character} mioToken={mioTokenState} mapNome={mapNome} />
       <input type="hidden" value={JSON.stringify(mioTokenState)} id="token-json" />
     </DndProvider>
   );
