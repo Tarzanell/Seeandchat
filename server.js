@@ -1119,6 +1119,100 @@ app.get("/api/personaggio-da-token/:token_id", async (req, res) => {
   }
 });
 
+// 🔹 CAMBIA BACKGROUND
+app.put("/api/personaggi/:id/background", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    const decoded = jwt.verify(token, "supersegreto");
+
+    const { BG } = req.body;
+    const id = req.params.id;
+
+    const [rows] = await db.query("SELECT utente_id FROM personaggi WHERE id = ?", [id]);
+    if (rows.length === 0) return res.status(404).json({ error: "Personaggio non trovato" });
+
+    const proprietario = rows[0].utente_id;
+    if (decoded.id !== proprietario && !decoded.is_dm) return res.status(403).json({ error: "Accesso negato" });
+
+    await db.query("UPDATE personaggi SET BG = ?, BGapproved = false WHERE id = ?", [BG, id]);
+    res.status(200).json({ message: "Background aggiornato" });
+  } catch (err) {
+    console.error("Errore update BG:", err);
+    res.status(500).json({ error: "Errore server" });
+  }
+});
+
+// 🔹 CAMBIA DESCRIZIONE
+app.put("/api/personaggi/:id/descrizione", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    const decoded = jwt.verify(token, "supersegreto");
+
+    const { descrizione } = req.body;
+    const id = req.params.id;
+
+    const [rows] = await db.query("SELECT utente_id FROM personaggi WHERE id = ?", [id]);
+    if (rows.length === 0) return res.status(404).json({ error: "Personaggio non trovato" });
+
+    const proprietario = rows[0].utente_id;
+    if (decoded.id !== proprietario && !decoded.is_dm) return res.status(403).json({ error: "Accesso negato" });
+
+    await db.query("UPDATE personaggi SET descrizione = ? WHERE id = ?", [descrizione, id]);
+    res.status(200).json({ message: "Descrizione aggiornata" });
+  } catch (err) {
+    console.error("Errore update descrizione:", err);
+    res.status(500).json({ error: "Errore server" });
+  }
+});
+
+// 🔹 CAMBIA TOKEN
+app.put("/api/personaggi/:id/token", upload.single("immagineToken"), async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    const decoded = jwt.verify(token, "supersegreto");
+    const id = req.params.id;
+
+    const [rows] = await db.query("SELECT utente_id FROM personaggi WHERE id = ?", [id]);
+    if (rows.length === 0) return res.status(404).json({ error: "Personaggio non trovato" });
+
+    const proprietario = rows[0].utente_id;
+    if (decoded.id !== proprietario && !decoded.is_dm) return res.status(403).json({ error: "Accesso negato" });
+
+    const filename = req.file.filename;
+    await db.query("UPDATE personaggi SET token_img = ? WHERE id = ?", [filename, id]);
+
+    // aggiorna anche token
+    await db.query("UPDATE tokens SET immagine = ? WHERE categoria = 'personaggio' AND fatherid = ?", [filename, id]);
+
+    res.status(200).json({ message: "Token aggiornato" });
+  } catch (err) {
+    console.error("Errore update token:", err);
+    res.status(500).json({ error: "Errore server" });
+  }
+});
+
+// 🔹 CAMBIA PORTRAIT
+app.put("/api/personaggi/:id/portrait", portraitUpload.single("portrait"), async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    const decoded = jwt.verify(token, "supersegreto");
+    const id = req.params.id;
+
+    const [rows] = await db.query("SELECT utente_id FROM personaggi WHERE id = ?", [id]);
+    if (rows.length === 0) return res.status(404).json({ error: "Personaggio non trovato" });
+
+    const proprietario = rows[0].utente_id;
+    if (decoded.id !== proprietario && !decoded.is_dm) return res.status(403).json({ error: "Accesso negato" });
+
+    const filename = req.file.filename;
+    await db.query("UPDATE personaggi SET immagine = ? WHERE id = ?", [filename, id]);
+    res.status(200).json({ message: "Portrait aggiornato" });
+  } catch (err) {
+    console.error("Errore update portrait:", err);
+    res.status(500).json({ error: "Errore server" });
+  }
+});
+
 //Cos'è sta roba?
 const os = require("os");
 const interfaces = os.networkInterfaces();
