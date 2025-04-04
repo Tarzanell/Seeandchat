@@ -195,7 +195,7 @@ app.get("/api/personaggi/:id", async (req, res) => {
       console.log("✅ Personaggio trovato:", rows[0]); 
       res.json(rows[0]); // 🔹 Invia i dettagli del personaggio
       }
-      
+
     else{
       const [rows] = await db.query("SELECT * FROM personaggi WHERE id = ?", [personaggio_id]);
       if (rows.length === 0) {
@@ -238,7 +238,7 @@ app.get("/api/tokens/:mappa_id", async (req, res) => {
   }
 });
 
-// API: Recupera il token associato a un personaggio (via fatherid)
+// Recupera il token associato a un personaggio (via fatherid)
 app.get("/api/miotoken/:characterId", async (req, res) => {
   try {
     const characterId = req.params.characterId;
@@ -477,7 +477,7 @@ app.delete("/api/token/:id", async (req, res) => {
   }
 });
 
-// Non lo so
+// Lista personaggi con id
 app.get("/api/listapersonaggi", async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1]; // 🔹 Estrae il token
@@ -915,7 +915,7 @@ app.post("/api/chat/", async (req, res) => {
   }
 });
 
-// Nuovo Nuovo Personaggio
+// Nuovo Personaggio
 app.post("/api/personaggi", upload.fields([
   { name: "immagineToken", maxCount: 1 },
   { name: "portrait", maxCount: 1 }
@@ -981,8 +981,8 @@ app.post("/api/personaggi", upload.fields([
         bindagare, bintuizione, bintrattenere, bintimidire, bmedicina, bnatura,
         bpercezione, bpersuasione, breligione, brapidita_di_mano, bsopravvivenza, bstoria,
         biniziativa,
-        token_img, immagine
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+        token_img, immagine, utente_nome
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
       [
         formData.nome,
         formData.eta,
@@ -1070,7 +1070,8 @@ app.post("/api/personaggi", upload.fields([
         bonus.bstoria || 0,
         bonus.biniziativa || 0,
         filename,
-        portraitFilename
+        portraitFilename,
+        formData.utente_nome,
       ]
     );
 
