@@ -173,6 +173,8 @@ app.get("/api/personaggi/:id", async (req, res) => {
     const utente_id = decoded.id; // Estrai l'ID utente dal token
     console.log("✅ Token valido - ID utente:", utente_id);
 
+    const utente_is_dm = decoded.is_dm;
+
     // 🔸 Controlla che l'ID del personaggio sia numerico (per evitare SQL injection)
     const personaggio_id = parseInt(req.params.id, 10);
     if (isNaN(personaggio_id)) {
@@ -181,14 +183,22 @@ app.get("/api/personaggi/:id", async (req, res) => {
     }
     console.log("🔹 ID PG richiesto:", personaggio_id);
 
+
+    if(!utente_is_dm){
     // 🔹 Cerca il personaggio per ID e verifica che appartenga all'utente loggato
-    const [rows] = await db.query("SELECT * FROM personaggi WHERE id = ? AND utente_id = ?", [personaggio_id, utente_id]);
-
-    if (rows.length === 0) {
-      console.warn("⚠️ Nessun personaggio trovato con ID:", personaggio_id, "per utente ID:", utente_id);
-      return res.status(404).json({ message: "Personaggio non trovato" });
-    }
-
+      const [rows] = await db.query("SELECT * FROM personaggi WHERE id = ? AND utente_id = ?", [personaggio_id, utente_id]);
+      if (rows.length === 0) {
+        console.warn("⚠️ Nessun personaggio trovato con ID:", personaggio_id, "per utente ID:", utente_id);
+        return res.status(404).json({ message: "Personaggio non trovato" });
+      }}
+    else{
+      const [rows] = await db.query("SELECT * FROM personaggi WHERE id = ?", [personaggio_id]);
+      if (rows.length === 0) {
+        console.warn("⚠️ Nessun personaggio trovato con ID:", personaggio_id, "per utente ID:", utente_id);
+        return res.status(404).json({ message: "Personaggio non trovato" });
+      }} 
+    
+   
     console.log("✅ Personaggio trovato:", rows[0]); 
     res.json(rows[0]); // 🔹 Invia i dettagli del personaggio
 
