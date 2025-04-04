@@ -130,8 +130,7 @@ app.delete("/api/personaggi/:id", async (req, res) => {
 // Recupero personaggi dell'utente
 app.get("/api/listapersonaggidm", (req, res) => {
   console.log("Inizio ricerca personaggi");
-  const utente_id = req.params.utente_id;
-  db.query("SELECT * FROM personaggi WHERE utente_id = ?", [utente_id], (err, result) => {
+  db.query("SELECT * FROM personaggi", (err, result) => {
     if (err) {
       console.error("Errore nel database:", err);
       res.status(500).send({ error: "Errore nel database" });
