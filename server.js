@@ -874,20 +874,20 @@ app.get("/api/chat-log/:personaggio_id", async (req, res) => {
 });
 
 // Invio messaggi in DB chat
-app.post("/api/chat", async (req, res) => {
+app.post("/api/chat/", async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
     const decoded = jwt.verify(token, "supersegreto");
 
-    const { testo, mappa_id, nome_personaggio, voce, linguaggio } = req.body;
+    const { testo, mappa_id, nome_personaggio, voce, linguaggio, mapNome } = req.body;
 
     if (!testo || testo.length > 1000) {
       return res.status(400).json({ error: "Messaggio vuoto o troppo lungo" });
     }
 
     await db.query(
-      "INSERT INTO chat (messaggio, mappa_id, nome_personaggio, voce, linguaggio, timestamp) VALUES (?, ?, ?, ?, ?, NOW())",
-      [testo, mappa_id, nome_personaggio, voce, linguaggio]
+      "INSERT INTO chat (messaggio, mappa_id, nome_personaggio, voce, linguaggio, timestamp, nome_mappa) VALUES (?, ?, ?, ?, ?, NOW(), ?)",
+      [testo, mappa_id, nome_personaggio, voce, linguaggio, mapNome]
     );
 
     res.status(201).json({ message: "Messaggio inviato" });
