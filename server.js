@@ -1213,6 +1213,41 @@ app.put("/api/personaggi/:id/portrait", upload.single("portrait"), async (req, r
   }
 });
 
+// Cambio stato BGapproved
+app.put("/api/personaggi/:id/bgapproved/:stato", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    const decoded = jwt.verify(token, "supersegreto");
+
+    if (!decoded.is_dm) {
+      return res.status(403).json({ error: "Accesso negato: solo i DM possono modificare lo stato BG." });
+    }
+
+    const characterId = req.params.id;
+    const stato = req.params.stato.toLowerCase();
+
+    if (stato !== "true" && stato !== "false") {
+      return res.status(400).json({ error: "Stato non valido. Usa true o false." });
+    }
+
+    const nuovoValore = stato === "true";
+
+    const [result] = await db.query(
+      "UPDATE personaggi SET BGapproved = ? WHERE id = ?",
+      [nuovoValore, characterId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Personaggio non trovato." });
+    }
+
+    res.json({ message: `BGapproved impostato a ${nuovoValore}` });
+  } catch (err) {
+    console.error("Errore aggiornamento BGapproved:", err);
+    res.status(500).json({ error: "Errore del server." });
+  }
+});
+
 //Cos'è sta roba?
 const os = require("os");
 const interfaces = os.networkInterfaces();
