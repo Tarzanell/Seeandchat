@@ -128,7 +128,7 @@ app.delete("/api/personaggi/:id", async (req, res) => {
 });
 
 // Recupero personaggi dell'utente
-app.get("/api/listapersonaggi/:utente_id", (req, res) => {
+app.get("/api/listapersonaggidm", (req, res) => {
   console.log("Inizio ricerca personaggi");
   const utente_id = req.params.utente_id;
   db.query("SELECT * FROM personaggi WHERE utente_id = ?", [utente_id], (err, result) => {
