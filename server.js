@@ -128,18 +128,20 @@ app.delete("/api/personaggi/:id", async (req, res) => {
 });
 
 // Recupero personaggi dell'utente
-app.get("/api/listapersonaggidm", (req, res) => {
-  console.log("Inizio ricerca personaggi");
-  db.query("SELECT * FROM personaggi", (err, result) => {
-    if (err) {
-      console.error("Errore nel database:", err);
-      res.status(500).send({ error: "Errore nel database" });
-    } else if (result.length === 0) {
-      res.status(404).json({ message: "Nessun personaggio trovato per questo utente." });
-    } else {
-      res.json(result);
+app.get("/api/listapersonaggidm", async (req, res) => {
+  try {
+    console.log("Inizio ricerca personaggi");
+    const [result] = await db.query("SELECT * FROM personaggi");
+    
+    if (result.length === 0) {
+      return res.status(404).json({ message: "Nessun personaggio trovato." });
     }
-  });
+
+    res.json(result);
+  } catch (err) {
+    console.error("Errore nel database:", err);
+    res.status(500).send({ error: "Errore nel database" });
+  }
 });
 
 // Dettagli personaggio
