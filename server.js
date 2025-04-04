@@ -758,7 +758,7 @@ app.patch("/api/exitlimbo/:token_id", async (req, res) => {
   }
 });
 
-//Ricezione messaggi per personaggio
+//Ricezione messaggi per personaggioo
 app.get("/api/chat/:mappa_id/:token_id", async (req, res) => {
   try {
     const mappa_id = parseInt(req.params.mappa_id);
