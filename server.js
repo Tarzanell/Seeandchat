@@ -187,20 +187,27 @@ app.get("/api/personaggi/:id", async (req, res) => {
     if(!utente_is_dm){
     // 🔹 Cerca il personaggio per ID e verifica che appartenga all'utente loggato
       const [rows] = await db.query("SELECT * FROM personaggi WHERE id = ? AND utente_id = ?", [personaggio_id, utente_id]);
+      
       if (rows.length === 0) {
         console.warn("⚠️ Nessun personaggio trovato con ID:", personaggio_id, "per utente ID:", utente_id);
         return res.status(404).json({ message: "Personaggio non trovato" });
-      }}
+      }
+      console.log("✅ Personaggio trovato:", rows[0]); 
+      res.json(rows[0]); // 🔹 Invia i dettagli del personaggio
+      }
+      
     else{
       const [rows] = await db.query("SELECT * FROM personaggi WHERE id = ?", [personaggio_id]);
       if (rows.length === 0) {
         console.warn("⚠️ Nessun personaggio trovato con ID:", personaggio_id, "per utente ID:", utente_id);
         return res.status(404).json({ message: "Personaggio non trovato" });
-      }} 
+      }
+      console.log("✅ Personaggio trovato:", rows[0]); 
+      res.json(rows[0]); // 🔹 Invia i dettagli del personaggio
+      } 
     
    
-    console.log("✅ Personaggio trovato:", rows[0]); 
-    res.json(rows[0]); // 🔹 Invia i dettagli del personaggio
+    
 
   } catch (error) {
     console.error("❌ Errore nel recupero del personaggio:", error);
