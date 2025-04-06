@@ -689,6 +689,18 @@ app.post("/api/nuova-transizione", uploadArchetipo, async (req, res) => {
   }
 });
 
+// Recupero tutte transizioni
+app.get("/api/transizioni/:id", async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM transizioni;");
+    if (rows.length === 0) return res.status(404).json({ message: "Transizioni non trovate" });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error("Errore transizioni:", err);
+    res.status(500).json({ error: "Errore del server" });
+  }
+});
+
 // Recupero destinazione transizioni
 app.get("/api/transizioni/:id", async (req, res) => {
   try {
@@ -697,6 +709,27 @@ app.get("/api/transizioni/:id", async (req, res) => {
     res.json(rows[0]);
   } catch (err) {
     console.error("Errore transizione:", err);
+    res.status(500).json({ error: "Errore del server" });
+  }
+});
+
+// Modifica transizioni
+app.patch("/api/transizioni/:id", async (req, res) => {
+  const { nome, immagine, mapref } = req.body;
+  try {
+    const [rows] = await db.query("SELECT * FROM transizioni WHERE id = ?", [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ message: "Transizione non trovata" });
+
+    await db.query("UPDATE transizioni SET nome = ?, immagine = ?, mapref = ? WHERE id = ?", [
+      nome,
+      immagine,
+      mapref,
+      req.params.id,
+    ]);
+
+    res.json({ message: "Transizione aggiornata con successo" });
+  } catch (err) {
+    console.error("Errore aggiornamento transizione:", err);
     res.status(500).json({ error: "Errore del server" });
   }
 });
