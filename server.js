@@ -801,7 +801,7 @@ app.patch("/api/exitlimbo/:token_id", async (req, res) => {
 
     const token = rows[0];
 
-    if (token.proprietario_id != decoded.username && !decoded.is_dm)
+    if (token.proprietario_id != decoded.id || !decoded.is_dm)
       return res.status(403).json({ message: "Non autorizzato" });
 
     await db.query(
