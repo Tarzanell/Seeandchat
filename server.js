@@ -649,7 +649,7 @@ app.post("/api/nuovo-archetipo-oggetto", uploadArchetipo, async (req, res) => {
   }
 });
 
-// Caricamento NPC
+// Nuovo NPC
 app.post("/api/nuovo-npc", uploadArchetipo, async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
@@ -669,7 +669,7 @@ app.post("/api/nuovo-npc", uploadArchetipo, async (req, res) => {
   }
 });
 
-//Caricamento transizione
+//Nuova transizione
 app.post("/api/nuova-transizione", uploadArchetipo, async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
@@ -684,22 +684,11 @@ app.post("/api/nuova-transizione", uploadArchetipo, async (req, res) => {
     await db.query(`INSERT INTO transizioni (nome, immagine) VALUES (?, ?)`, [nome, immagine]);
     res.status(201).json({ message: "Archetipo creato con successo" });
   } catch (error) {
-    console.error(`Errore /api/nuovo-archetipo-mob:`, error);
+    console.error(`Errore /api/nuova-transizione:`, error);
     res.status(500).json({ error: "Errore del server" });
   }
 });
 
-// Recupero tutte transizioni
-app.get("/api/transizioni/:id", async (req, res) => {
-  try {
-    const [rows] = await db.query("SELECT * FROM transizioni;");
-    if (rows.length === 0) return res.status(404).json({ message: "Transizioni non trovate" });
-    res.json(rows[0]);
-  } catch (err) {
-    console.error("Errore transizioni:", err);
-    res.status(500).json({ error: "Errore del server" });
-  }
-});
 
 // Recupero destinazione transizioni
 app.get("/api/transizioni/:id", async (req, res) => {
@@ -716,17 +705,35 @@ app.get("/api/transizioni/:id", async (req, res) => {
 // Modifica transizioni
 app.patch("/api/transizioni/:id", async (req, res) => {
   const { nome, immagine, mapref } = req.body;
+
   try {
     const [rows] = await db.query("SELECT * FROM transizioni WHERE id = ?", [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ message: "Transizione non trovata" });
 
-    await db.query("UPDATE transizioni SET nome = ?, immagine = ?, mapref = ? WHERE id = ?", [
-      nome,
-      immagine,
-      mapref,
-      req.params.id,
-    ]);
+    const campi = [];
+    const valori = [];
 
+    if (nome !== undefined && nome !== null) {
+      campi.push("nome = ?");
+      valori.push(nome);
+    }
+    if (immagine !== undefined && immagine !== null) {
+      campi.push("immagine = ?");
+      valori.push(immagine);
+    }
+    if (mapref !== undefined && mapref !== null) {
+      campi.push("mapref = ?");
+      valori.push(mapref);
+    }
+
+    if (campi.length === 0) {
+      return res.status(400).json({ message: "Nessun campo da aggiornare" });
+    }
+
+    const query = `UPDATE transizioni SET ${campi.join(", ")} WHERE id = ?`;
+    valori.push(req.params.id);
+
+    await db.query(query, valori);
     res.json({ message: "Transizione aggiornata con successo" });
   } catch (err) {
     console.error("Errore aggiornamento transizione:", err);
