@@ -1307,6 +1307,47 @@ app.put("/api/personaggi/:id/bgapproved/:stato", async (req, res) => {
   }
 });
 
+
+// Risposte chatgpt
+app.post("/api/chatgpt", async (req, res) => {
+  const { istruzioni, mappa_id, chat } = req.body;
+
+  try {
+    const [mapResult] = await db.query("SELECT descrizione_chatgpt FROM mappe WHERE id = ?", [mappa_id]);
+    if (!mapResult.length) return res.status(404).json({ error: "Mappa non trovata" });
+
+    const descrizioneMappa = mapResult[0].descrizione;
+    const mapNome = mapResult[0].nome;
+    const prompt = `
+${istruzioni}
+
+Descrizione mappa:
+${descrizioneMappa}
+
+Ultimi messaggi:
+${chat.map((msg, i) => `Messaggio ${i + 1}: ${msg}`).join("\n")}
+`;
+
+    // CHIAMATA A CHATGPT (mock)
+    // const gptResponse = await fetchOpenAI(prompt);
+    //const gptResponse = { risposta: "Risposta simulata da ChatGPT:", prompt };
+    //res.json({ risposta: gptResponse });
+  
+    await db.query(
+      "INSERT INTO chat (messaggio, mappa_id, nome_personaggio, voce, linguaggio, timestamp, nome_mappa) VALUES (?, ?, ?, ?, ?, NOW(), ?)",
+      [prompt, mappa_id, "Chatgpt", "urlando", "comune", mapNome]
+    );
+
+  } 
+  catch (err) {
+    console.error("Errore API ChatGPT:", err);
+    res.status(500).json({ error: "Errore del server" });
+  }
+
+  
+  
+});
+
 //Cos'è sta roba?
 const os = require("os");
 const interfaces = os.networkInterfaces();
