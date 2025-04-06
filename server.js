@@ -774,7 +774,7 @@ app.patch("/api/token/:id/cambia-mappa", async (req, res) => {
     if (rows.length === 0) return res.status(403).json({ message: "Token non trovato o non valido" });
 
     // Check se l'utente è il proprietario
-    if (rows[0].proprietario_id !== decoded.username && !decoded.is_dm)
+    if (rows[0].proprietario_id != decoded.username && !decoded.is_dm)
       return res.status(403).json({ message: "Non autorizzato" });
 
     await db.query(
@@ -1191,7 +1191,7 @@ app.put("/api/personaggi/:id/background", async (req, res) => {
     if (rows.length === 0) return res.status(404).json({ error: "Personaggio non trovato" });
 
     const proprietario = rows[0].utente_id;
-    if (decoded.id !== proprietario && !decoded.is_dm) return res.status(403).json({ error: "Accesso negato" });
+    if (decoded.id != proprietario && !decoded.is_dm) return res.status(403).json({ error: "Accesso negato" });
 
     await db.query("UPDATE personaggi SET BG = ?, BGapproved = false WHERE id = ?", [descrizione, id]);
     res.status(200).json({ message: "Background aggiornato" });
@@ -1214,7 +1214,7 @@ app.put("/api/personaggi/:id/descrizione", async (req, res) => {
     if (rows.length === 0) return res.status(404).json({ error: "Personaggio non trovato" });
 
     const proprietario = rows[0].utente_id;
-    if (decoded.id !== proprietario && !decoded.is_dm) return res.status(403).json({ error: "Accesso negato" });
+    if (decoded.id != proprietario && !decoded.is_dm) return res.status(403).json({ error: "Accesso negato" });
 
     await db.query("UPDATE personaggi SET descrizione = ? WHERE id = ?", [descrizione, id]);
     res.status(200).json({ message: "Descrizione aggiornata" });
@@ -1235,7 +1235,7 @@ app.put("/api/personaggi/:id/token", upload.single("token"), async (req, res) =>
     if (rows.length === 0) return res.status(404).json({ error: "Personaggio non trovato" });
 
     const proprietario = rows[0].utente_id;
-    if (decoded.id !== proprietario && !decoded.is_dm) return res.status(403).json({ error: "Accesso negato" });
+    if (decoded.id != proprietario && !decoded.is_dm) return res.status(403).json({ error: "Accesso negato" });
 
     const filename = req.file.filename;
     await db.query("UPDATE personaggi SET token_img = ? WHERE id = ?", [filename, id]);
@@ -1261,7 +1261,7 @@ app.put("/api/personaggi/:id/portrait", upload.single("portrait"), async (req, r
     if (rows.length === 0) return res.status(404).json({ error: "Personaggio non trovato" });
 
     const proprietario = rows[0].utente_id;
-    if (decoded.id !== proprietario && !decoded.is_dm) return res.status(403).json({ error: "Accesso negato" });
+    if (decoded.id != proprietario && !decoded.is_dm) return res.status(403).json({ error: "Accesso negato" });
 
     const filename = req.file.filename;
     await db.query("UPDATE personaggi SET immagine = ? WHERE id = ?", [filename, id]);
