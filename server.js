@@ -276,7 +276,7 @@ app.patch("/api/token/:id/posizione", async (req, res) => {
     if (rows.length === 0) return res.status(404).json({ message: "Token non trovato" });
 
     const tokenDb = rows[0];
-    const isOwner = tokenDb.proprietario_id === decoded.username;
+    const isOwner = tokenDb.proprietario_id === decoded.id;
     //console.log("Proprietario:", tokenDb.proprietario_id);
     //console.log("Utente:", decoded.username);
     
@@ -774,7 +774,7 @@ app.patch("/api/token/:id/cambia-mappa", async (req, res) => {
     if (rows.length === 0) return res.status(403).json({ message: "Token non trovato o non valido" });
 
     // Check se l'utente è il proprietario
-    if (rows[0].proprietario_id != decoded.username && !decoded.is_dm)
+    if (rows[0].proprietario_id != decoded.id && !decoded.is_dm)
       return res.status(403).json({ message: "Non autorizzato" });
 
     await db.query(
