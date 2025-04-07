@@ -848,7 +848,7 @@ app.get("/api/chat/:mappa_id/:token_id", async (req, res) => {
 
     const messaggiCensurati = chatRows.map(msg => {
       const mittenteToken = tokenMap[msg.nome_personaggio];
-      if (!mittenteToken) {
+      if (!mittenteToken && (msg.nome_personaggio != "Chatgpt")) {
         return { ...msg, contenuto: "*mittente non trovato*" };
       }
 
