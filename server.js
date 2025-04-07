@@ -847,8 +847,22 @@ app.get("/api/chat/:mappa_id/:token_id", async (req, res) => {
     const tokenMap = Object.fromEntries(tokenChat.map(t => [t.nome, t]));
 
     const messaggiCensurati = chatRows.map(msg => {
+      if (msg.nome_personaggio.toLowerCase().includes("DM"))
+        { 
+          return {
+            id: msg.id,
+            nome_personaggio: msg.nome_personaggio,
+            voce: msg.voce,
+            linguaggio: msg.linguaggio,
+            contenuto,
+            timestamp: msg.timestamp,
+            nome_mappa: msg.nome_mappa,
+          };}
+
+      else
+      {
       const mittenteToken = tokenMap[msg.nome_personaggio];
-      if (!mittenteToken && (msg.nome_personaggio != "Chatgpt")) {
+      if (!mittenteToken) {
         return { ...msg, contenuto: "*mittente non trovato*" };
       }
 
@@ -872,7 +886,7 @@ app.get("/api/chat/:mappa_id/:token_id", async (req, res) => {
         contenuto,
         timestamp: msg.timestamp,
         nome_mappa: msg.nome_mappa,
-      };
+      };}
     });
 
     // Debug (opzionale)
@@ -981,7 +995,7 @@ ${ultimiMessaggi.map((msg, i) => `Messaggio ${i + 1}: ${msg}`).join("\n")}
         // Inserisci la risposta fittizia di ChatGPT nella chat
         await db.query(
           "INSERT INTO chat (messaggio, mappa_id, nome_personaggio, voce, linguaggio, timestamp, nome_mappa) VALUES (?, ?, ?, ?, ?, NOW(), ?)",
-          [prompt, mappa_id, "Chatgpt", "urlando", "comune", nomeMappa]
+          [prompt, mappa_id, "DMChatgpt", "urlando", "comune", nomeMappa]
         );
       } catch (err) {
         console.error("Errore nella generazione del messaggio degli dei:", err);
