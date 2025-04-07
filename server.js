@@ -855,7 +855,7 @@ app.get("/api/chat/:mappa_id/:token_id", async (req, res) => {
             nome_personaggio: msg.nome_personaggio,
             voce: msg.voce,
             linguaggio: msg.linguaggio,
-            contenuto,
+            contenuto: msg.messaggio,
             timestamp: msg.timestamp,
             nome_mappa: msg.nome_mappa,
           };}
