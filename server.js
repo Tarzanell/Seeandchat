@@ -1428,7 +1428,22 @@ app.put("/api/personaggi/:id/bgapproved/:stato", async (req, res) => {
   }
 });
 
+// Set ultimo personaggio per lista utenti
+app.patch("/api/utenti/:utenteid/lastpgid", async (req, res) => {
+  const utenteid = req.params.utenteid;
+  const { tokenid } = req.body;
 
+  try {
+    const [userRows] = await db.query("SELECT * FROM utenti WHERE id = ?", [utenteid]);
+    if (userRows.length === 0) return res.status(404).json({ message: "Utente non trovato" });
+
+    await db.query("UPDATE utenti SET lastPg = ? WHERE id = ?", [tokenid, utenteid]);
+    res.json({ message: "lastPg aggiornato correttamente" });
+  } catch (err) {
+    console.error("Errore aggiornamento lastPg:", err);
+    res.status(500).json({ error: "Errore del server" });
+  }
+});
 
 
 //Cos'è sta roba?
