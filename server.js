@@ -345,6 +345,40 @@ app.get("/api/npc", async (req, res) => {
   }
 });
 
+// Recupera tutti gli utenti
+app.get("/api/allutenti", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Token mancante" });
+
+    const decoded = jwt.verify(token, "supersegreto");
+    if (!decoded.is_dm) return res.status(403).json({ message: "Non autorizzato" });
+
+    const [rows] = await db.query("SELECT * FROM utenti");
+    res.json(rows);
+  } catch (error) {
+    console.error("Errore nel recupero Utenti:", error);
+    res.status(500).json({ error: "Errore server" });
+  }
+});
+
+// Recupera tutti i token personaggi
+app.get("/api/allchartokens", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Token mancante" });
+
+    const decoded = jwt.verify(token, "supersegreto");
+    if (!decoded.is_dm) return res.status(403).json({ message: "Non autorizzato" });
+
+    const [rows] = await db.query("SELECT * FROM tokens WHERE categoria = 'personaggio'");
+    res.json(rows);
+  } catch (error) {
+    console.error("Errore nel recupero Utenti:", error);
+    res.status(500).json({ error: "Errore server" });
+  }
+});
+
 // Recupera tutte le transizioni
 app.get("/api/transizioni", async (req, res) => {
   try {
@@ -946,7 +980,7 @@ app.get("/api/chat-log/:personaggio_id", async (req, res) => {
   }
 });
 
-
+// Invio in db chat base
 app.post("/api/chat/", async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
