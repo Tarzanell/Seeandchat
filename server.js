@@ -1316,7 +1316,7 @@ app.post("/api/chatgpt", async (req, res) => {
     const [mapResult] = await db.query("SELECT descrizione_chatgpt FROM mappe WHERE id = ?", [mappa_id]);
     if (!mapResult.length) return res.status(404).json({ error: "Mappa non trovata" });
 
-    const descrizioneMappa = mapResult[0].descrizione;
+    const descrizioneMappa = mapResult[0].descrizione_chatgpt;
     const mapNome = mapResult[0].nome;
     const prompt = `
 ${istruzioni}
