@@ -931,6 +931,72 @@ app.get("/api/chat-log/:personaggio_id", async (req, res) => {
   }
 });
 
+
+app.post("/api/chat/", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    const decoded = jwt.verify(token, "supersegreto");
+
+    const { testo, mappa_id, nome_personaggio, voce, linguaggio, mapNome } = req.body;
+
+    if (!testo || testo.length > 1000) {
+      return res.status(400).json({ error: "Messaggio vuoto o troppo lungo" });
+    }
+
+    // 1. Inserisci il messaggio del personaggio in chat
+    await db.query(
+      "INSERT INTO chat (messaggio, mappa_id, nome_personaggio, voce, linguaggio, timestamp, nome_mappa) VALUES (?, ?, ?, ?, ?, NOW(), ?)",
+      [testo, mappa_id, nome_personaggio, voce, linguaggio, mapNome]
+    );
+
+    // 2. Controlla la frase chiave (case insensitive)
+    if (testo.toLowerCase().includes("mi chiedo cosa pensino gli dei")) {
+      try {
+        const [mapResult] = await db.query("SELECT descrizione_chatgpt, nome FROM mappe WHERE id = ?", [mappa_id]);
+        if (!mapResult.length) return res.status(404).json({ error: "Mappa non trovata" });
+
+        const descrizioneMappa = mapResult[0].descrizione_chatgpt;
+        const nomeMappa = mapResult[0].nome;
+
+        // Recupera ultimi 2 messaggi dalla mappa
+        const [chatRows] = await db.query(
+          "SELECT messaggio FROM chat WHERE mappa_id = ? ORDER BY timestamp DESC LIMIT 2",
+          [mappa_id]
+        );
+
+        const ultimiMessaggi = chatRows.reverse().map(row => row.messaggio); // ordine cronologico
+
+        const istruzioni = `Tu sei la voce degli dei. Rispondi in modo criptico, vago e inquietante. Parla con autorità ma senza essere diretto. Puoi usare metafore, domande retoriche o visioni.`
+
+        const prompt = `
+${istruzioni}
+
+Descrizione mappa:
+${descrizioneMappa}
+
+Ultimi messaggi:
+${ultimiMessaggi.map((msg, i) => `Messaggio ${i + 1}: ${msg}`).join("\n")}
+`;
+
+        // Inserisci la risposta fittizia di ChatGPT nella chat
+        await db.query(
+          "INSERT INTO chat (messaggio, mappa_id, nome_personaggio, voce, linguaggio, timestamp, nome_mappa) VALUES (?, ?, ?, ?, ?, NOW(), ?)",
+          [prompt, mappa_id, "Chatgpt", "urlando", "comune", nomeMappa]
+        );
+      } catch (err) {
+        console.error("Errore nella generazione del messaggio degli dei:", err);
+      }
+    }
+
+    res.status(201).json({ message: "Messaggio inviato" });
+  } catch (err) {
+    console.error("Errore nell'invio del messaggio:", err);
+    res.status(500).json({ error: "Errore server" });
+  }
+});
+
+// Invio in db chat base + api chatgpt vecchie
+/*
 // Invio messaggi in DB chat
 app.post("/api/chat/", async (req, res) => {
   try {
@@ -954,6 +1020,46 @@ app.post("/api/chat/", async (req, res) => {
     res.status(500).json({ error: "Errore server" });
   }
 });
+
+
+// Risposte chatgpt
+app.post("/api/chatgpt", async (req, res) => {
+  const { istruzioni, mappa_id, chat } = req.body;
+
+  try {
+    const [mapResult] = await db.query("SELECT descrizione_chatgpt FROM mappe WHERE id = ?", [mappa_id]);
+    if (!mapResult.length) return res.status(404).json({ error: "Mappa non trovata" });
+
+    const descrizioneMappa = mapResult[0].descrizione_chatgpt;
+    const mapNome = mapResult[0].nome;
+    const prompt = `
+${istruzioni}
+
+Descrizione mappa:
+${descrizioneMappa}
+
+Ultimi messaggi:
+${chat.map((msg, i) => `Messaggio ${i + 1}: ${msg}`).join("\n")}
+`;
+
+    // CHIAMATA A CHATGPT (mock)
+    // const gptResponse = await fetchOpenAI(prompt);
+    //const gptResponse = { risposta: "Risposta simulata da ChatGPT:", prompt };
+    //res.json({ risposta: gptResponse });
+  
+    await db.query(
+      "INSERT INTO chat (messaggio, mappa_id, nome_personaggio, voce, linguaggio, timestamp, nome_mappa) VALUES (?, ?, ?, ?, ?, NOW(), ?)",
+      [prompt, mappa_id, "Chatgpt", "urlando", "comune", mapNome]
+    );
+
+  } 
+  catch (err) {
+    console.error("Errore API ChatGPT:", err);
+    res.status(500).json({ error: "Errore del server" });
+  }
+});
+*/
+
 
 // Nuovo Personaggio
 app.post("/api/personaggi", upload.fields([
@@ -1308,45 +1414,7 @@ app.put("/api/personaggi/:id/bgapproved/:stato", async (req, res) => {
 });
 
 
-// Risposte chatgpt
-app.post("/api/chatgpt", async (req, res) => {
-  const { istruzioni, mappa_id, chat } = req.body;
 
-  try {
-    const [mapResult] = await db.query("SELECT descrizione_chatgpt FROM mappe WHERE id = ?", [mappa_id]);
-    if (!mapResult.length) return res.status(404).json({ error: "Mappa non trovata" });
-
-    const descrizioneMappa = mapResult[0].descrizione_chatgpt;
-    const mapNome = mapResult[0].nome;
-    const prompt = `
-${istruzioni}
-
-Descrizione mappa:
-${descrizioneMappa}
-
-Ultimi messaggi:
-${chat.map((msg, i) => `Messaggio ${i + 1}: ${msg}`).join("\n")}
-`;
-
-    // CHIAMATA A CHATGPT (mock)
-    // const gptResponse = await fetchOpenAI(prompt);
-    //const gptResponse = { risposta: "Risposta simulata da ChatGPT:", prompt };
-    //res.json({ risposta: gptResponse });
-  
-    await db.query(
-      "INSERT INTO chat (messaggio, mappa_id, nome_personaggio, voce, linguaggio, timestamp, nome_mappa) VALUES (?, ?, ?, ?, ?, NOW(), ?)",
-      [prompt, mappa_id, "Chatgpt", "urlando", "comune", mapNome]
-    );
-
-  } 
-  catch (err) {
-    console.error("Errore API ChatGPT:", err);
-    res.status(500).json({ error: "Errore del server" });
-  }
-
-  
-  
-});
 
 //Cos'è sta roba?
 const os = require("os");
