@@ -184,10 +184,41 @@ const [showEditPortrait, setShowEditPortrait] = useState(false);
         </div>
 
         <div style={{ marginTop: "20px", border: "1px solid black", padding: "10px" }}>
-          <h3>Background</h3>
-          
-          <CharacterEditForms character={character} refresh={fetchCharacter} tipo="background" isDm={isDm} />
-        </div>
+  <h3>Background</h3>
+  <CharacterEditForms character={character} refresh={fetchCharacter} tipo="background" isDm={isDm} />
+
+  {isDm && (
+    <button
+      style={{ marginTop: "10px" }}
+      onClick={async () => {
+        const nuovoStato = !character.BGapproved;
+        try {
+          const token = localStorage.getItem("token");
+          const res = await fetch(
+            `http://217.154.16.188:3001/api/personaggi/${character.id}/bgapproved/${nuovoStato}`,
+            {
+              method: "PUT",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          if (res.ok) {
+            alert(`BG ${nuovoStato ? "approvato" : "disapprovato"}.`);
+            fetchCharacter();
+          } else {
+            alert("Errore nella modifica dello stato BG.");
+          }
+        } catch (err) {
+          console.error("Errore chiamata API BGapproved:", err);
+          alert("Errore di rete.");
+        }
+      }}
+    >
+      {character.BGapproved ? "Disapprova BG" : "Approva BG"}
+    </button>
+  )}
+</div>
 
         <div style={{ marginTop: "20px", border: "1px solid black", padding: "10px" }}>
           <h3>Note</h3>

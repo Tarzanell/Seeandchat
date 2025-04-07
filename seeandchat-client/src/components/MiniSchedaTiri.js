@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function MiniSchedaTiri({ character}) {
+function MiniSchedaTiri({ character, mioToken, mapNome}) {
   const [risultato, setRisultato] = useState(null);
 
   const lanciaDado = async (bonus, nome) => {
@@ -21,7 +21,8 @@ function MiniSchedaTiri({ character}) {
           voce: "Urlando",
           linguaggio: "Comune",
           nome_personaggio: character.nome,
-          mappa_id: character.mappa_id,
+          mappa_id: mioToken.mappa_id,
+          mapNome,
         }),
       });
     } catch (error) {

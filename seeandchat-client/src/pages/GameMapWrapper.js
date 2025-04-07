@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import GameMap from "./GameMap";
+import MappaGlobale from "../components/MappaGlobale";
+import GiocatoriOnlinePopup from "../components/GiocatoriOnlinePopup"; // Assicurati che il path sia corretto
 
 function GameMapWrapper() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [showMappaGlobale, setShowMappaGlobale] = useState(false);
+  const [showGiocatoriOnline, setShowGiocatoriOnline] = useState(false);
 
   const character = location.state?.character;
   const userId = location.state?.userId;
@@ -12,14 +16,12 @@ function GameMapWrapper() {
 
   const [mioToken, setMioToken] = useState(null);
 
-  // Evita return condizionale
   useEffect(() => {
     if (!character) {
       navigate("/characters");
     }
   }, [character, navigate]);
 
-  // Polling: se cambia mappa, ricarica
   useEffect(() => {
     if (!mioToken) return;
 
@@ -61,6 +63,14 @@ function GameMapWrapper() {
       }}>
         {!isDm && <button onClick={() => navigate("/characters")}>Torna ai Personaggi</button>}
         {isDm && <button onClick={() => navigate("/dmdashboard")}>Vai al DM Dashboard</button>}
+        <button onClick={() => setShowMappaGlobale(prev => !prev)}>
+          {showMappaGlobale ? "Chiudi Mappa Globale" : "Apri Mappa Globale"}
+        </button>
+        {isDm && (
+          <button onClick={() => setShowGiocatoriOnline(prev => !prev)}>
+            {showGiocatoriOnline ? "Chiudi Giocatori Online" : "Giocatori Online"}
+          </button>
+        )}
       </div>
 
       {/* 🔸 Mappa */}
@@ -71,6 +81,14 @@ function GameMapWrapper() {
         mioToken={mioToken}
         setMioToken={setMioToken}
       />
+
+      {showMappaGlobale && (
+        <MappaGlobale character={character} mioToken={mioToken} />
+      )}
+
+      {showGiocatoriOnline && (
+        <GiocatoriOnlinePopup />
+      )}
     </div>
   );
 }

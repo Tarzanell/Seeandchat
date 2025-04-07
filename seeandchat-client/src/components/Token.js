@@ -55,6 +55,7 @@ function Token({ token, characterToken, positionStyle, character, userId, isDm, 
 
   const [{ isDragging }, drag] = useDrag({
     type: "TOKEN",
+    canDrag: !token.isInvisible,
     item: () => {
       setDragStartPos({
         x: token.posizione_x * 50 + 25,
@@ -76,10 +77,10 @@ function Token({ token, characterToken, positionStyle, character, userId, isDm, 
       const newX = Math.max(0, Math.min(mapWidth - 1, token.posizione_x + deltaX));
       const newY = Math.max(0, Math.min(mapHeight - 1, token.posizione_y + deltaY));
 
-      console.log("Id proprietario Token:",token.proprietario_id);
-      console.log("Id di chi sta toccando:",userId);
+      /*console.log("Id proprietario Token:",token.proprietario_id);
+      console.log("Id di chi sta toccando:",userId);*/
       
-      if (token.proprietario_id !== userId && !isDm) return;
+      if (token.proprietario_id != userId && !isDm) return;
 
       const movementCost = magnitude;
       if (isCombat && remainingMovement !== null && movementCost > remainingMovement) {
@@ -94,6 +95,7 @@ function Token({ token, characterToken, positionStyle, character, userId, isDm, 
 
       try {
         const authToken = localStorage.getItem("token");
+        console.log("Token id spostato:", token.id);
         await fetch(`http://217.154.16.188:3001/api/token/${token.id}/posizione`, {
           method: "PATCH",
           headers: {
@@ -118,6 +120,8 @@ function Token({ token, characterToken, positionStyle, character, userId, isDm, 
   });
 
   const handleClick = async () => {
+    console.log("", token.isInvisible);
+    if (token.isInvisible) return;
     if (showOpzioni || showDescrizione) return;
     if (token.categoria === "personaggio") {
       setShowOpzioni(true);
@@ -128,6 +132,7 @@ function Token({ token, characterToken, positionStyle, character, userId, isDm, 
     if (token.nome === "Escidallimbo") {
       const authToken = localStorage.getItem("token");
       try {
+        console.log("characterToken:", characterToken.id);
         await fetch(`http://217.154.16.188:3001/api/exitlimbo/${characterToken.id}`, {
           method: "PATCH",
           headers: {
@@ -200,6 +205,7 @@ function Token({ token, characterToken, positionStyle, character, userId, isDm, 
         ref={drag}
         className="token"
         style={{
+          display: token.isInvisible ? "none" : "block",
           position: "absolute",
           width: "50px",
           height: "50px",
@@ -210,7 +216,7 @@ function Token({ token, characterToken, positionStyle, character, userId, isDm, 
           ...positionStyle,
           zIndex: 10,
         }}
-        onClick={handleClick}
+        onClick={token.isInvisible ? undefined : handleClick}
       >
         {showOpzioni && (
           <div className="popup-opzioni" style={{ position: "absolute", top: "60px", left: 0, backgroundColor: "white", padding: "10px", border: "1px solid black", zIndex: 100 }}>

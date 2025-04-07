@@ -6,6 +6,8 @@ import SpawnNpcTransizione from "../components/SpawnNpcTransizione";
 import ChatBox from "../components/ChatBox";
 import CustomDragLayer from "../components/CustomDragLayer";
 import MiniSchedaTiri from "../components/MiniSchedaTiri";
+import MappaGlobale from "../components/MappaGlobale";
+import DmTeletrasporto from "../components/DmTeletrasporto";
 
 function GameMap({ character, userId, isDm, mioToken, setMioToken }) {
   const [mioTokenState, setMioTokenState] = useState(null);
@@ -130,6 +132,9 @@ function GameMap({ character, userId, isDm, mioToken, setMioToken }) {
           {isDm && (
             <SpawnNpcTransizione mappaId={mioTokenState.mappa_id} setTokens={setTokens} />
           )}
+
+          {isDm && <DmTeletrasporto mioToken={mioTokenState} isDm={isDm} refresh={() => setMioTokenState({ ...mioTokenState })
+          } />}
   
           {tokens.map((token, idx) => {
             const overlapping = tokens.filter(
@@ -161,8 +166,8 @@ function GameMap({ character, userId, isDm, mioToken, setMioToken }) {
         </div>
   
         {/* Mini scheda a fianco */}
-        <MiniSchedaTiri character={character}/>
-      </div>
+        <MiniSchedaTiri character={character} mioToken={mioTokenState}  mapNome={mapNome}/>
+        </div>
   
       {!!isCombat && (
         <div style={{ marginTop: "10px", textAlign: "center" }}>

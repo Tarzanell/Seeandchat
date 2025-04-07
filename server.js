@@ -373,7 +373,6 @@ app.get("/api/allchartokens", async (req, res) => {
 
     const [rows] = await db.query("SELECT * FROM tokens WHERE categoria = 'personaggio'");
     res.json(rows);
-    console.log("Characters da api:", rows);
   } catch (error) {
     console.error("Errore nel recupero Utenti:", error);
     res.status(500).json({ error: "Errore server" });

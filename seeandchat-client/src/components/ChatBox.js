@@ -26,23 +26,25 @@ function ChatBox({ character, mioToken, mapNome }) {
     }
   };
 
+  
+
   useEffect(() => {
     caricaChatLog();
-    const intervallo = setInterval(caricaChatLog, 5000);
+    const intervallo = setInterval(caricaChatLog, 1000);
     return () => clearInterval(intervallo);
   }, [mioToken.fatherid]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     const intervallo = setInterval(() => {
-      fetch(`http://217.154.16.188:3001/api/chat/${mioToken.mappa_id}/${mioToken.id}/${mapNome}`, {
+      fetch(`http://217.154.16.188:3001/api/chat/${mioToken.mappa_id}/${mioToken.id}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
 
 
-    }, 2000); // ogni 5 secondi
+    }, 1000); // ogni 5 secondi
   
     return () => clearInterval(intervallo);
   }, [mioToken.id, mioToken.mappa_id]);
@@ -64,7 +66,9 @@ function ChatBox({ character, mioToken, mapNome }) {
           mappa_id: mioToken.mappa_id,
           nome_personaggio: character.nome,
           voce,
-          linguaggio
+          linguaggio,
+          mapNome
+
         })
       });
   
@@ -72,7 +76,7 @@ function ChatBox({ character, mioToken, mapNome }) {
         setTesto("");
   
         // 2. Esegui censura + salvataggio log per questo personaggio
-        await fetch(`http://217.154.16.188:3001/api/chat/${mioToken.mappa_id}/${mioToken.id}/${mapNome}`, {
+        await fetch(`http://217.154.16.188:3001/api/chat/${mioToken.mappa_id}/${mioToken.id}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }

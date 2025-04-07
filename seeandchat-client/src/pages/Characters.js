@@ -9,12 +9,14 @@ function Characters() {
   const token = localStorage.getItem("token");
   let isDm = false;
   let userId = 0;
+  let utentenome ="";
 
   if (token) {
     try {
       const decoded = jwtDecode(token);
       isDm = decoded.is_dm;
       userId = decoded.id;
+      utentenome = decoded.username;
     } catch (error) {
       console.error("Errore nella decodifica del token:", error);
     }
@@ -24,7 +26,7 @@ function Characters() {
     fetchCharacters();
   }, []);
 
-  const fetchCharacters = async () => {
+  /*const fetchCharacters = async () => {
     const response = await fetch("http://217.154.16.188:3001/api/listapersonaggi", {
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -35,6 +37,29 @@ function Characters() {
     } else {
       alert("Errore nel recupero dei personaggi.");
     }
+  };*/
+
+  const fetchCharacters = async () => {
+
+    const endpoint = isDm
+    ? "http://217.154.16.188:3001/api/listapersonaggidm"
+    : "http://217.154.16.188:3001/api/listapersonaggi";
+
+    try {
+      const response = await fetch(endpoint, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+    const data = await response.json();
+    if (response.ok) {
+      setCharacters(data);
+    } else {
+      alert("Errore nel recupero dei personaggi.");
+    }
+  } catch (error) {
+    console.error("Errore nella fetch dei personaggi:", error);
+    alert("Errore di rete.");
+  }
   };
 
   const handleDelete = async (id) => {
@@ -50,6 +75,31 @@ function Characters() {
       alert("Errore nella cancellazione del personaggio.");
     }
   };
+
+const handleUtilizza = async (char) =>{
+
+  const response = await fetch(`http://217.154.16.188:3001/api/utenti/${userId}/${char.id}`, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (response.ok) {
+    alert("LastPg aggiornato!");
+  } else {
+    alert("Errore nel coso dell'ultimo personaggio.");
+  }
+
+
+  navigate("/mappa", {
+    state: {
+    character: char,
+    userId,     // già estratto da jwt
+    isDm,}
+    });
+
+
+};
+
 
   return (
 
@@ -81,17 +131,13 @@ function Characters() {
                 style={{ cursor: "pointer", flex: 1 }}
               >
                 {char.nome}
+                {" | Proprietario: "}
+                {char.utente_nome}
               </span>
-
+                
               <button onClick={() => handleDelete(char.id)}>❌ Cancella</button>
-              <button onClick={() => navigate("/mappa", {
-              state: {
-              character: char,
-              userId,     // già estratto da jwt
-              isDm,}
-              })}>
-              Utilizza
-              </button>
+              <button onClick={() => handleUtilizza(char)}>Utilizza</button>
+              
             </li>
           ))}
         </ul>
@@ -99,7 +145,9 @@ function Characters() {
         <p>Nessun personaggio trovato.</p>
       )}
 
-      <button onClick={() => navigate("/new-new-character")}>➕ Nuovo Personaggio</button>
+      <button onClick={() => navigate("/new-new-character", {
+              state: {utentenome,}
+              })}>➕ Nuovo Personaggio</button>
 
       {isDm && (
         <>

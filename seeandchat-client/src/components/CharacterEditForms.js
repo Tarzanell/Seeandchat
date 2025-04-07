@@ -35,6 +35,11 @@ function CharacterEditForms({ character, tipo, refresh, isDm }) {
   };
 
   const handleTextUpdate = async (campo) => {
+    if (campo === "background") {
+      const conferma = window.confirm("Questo resetterà l'approvazione del BG. Procedere?");
+      if (!conferma) return;
+    }
+
     try {
       setLoading(true);
       const res = await fetch(`http://217.154.16.188:3001/api/personaggi/${character.id}/${campo}`, {
@@ -46,43 +51,32 @@ function CharacterEditForms({ character, tipo, refresh, isDm }) {
         body: JSON.stringify({ descrizione: text }),
       });
 
-      if (res.ok) {
-        refresh();
-      } else {
-        alert("Errore nell'aggiornamento.");
+      if (!res.ok) throw new Error();
+
+      // Se è background, chiama anche l’API per disapprovare
+      if (campo === "background") {
+        await fetch(`http://217.154.16.188:3001/api/personaggi/${character.id}/bgapproved/false`, {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token}` },
+        });
       }
+
+      refresh();
     } catch (err) {
       console.error("Errore aggiornamento:", err);
-      alert("Errore di rete.");
+      alert("Errore nell'aggiornamento.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleApproval = async () => {
-    try {
-      const res = await fetch(`http://217.154.16.188:3001/api/personaggi/${character.id}/approva_bg`, {
-        method: "PUT",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (res.ok) {
-        refresh();
-      } else {
-        alert("Errore nell'approvazione.");
-      }
-    } catch (err) {
-      console.error("Errore approvazione:", err);
-      alert("Errore di rete.");
-    }
-  };
 
   if (tipo === "token" || tipo === "portrait") {
     return (
       <div>
         <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files[0])} />
         <button onClick={() => handleFileUpload(tipo, tipo)} disabled={loading}>
-            Cambia {tipo}
+          Cambia {tipo}
         </button>
       </div>
     );
@@ -101,9 +95,7 @@ function CharacterEditForms({ character, tipo, refresh, isDm }) {
         <button onClick={() => handleTextUpdate(tipo)} disabled={loading}>
           Aggiorna {tipo}
         </button>
-        {tipo === "bg" && isDm && (
-          <button onClick={handleApproval}>Approva BG</button>
-        )}
+        
       </div>
     );
   }

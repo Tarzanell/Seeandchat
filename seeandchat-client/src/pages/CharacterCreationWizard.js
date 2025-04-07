@@ -1,13 +1,17 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import Step1BasicInfo from "./Step1BasicInfo";
 import Step2PointBuy from "./Step2PointBuy";
 import Step3ClasseDescrizione from "./Step3ClasseDescrizione";
 import Step4UploadEFinale from "./Step4UploadEFinale";
 
 function CharacterCreationWizard() {
+  const location = useLocation();
   const [step, setStep] = useState(1);
-
+  const nomeutente = location.state?.utentenome;
+console.log("Nome utente:", nomeutente);
   const [formData, setFormData] = useState({
+    utente_nome:nomeutente,
     nome: "",
     eta: "",
     altezza: "",

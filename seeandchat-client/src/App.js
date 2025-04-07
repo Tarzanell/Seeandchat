@@ -7,6 +7,7 @@ import CharacterDetails from "./pages/CharacterDetails";
 import GameMapWrapper from "./pages/GameMapWrapper";
 import CaricaMappa from "./pages/CaricaMappa";
 import VisualizzaMappe from "./pages/VisualizzaMappe";
+import VisualizzaTransizioni from "./pages/VisualizzaTransizioni";
 import DMDashboard from "./pages/DMDashboard";
 import NuovoSpawn from "./pages/NuovoSpawn";
 import NuovaTransizione from "./pages/NuovaTransizione";
@@ -41,6 +42,7 @@ function App() {
         <Route path="/nuovo-npc" element={<NuovoNPC />} />
         <Route path="/visualizza-archetipi" element={<VisualizzaArchetipi />} />
         <Route path="/visualizza-tokens" element={<VisualizzaTokens />} />
+        <Route path="/visualizza-transizioni" element={<VisualizzaTransizioni />} />
        </Routes>
     </Router>
   );
