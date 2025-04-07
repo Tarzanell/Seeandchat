@@ -847,6 +847,7 @@ app.get("/api/chat/:mappa_id/:token_id", async (req, res) => {
     const tokenMap = Object.fromEntries(tokenChat.map(t => [t.nome, t]));
 
     const messaggiCensurati = chatRows.map(msg => {
+      console.log("Nome mittente:",msg.nome_personaggio);
       if (msg.nome_personaggio.toLowerCase().includes("DM"))
         { 
           return {
