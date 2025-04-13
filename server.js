@@ -1159,23 +1159,15 @@ ${chat.map((msg, i) => `Messaggio ${i + 1}: ${msg}`).join("\n")}
 });
 */
 
-app.post("/api/inviomissive", async (req, res) => {
-  try {
-
-    console.log ("CAZZI");
-  } catch (err) {
-    console.error("Errore invio missiva:", err);
-    res.status(500).json({ error: "Errore server" });
-  }
-});
-
 
 // Invio missive
-/*app.post("/api/inviomissive", async (req, res) => {
+app.post("/api/inviomissive", async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
+    console.log("Token ricevuto:", token);
     const decoded = jwt.verify(token, "supersegreto");
-    
+    console.log("Token decodificato:", decoded);
+
     const {
       mittente_id,
       mittente_nome,
@@ -1184,19 +1176,29 @@ app.post("/api/inviomissive", async (req, res) => {
       locazione
     } = req.body;
 
+    console.log("Dati ricevuti:", {
+      mittente_id,
+      mittente_nome,
+      destinatario_nome,
+      testo,
+      locazione
+    });
 
     const [rows] = await db.query(
       "SELECT id FROM personaggi WHERE nome = ? LIMIT 1",
       [destinatario_nome]
     );
-  
+    console.log("Risultato query destinatario:", rows);
+
     if (rows.length === 0) {
+      console.warn("Destinatario non trovato");
       return res.status(404).json({ error: "Personaggio destinatario non trovato" });
     }
-   
+
     const destinatario_id = rows[0].id;
 
     if (!mittente_id || !mittente_nome || !destinatario_id || !destinatario_nome || !testo || !locazione) {
+      console.warn("Dati mancanti nel body");
       return res.status(400).json({ error: "Dati mancanti" });
     }
 
@@ -1206,14 +1208,15 @@ app.post("/api/inviomissive", async (req, res) => {
       VALUES (?, ?, ?, ?, ?, ?, false)`,
       [mittente_id, mittente_nome, destinatario_id, destinatario_nome, testo, locazione]
     );
+    console.log("Missiva salvata correttamente");
 
     res.status(201).json({ message: "Missiva inviata" });
   } catch (err) {
-    console.error("Errore invio missiva:", err);
+    console.error("❌ Errore invio missiva:", err);
     res.status(500).json({ error: "Errore server" });
   }
 });
-*/
+
 
 // Recupero missive
 app.get("/api/missive/:personaggio_id", async (req, res) => {
