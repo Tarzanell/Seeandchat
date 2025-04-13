@@ -1159,8 +1159,19 @@ ${chat.map((msg, i) => `Messaggio ${i + 1}: ${msg}`).join("\n")}
 });
 */
 
-// Invio missive
 app.post("/api/inviomissive", async (req, res) => {
+  try {
+
+    console.log ("CAZZI");
+  } catch (err) {
+    console.error("Errore invio missiva:", err);
+    res.status(500).json({ error: "Errore server" });
+  }
+});
+
+
+// Invio missive
+/*app.post("/api/inviomissive", async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
     const decoded = jwt.verify(token, "supersegreto");
@@ -1202,7 +1213,7 @@ app.post("/api/inviomissive", async (req, res) => {
     res.status(500).json({ error: "Errore server" });
   }
 });
-
+*/
 
 // Recupero missive
 app.get("/api/missive/:personaggio_id", async (req, res) => {
