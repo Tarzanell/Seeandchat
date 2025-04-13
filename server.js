@@ -9,7 +9,7 @@ const path = require("path");
 
 app.use(cors());
 app.use(express.json());
-app.use('/uploads', express.static('uploads'));
+app.use('/uploads', cors(), express.static('uploads'));
 
 const db = mysql.createPool({
   host: "217.154.16.188",
@@ -992,11 +992,45 @@ app.post("/api/chat/", async (req, res) => {
       return res.status(400).json({ error: "Messaggio vuoto o troppo lungo" });
     }
 
+
+    if (testo.toLowerCase().startsWith("/p ")) {
+      const regex = /^\/p\s+(\S+)\s+(.+)/i;
+      const match = testo.match(regex);
+    
+      if (!match) {
+        return res.status(400).json({ error: "Sintassi messaggio privato non valida. Usa: /p NomePersonaggio messaggio" });
+      }
+    
+      const destinatarioNome = match[1];
+      const messaggio = match[2];
+    
+      // Cerca destinatario
+      const [rows] = await db.query(
+        "SELECT id FROM personaggi WHERE nome = ? LIMIT 1",
+        [destinatarioNome]
+      );
+    
+      if (rows.length === 0) {
+        return res.status(404).json({ error: "Personaggio destinatario non trovato" });
+      }
+    
+      const destinatarioId = rows[0].id;
+    
+      await db.query(
+        "INSERT INTO chat_logs (personaggio_id, timestamp, mittente, mappa_id, messaggio, nome_mappa) VALUES (?, NOW(), ?, 999, ?, 'Messaggio Privato')",
+        [destinatarioId, nome_personaggio, messaggio]
+      );
+    
+      return res.status(201).json({ message: "Messaggio privato inviato" });
+    }
+
     // 1. Inserisci il messaggio del personaggio in chat
+    else{
     await db.query(
       "INSERT INTO chat (messaggio, mappa_id, nome_personaggio, voce, linguaggio, timestamp, nome_mappa) VALUES (?, ?, ?, ?, ?, NOW(), ?)",
       [testo, mappa_id, nome_personaggio, voce, linguaggio, mapNome]
     );
+  
 
     // 2. Controlla la frase chiave (case insensitive)
     if (testo.toLowerCase().includes("mi chiedo cosa pensino gli dei")) {
@@ -1036,6 +1070,7 @@ ${ultimiMessaggi.map((msg, i) => `Messaggio ${i + 1}: ${msg}`).join("\n")}
         console.error("Errore nella generazione del messaggio degli dei:", err);
       }
     }
+  }
 
     res.status(201).json({ message: "Messaggio inviato" });
   } catch (err) {
@@ -1109,6 +1144,43 @@ ${chat.map((msg, i) => `Messaggio ${i + 1}: ${msg}`).join("\n")}
 });
 */
 
+// Invio messaggi privati
+app.post("/api/chat-privato", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Token mancante" });
+
+    const decoded = jwt.verify(token, "supersegreto");
+
+    const { destinatarioNome, testo, mittente } = req.body;
+
+    if (!destinatarioNome || !testo || !mittente) {
+      return res.status(400).json({ error: "Dati mancanti" });
+    }
+
+    // Cerca il destinatario
+    const [rows] = await db.query(
+      "SELECT id FROM personaggi WHERE nome = ? LIMIT 1",
+      [destinatarioNome]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Destinatario non trovato" });
+    }
+
+    const destinatarioId = rows[0].id;
+
+    await db.query(
+      "INSERT INTO chat_logs (personaggio_id, timestamp, mittente, mappa_id, messaggio, nome_mappa) VALUES (?, NOW(), ?, 999, ?, 'Messaggio Privato')",
+      [destinatarioId, mittente, testo]
+    );
+
+    res.status(201).json({ message: "Messaggio privato inviato con successo" });
+  } catch (err) {
+    console.error("Errore invio messaggio privato:", err);
+    res.status(500).json({ error: "Errore server" });
+  }
+});
 
 // Nuovo Personaggio
 app.post("/api/personaggi", upload.fields([
