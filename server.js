@@ -1020,6 +1020,21 @@ app.post("/api/chat/", async (req, res) => {
         "INSERT INTO chat_logs (personaggio_id, timestamp, mittente, mappa_id, messaggio, nome_mappa) VALUES (?, NOW(), ?, 999, ?, 'Messaggio Privato')",
         [destinatarioId, nome_personaggio, messaggio]
       );
+
+      const [mittenteRows] = await db.query(
+        "SELECT id FROM personaggi WHERE nome = ? LIMIT 1",
+        [nome_personaggio]
+      );
+      
+      if (mittenteRows.length > 0) {
+        const mittenteId = mittenteRows[0].id;
+        const messaggioConNota = `Inviato a ${destinatarioNome}: ${messaggio}`;
+      
+        await db.query(
+          "INSERT INTO chat_logs (personaggio_id, timestamp, mittente, mappa_id, messaggio, nome_mappa) VALUES (?, NOW(), ?, 999, ?, 'Messaggio Privato')",
+          [mittenteId, nome_personaggio, messaggioConNota]
+        );
+      }
     
       return res.status(201).json({ message: "Messaggio privato inviato" });
     }
