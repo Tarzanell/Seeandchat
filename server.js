@@ -352,8 +352,7 @@ app.get("/api/allutenti", async (req, res) => {
     if (!token) return res.status(401).json({ message: "Token mancante" });
 
     const decoded = jwt.verify(token, "supersegreto");
-    if (!decoded.is_dm) return res.status(403).json({ message: "Non autorizzato" });
-
+    
     const [rows] = await db.query("SELECT * FROM utenti");
     res.json(rows);
   } catch (error) {
