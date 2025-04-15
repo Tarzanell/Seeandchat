@@ -1,3 +1,4 @@
+// file in src/pages/
 import React, { useEffect, useState } from "react";
 import { useDrag } from "react-dnd";
 import dragPreviewImg from "../assets/token_drag_preview.png";
@@ -90,7 +91,7 @@ function Token({ token, characterToken, positionStyle, character, userId, isDm, 
         console.log("isCombat:", isCombat);
       if (isCombat) {
         setRemainingMovement(prev => Math.max(0, prev - movementCost));
-        console.log("Movimento rimanente:", remainingMovement);
+        console.log("Movimento rimanente:", Math.round(remainingMovement/50));
       }
 
       try {

@@ -18,7 +18,6 @@ import VisualizzaArchetipi from "./pages/VisualizzaArchetipi";
 import VisualizzaTokens from "./pages/VisualizzaTokens";
 import NewNewCharacter from "./pages/CharacterCreationWizard";
 import PingOnline from "./components/PingOnline";
-import CharacterEditForms from "./components/CharacterEditForms";
 
 function App() {
   return (

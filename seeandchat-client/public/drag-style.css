@@ -1,0 +1,6 @@
+/* public/drag-style.css */
+
+body.dragging,
+body.dragging * {
+  cursor: url("/img/my-cursor.png"), auto !important;
+}

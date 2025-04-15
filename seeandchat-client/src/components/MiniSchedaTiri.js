@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function MiniSchedaTiri({ character, mioToken, mapNome}) {
+function MiniSchedaTiri({ character, mioToken, mapNome, onClose }) {
   const [risultato, setRisultato] = useState(null);
 
   const lanciaDado = async (bonus, nome) => {
@@ -38,12 +38,19 @@ function MiniSchedaTiri({ character, mioToken, mapNome}) {
 
   return (
     <div style={{
-      border: "1px solid black",
-      padding: "10px",
+      position: "fixed",
+      top: "10%",
+      right: "10%",
+      background: "white",
+      border: "2px solid black",
+      padding: "20px",
+      zIndex: 9999,
       width: "300px",
-      marginLeft: "20px"
+      maxHeight: "80%",
+      overflowY: "auto"
     }}>
-      <h4>Tiri Rapidi</h4>
+      <h4 style={{ marginTop: 0 }}>🎲 Tiri Rapidi</h4>
+      <button onClick={onClose} style={{ float: "right", marginTop: "-30px" }}>Chiudi</button>
 
       <strong>Attributi</strong>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5px" }}>

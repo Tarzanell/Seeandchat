@@ -1,11 +1,14 @@
 // file in Seeandchat/seeandchat-client/src/components
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 function ChatBox({ character, mioToken, mapNome }) {
   const [messaggi, setMessaggi] = useState([]);
   const [testo, setTesto] = useState("");
   const [voce, setVoce] = useState("Parlando");
   const [linguaggio, setLinguaggio] = useState("Comune");
+  const fineChatRef = useRef(null);
+  const [shouldScroll, setShouldScroll] = useState(false);
+  const messaggiLengthRef = useRef(0);
 
   const caricaChatLog = async () => {
     try {
@@ -14,10 +17,15 @@ function ChatBox({ character, mioToken, mapNome }) {
           Authorization: `Bearer ${localStorage.getItem("token")}`
         }
       });
-
+  
       if (res.ok) {
         const data = await res.json();
-        setMessaggi(data);
+  
+        if (data.length > messaggiLengthRef.current) {
+          messaggiLengthRef.current = data.length;
+          setMessaggi(data);
+          setShouldScroll(true);
+        }
       } else {
         console.error("Errore nel recupero dei log chat.");
       }
@@ -25,6 +33,8 @@ function ChatBox({ character, mioToken, mapNome }) {
       console.error("Errore nel recupero chat log:", err);
     }
   };
+
+  
 
   
 
@@ -48,6 +58,16 @@ function ChatBox({ character, mioToken, mapNome }) {
   
     return () => clearInterval(intervallo);
   }, [mioToken.id, mioToken.mappa_id]);
+
+
+  useEffect(() => {
+    console.log("shouldScroll:", shouldScroll);
+    if (shouldScroll && fineChatRef.current) {
+      fineChatRef.current.scrollIntoView({ behavior: "smooth" });
+      setShouldScroll(false); // resetta
+    }
+  }, [messaggi, shouldScroll]);
+
 
   const inviaMessaggio = async (e) => {
     e.preventDefault();
@@ -92,19 +112,47 @@ function ChatBox({ character, mioToken, mapNome }) {
   };
 
   return (
-    <div style={{ marginTop: "5px", background: "#eee", padding: "10px", borderTop: "1px solid #ccc", maxHeight: "800px", overflowY: "auto" }}>
-      <h4>Chat di mappa</h4>
+    <div style={{ 
+      background: "#eee", 
+      padding: "10px", 
+      border: "5px solid #ccc", 
+      position: "relative",
+      top: 100,
+      left: 20,
+      width: 1030,
+      }}>
 
-      <div style={{ maxHeight: "300px", overflowY: "scroll", marginBottom: "10px", border: "1px solid gray", padding: "30px", backgroundColor: "white" }}>
-        {messaggi.map(msg => (
-          <div key={msg.id}>
-            <strong>{msg.mittente}</strong>: {msg.messaggio}
-            <div style={{ fontSize: "1em", color: "gray" }}>
-              [{new Date(msg.timestamp).toLocaleTimeString()}] {msg.voce} in {msg.nome_mappa}
-            </div>
-          </div>
-        ))}
+      <div style={{fontSize: "1em", color: "black", padding:"5px",}}>
+      <strong>Chat di mappa</strong>
       </div>
+
+      <div style={{ 
+        maxHeight: "250px", 
+        overflowY: "scroll", 
+        marginBottom: "10px", 
+        border: "1px solid gray", 
+        padding: "10px", 
+        backgroundColor: "white" }}>
+          
+      {messaggi.map(msg => (
+  <div
+    key={msg.id}
+    style={{ color: msg.nome_mappa === "Messaggio Privato" ? "purple" : "black" }}
+  >
+    <strong>{msg.mittente}</strong>: {msg.messaggio}
+    <div
+      style={{
+        fontSize: "1em",
+        color: "gray"
+      }}
+    >
+      [{new Date(msg.timestamp).toLocaleTimeString()}] {msg.voce} in {msg.nome_mappa}
+    </div>
+  </div>
+))}
+    <div ref={fineChatRef}/>
+      </div>
+
 
       <form onSubmit={inviaMessaggio}>
         <div>

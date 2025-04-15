@@ -113,41 +113,81 @@ const handleUtilizza = async (char) =>{
 
       <h2>Seleziona un personaggio</h2>
       {characters.length > 0 ? (
-        <ul>
-          {characters.map((char) => (
-            <li key={char.id} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              {char.token_img && (
-                <img
-                  src={`http://217.154.16.188:3001/uploads/tokens/${char.token_img}`}
-                  alt={char.nome}
-                  width="50"
-                  height="50"
-                  style={{ borderRadius: "5px" }}
-                />
-              )}
+  <>
+    {/* Personaggi propri */}
+    <h3>I tuoi personaggi</h3>
+    <ul>
+      {characters
+        .filter(char => char.utente_id === userId)
+        .map((char) => (
+          <li key={char.id} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            {char.token_img && (
+              <img
+                src={`http://217.154.16.188:3001/uploads/tokens/${char.token_img}`}
+                alt={char.nome}
+                width="50"
+                height="50"
+                style={{ borderRadius: "5px" }}
+              />
+            )}
+            <span
+              onClick={() => navigate(`/character/${char.id}`)}
+              style={{ cursor: "pointer", flex: 1 }}
+            >
+              {char.nome}
+              {" | Proprietario: "}
+              {char.utente_nome}
+            </span>
+            <button onClick={() => handleDelete(char.id)}>❌ Cancella</button>
+            <button onClick={() => handleUtilizza(char)}>Utilizza</button>
+          </li>
+        ))}
+    </ul>
 
-              <span
-                onClick={() => navigate(`/character/${char.id}`)}
-                style={{ cursor: "pointer", flex: 1 }}
-              >
-                {char.nome}
-                {" | Proprietario: "}
-                {char.utente_nome}
-              </span>
-                
-              <button onClick={() => handleDelete(char.id)}>❌ Cancella</button>
-              <button onClick={() => handleUtilizza(char)}>Utilizza</button>
-              
-            </li>
-          ))}
+    {/* Se sei DM, mostra anche gli altri */}
+    {isDm && (
+      <>
+        <h3>Altri personaggi</h3>
+        <ul>
+          {characters
+            .filter(char => char.utente_id !== userId)
+            .sort((a, b) => a.utente_id - b.utente_id)
+            .map((char) => (
+              <li key={char.id} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                {char.token_img && (
+                  <img
+                    src={`http://217.154.16.188:3001/uploads/tokens/${char.token_img}`}
+                    alt={char.nome}
+                    width="50"
+                    height="50"
+                    style={{ borderRadius: "5px" }}
+                  />
+                )}
+                <span
+                  onClick={() => navigate(`/character/${char.id}`)}
+                  style={{ cursor: "pointer", flex: 1 }}
+                >
+                  {char.nome}
+                  {" | Proprietario: "}
+                  {char.utente_nome}
+                </span>
+                <button onClick={() => handleDelete(char.id)}>❌ Cancella</button>
+                <button onClick={() => handleUtilizza(char)}>Utilizza</button>
+              </li>
+            ))}
         </ul>
-      ) : (
-        <p>Nessun personaggio trovato.</p>
-      )}
+      </>
+    )}
+  </>
+) : (
+  <p>Nessun personaggio trovato.</p>
+)}
 
       <button onClick={() => navigate("/new-new-character", {
               state: {utentenome,}
               })}>➕ Nuovo Personaggio</button>
+
+      <button onClick={() => navigate("/test", {})}>➕ DragTest</button>
 
       {isDm && (
         <>

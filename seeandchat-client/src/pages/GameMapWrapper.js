@@ -1,14 +1,20 @@
+// file in src/pages/
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import GameMap from "./GameMap";
 import MappaGlobale from "../components/MappaGlobale";
 import GiocatoriOnlinePopup from "../components/GiocatoriOnlinePopup"; // Assicurati che il path sia corretto
+import MissivePopup from "../components/MissivePopup";
+import MiniSchedaTiri from "../components/MiniSchedaTiri";
 
 function GameMapWrapper() {
   const location = useLocation();
   const navigate = useNavigate();
   const [showMappaGlobale, setShowMappaGlobale] = useState(false);
   const [showGiocatoriOnline, setShowGiocatoriOnline] = useState(false);
+  const [mostraMissive, setMostraMissive] = useState(false);
+  const [mostraSchedaTiri, setMostraSchedaTiri] = useState(false);
+  const [mapNome, setWrapperMapNome] = useState("");
 
   const character = location.state?.character;
   const userId = location.state?.userId;
@@ -63,14 +69,24 @@ function GameMapWrapper() {
       }}>
         {!isDm && <button onClick={() => navigate("/characters")}>Torna ai Personaggi</button>}
         {isDm && <button onClick={() => navigate("/dmdashboard")}>Vai al DM Dashboard</button>}
+        
         <button onClick={() => setShowMappaGlobale(prev => !prev)}>
           {showMappaGlobale ? "Chiudi Mappa Globale" : "Apri Mappa Globale"}
         </button>
-        {isDm && (
-          <button onClick={() => setShowGiocatoriOnline(prev => !prev)}>
-            {showGiocatoriOnline ? "Chiudi Giocatori Online" : "Giocatori Online"}
-          </button>
-        )}
+        
+        <button onClick={() => setShowGiocatoriOnline(prev => !prev)}>
+          {showGiocatoriOnline ? "Chiudi Giocatori Online" : "Giocatori Online"}
+        </button>
+        
+        <button onClick={() => setMostraMissive(prev => !prev)}>
+          {mostraMissive ? "Chiudi Missive" : "Missive"}
+        </button>
+
+        <button onClick={() => setMostraSchedaTiri(prev => !prev)}>
+          {mostraMissive ? "Chiudi Tiri Rapidi" : "Tiri Rapidi"}
+        </button>
+
+        
       </div>
 
       {/* 🔸 Mappa */}
@@ -80,6 +96,7 @@ function GameMapWrapper() {
         isDm={isDm}
         mioToken={mioToken}
         setMioToken={setMioToken}
+        setWrapperMapNome={setWrapperMapNome}
       />
 
       {showMappaGlobale && (
@@ -87,8 +104,22 @@ function GameMapWrapper() {
       )}
 
       {showGiocatoriOnline && (
-        <GiocatoriOnlinePopup />
+        <GiocatoriOnlinePopup mioToken={mioToken}/>
       )}
+
+      {mostraMissive && (
+        <MissivePopup mioToken={mioToken}/>
+      )}
+
+      {mostraSchedaTiri && (
+        <MiniSchedaTiri
+        character={character}
+        mioToken={mioToken}
+        mapNome={mapNome}
+        onClose={() => setMostraSchedaTiri(false)}
+        />
+      )}
+
     </div>
   );
 }

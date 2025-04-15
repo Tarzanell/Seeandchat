@@ -1,3 +1,4 @@
+// file in src/components/
 import { useDragLayer } from "react-dnd";
 
 const layerStyles = {
@@ -47,10 +48,10 @@ function CustomDragLayer({ dragStartPos }) {
   return (
     <svg style={layerStyles}>
       <line
-        x1={dragStartPos.x}
-        y1={dragStartPos.y + 40}
-        x2={coords.x2 - offsetX}
-        y2={coords.y2 - offsetY + 40}
+        x1={dragStartPos.x+ 50}
+        y1={dragStartPos.y + 90}
+        x2={coords.x2 - offsetX + 50}
+        y2={coords.y2 - offsetY + 90}
         stroke="black"
         strokeWidth="4"
         strokeDasharray="8,5"
