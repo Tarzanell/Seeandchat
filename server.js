@@ -1172,6 +1172,7 @@ app.post("/api/inviomissive", async (req, res) => {
       mittente_id,
       mittente_nome,
       destinatario_nome,
+      titolo,
       testo,
       locazione
     } = req.body;
@@ -1180,6 +1181,7 @@ app.post("/api/inviomissive", async (req, res) => {
       mittente_id,
       mittente_nome,
       destinatario_nome,
+      titolo,
       testo,
       locazione
     });
@@ -1204,9 +1206,9 @@ app.post("/api/inviomissive", async (req, res) => {
 
     await db.query(
       `INSERT INTO missive 
-      (mittente_id, mittente_nome, destinatario_id, destinatario_nome, testo, locazione, isRead) 
-      VALUES (?, ?, ?, ?, ?, ?, false)`,
-      [mittente_id, mittente_nome, destinatario_id, destinatario_nome, testo, locazione]
+      (mittente_id, mittente_nome, destinatario_id, destinatario_nome, testo, titolo, locazione, isRead) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, false)`,
+      [mittente_id, mittente_nome, destinatario_id, destinatario_nome, testo, titolo, locazione]
     );
     console.log("Missiva salvata correttamente");
 
@@ -1241,6 +1243,20 @@ app.get("/api/missive/:personaggio_id", async (req, res) => {
   }
 });
 
+
+// Segna missiva letta
+app.patch("/api/missive/:id/segna-letta", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await db.query("UPDATE missive SET isRead = 1 WHERE id = ?", [id]);
+
+    res.json({ message: "Missiva segnata come letta" });
+  } catch (err) {
+    console.error("Errore aggiornamento isRead:", err);
+    res.status(500).json({ error: "Errore server" });
+  }
+});
 
 // Nuovo Personaggio
 app.post("/api/personaggi", upload.fields([
