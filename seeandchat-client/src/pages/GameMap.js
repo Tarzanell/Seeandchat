@@ -225,8 +225,9 @@ function GameMap({ character, userId, isDm, mioToken, setMioToken, setWrapperMap
           </div>
         </div>
       )}
+
   
-      <ChatBox character={character} mioToken={mioTokenState} mapNome={mapNome} />
+
       <input type="hidden" value={JSON.stringify(mioTokenState)} id="token-json" />
     </DndProvider>
   );

@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 
 function ChatBox({ character, mioToken, mapNome }) {
+  
   const [messaggi, setMessaggi] = useState([]);
   const [testo, setTesto] = useState("");
   const [voce, setVoce] = useState("Parlando");
@@ -9,6 +10,8 @@ function ChatBox({ character, mioToken, mapNome }) {
   const fineChatRef = useRef(null);
   const [shouldScroll, setShouldScroll] = useState(false);
   const messaggiLengthRef = useRef(0);
+
+  
 
   const caricaChatLog = async () => {
     try {
@@ -63,7 +66,7 @@ function ChatBox({ character, mioToken, mapNome }) {
   useEffect(() => {
     console.log("shouldScroll:", shouldScroll);
     if (shouldScroll && fineChatRef.current) {
-      fineChatRef.current.scrollIntoView({ behavior: "smooth" });
+      fineChatRef.current.scrollIntoView({ behavior: "auto" });
       setShouldScroll(false); // resetta
     }
   }, [messaggi, shouldScroll]);
@@ -119,7 +122,7 @@ function ChatBox({ character, mioToken, mapNome }) {
       position: "relative",
       top: 100,
       left: 20,
-      width: 1030,
+      width: "100%",
       }}>
 
       <div style={{fontSize: "1em", color: "black", padding:"5px",}}>
@@ -134,22 +137,28 @@ function ChatBox({ character, mioToken, mapNome }) {
         padding: "10px", 
         backgroundColor: "white" }}>
           
-      {messaggi.map(msg => (
+          {messaggi.map(msg => (
   <div
     key={msg.id}
-    style={{ color: msg.nome_mappa === "Messaggio Privato" ? "purple" : "black" }}
+    style={{
+      color: msg.nome_mappa === "Messaggio Privato" ? "purple" : "black",
+      wordBreak: "break-word"  // <-- aggiunto
+    }}
   >
     <strong>{msg.mittente}</strong>: {msg.messaggio}
     <div
       style={{
         fontSize: "1em",
-        color: "gray"
+        color: "gray",
+        whiteSpace: "pre-wrap" // <-- opzionale se vuoi supportare anche \n
       }}
     >
       [{new Date(msg.timestamp).toLocaleTimeString()}] {msg.voce} in {msg.nome_mappa}
     </div>
   </div>
 ))}
+
+
     <div ref={fineChatRef}/>
       </div>
 

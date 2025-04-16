@@ -7,6 +7,7 @@ import GiocatoriOnlinePopup from "../components/GiocatoriOnlinePopup"; // Assicu
 import MissivePopup from "../components/MissivePopup";
 import MiniSchedaTiri from "../components/MiniSchedaTiri";
 import sfondo from "../assets/sfondoNero.png";
+import ChatBox from "../components/ChatBox";
 
 function GameMapWrapper() {
   const location = useLocation();
@@ -108,6 +109,16 @@ function GameMapWrapper() {
         setMioToken={setMioToken}
         setWrapperMapNome={setWrapperMapNome}
       />
+
+{mioToken && (
+  <div style={{ position: "absolute", width: "35%", top: 10, left: "60%", zIndex: 10 }}>
+    <ChatBox 
+      character={character} 
+      mioToken={mioToken} 
+      mapNome={mapNome} 
+    />
+  </div>
+)}
 
       {showMappaGlobale && (
         <MappaGlobale 

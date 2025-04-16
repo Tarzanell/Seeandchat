@@ -90,6 +90,8 @@ function MappaGlobale({ mioToken, character, onClose }) {
       left: "10%",
       right: "10%",
       bottom: "10%",
+      width: `${mapData.larghezza * 30 + 10}px`,
+      height: `${mapData.altezza * 30 + 150}px`,
       backgroundColor: "white",
       border: "2px solid black",
       padding: "20px",
@@ -100,8 +102,8 @@ function MappaGlobale({ mioToken, character, onClose }) {
       <h4>Mappa Globale</h4>
       <div style={{
         position: "relative",
-        width: `${mapData.larghezza * 50}px`,
-        height: `${mapData.altezza * 50}px`,
+        width: `${mapData.larghezza * 30}px`,
+        height: `${mapData.altezza * 30}px`,
         backgroundImage: `url(http://217.154.16.188:3001/uploads/mappe/${mapData.immagine})`,
         backgroundSize: "cover",
         marginBottom: "10px",
@@ -116,8 +118,8 @@ function MappaGlobale({ mioToken, character, onClose }) {
               title={tok.nome}
               style={{
                 position: "absolute",
-                left: `${tok.posizione_x * 50}px`,
-                top: `${tok.posizione_y * 50}px`,
+                left: `${tok.posizione_x * 30}px`,
+                top: `${tok.posizione_y * 30}px`,
                 width: "20px",
                 height: "20px",
                 backgroundImage: `url(http://217.154.16.188:3001/uploads/tokens/${tok.immagine})`,
