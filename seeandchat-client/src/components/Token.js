@@ -1,7 +1,6 @@
 // file in src/pages/
 import React, { useEffect, useState } from "react";
 import { useDrag } from "react-dnd";
-import dragPreviewImg from "../assets/token_drag_preview.png";
 
 function Token({ token, characterToken, positionStyle, character, userId, isDm, setTokens, mapWidth, mapHeight, dragStartPos, setDragStartPos, mousePos, setMousePos, isCombat, remainingMovement, setRemainingMovement, velocity }) {
 
@@ -186,8 +185,8 @@ function Token({ token, characterToken, positionStyle, character, userId, isDm, 
           },
           body: JSON.stringify({
             nuova_mappa_id: tokenTarget.mappa_id,
-            nuova_posizione_x: tokenTarget.posizione_x,
-            nuova_posizione_y: tokenTarget.posizione_y + 1,
+            nuova_posizione_x: tokenTarget.posizione_x + (dx/50),
+            nuova_posizione_y: tokenTarget.posizione_y + (dy/50),
           }),
         });
 

@@ -6,6 +6,7 @@ import MappaGlobale from "../components/MappaGlobale";
 import GiocatoriOnlinePopup from "../components/GiocatoriOnlinePopup"; // Assicurati che il path sia corretto
 import MissivePopup from "../components/MissivePopup";
 import MiniSchedaTiri from "../components/MiniSchedaTiri";
+import sfondo from "../assets/sfondoNero.png";
 
 function GameMapWrapper() {
   const location = useLocation();
@@ -58,7 +59,15 @@ function GameMapWrapper() {
   if (!character) return null;
 
   return (
-    <div>
+    
+    <div style={{
+      backgroundImage: `url(${sfondo})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+      minHeight: "100vh",
+    }}>
+
       {/* 🔹 Barra di navigazione fissa */}
       <div style={{
         backgroundColor: "#f5f5f5",
@@ -67,6 +76,7 @@ function GameMapWrapper() {
         display: "flex",
         gap: "10px"
       }}>
+
         {!isDm && <button onClick={() => navigate("/characters")}>Torna ai Personaggi</button>}
         {isDm && <button onClick={() => navigate("/dmdashboard")}>Vai al DM Dashboard</button>}
         
@@ -100,15 +110,25 @@ function GameMapWrapper() {
       />
 
       {showMappaGlobale && (
-        <MappaGlobale character={character} mioToken={mioToken} />
+        <MappaGlobale 
+        character={character} 
+        mioToken={mioToken} 
+        onClose={() => setShowMappaGlobale(false)}
+        />
       )}
 
       {showGiocatoriOnline && (
-        <GiocatoriOnlinePopup mioToken={mioToken}/>
+        <GiocatoriOnlinePopup 
+        mioToken={mioToken}
+        onClose={() => setShowGiocatoriOnline(false)}
+        />
       )}
 
       {mostraMissive && (
-        <MissivePopup mioToken={mioToken}/>
+        <MissivePopup 
+        mioToken={mioToken}
+        onClose={() => setMostraMissive(false)}
+        />
       )}
 
       {mostraSchedaTiri && (

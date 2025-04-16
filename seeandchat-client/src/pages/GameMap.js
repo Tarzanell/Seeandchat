@@ -175,12 +175,15 @@ function GameMap({ character, userId, isDm, mioToken, setMioToken, setWrapperMap
             }}
           >
             {isDm && <SpawnNpcTransizione mappaId={mioTokenState.mappa_id} setTokens={setTokens} />}
+            
             {isDm && (
-              <DmTeletrasporto
-                mioToken={mioTokenState}
-                isDm={isDm}
-                refresh={() => setMioTokenState({ ...mioTokenState })}
-              />
+              <div style={{ position: "absolute", height:"50px", top: 10, right: 50, zIndex: 10 }}>
+                <DmTeletrasporto
+                  mioToken={mioTokenState}
+                  isDm={isDm}
+                  refresh={() => setMioTokenState({ ...mioTokenState })}
+                />
+              </div>
             )}
   
             {tokens.map((token, idx) => {

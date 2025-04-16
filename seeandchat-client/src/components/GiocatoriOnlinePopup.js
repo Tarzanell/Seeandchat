@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-function GiocatoriOnlinePopup({mioToken}) {
+function GiocatoriOnlinePopup({mioToken, onClose}) {
   const [utenti, setUtenti] = useState([]);
   const [tokens, setTokens] = useState([]);
   const [popupVisibile, setPopupVisibile] = useState(false);
@@ -160,8 +160,10 @@ function GiocatoriOnlinePopup({mioToken}) {
 
   return (
     <>
-      <div style={{ position: "fixed", top: "10%", left: "10%", right: "10%", bottom: "10%", background: "white", border: "2px solid black", overflowY: "auto", padding: "20px", zIndex: 9999 }}>
+      <div style={{ position: "fixed", top: "10%", left: "10%", right: "50%", bottom: "40%", background: "white", border: "2px solid black", overflowY: "auto", padding: "20px", zIndex: 9999 }}>
       <h3>Personaggi Online</h3>
+      <button onClick={onClose} style={{ float: "right", marginTop: "-30px" }}>Chiudi</button>
+
 {Array.isArray(utenti) && utenti.map(renderUtenteOnline)}
 
 <h3>Personaggi Offline</h3>

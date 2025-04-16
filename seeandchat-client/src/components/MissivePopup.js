@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-function MissivePopup({ mioToken}) {
+function MissivePopup({ mioToken, onClose}) {
   const [missive, setMissive] = useState([]);
   const [selezionata, setSelezionata] = useState(null);
   const token = localStorage.getItem("token");
@@ -47,7 +47,7 @@ function MissivePopup({ mioToken}) {
   return (
     <div style={{ position: "fixed", top: "10%", left: "10%", right: "10%", bottom: "10%", background: "white", border: "2px solid black", padding: "20px", overflowY: "auto", zIndex: 9999 }}>
       <h3>Missive</h3>
-      
+      <button onClick={onClose} style={{ float: "right", marginTop: "-30px" }}>Chiudi</button>
 
       {!selezionata ? (
         <>

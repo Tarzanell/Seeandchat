@@ -78,19 +78,56 @@ const [showEditPortrait, setShowEditPortrait] = useState(false);
         <h2>{character.nome}</h2>
 
         <div style={{ paddingBottom : "40px", display: "flex", gap: "20px", margin: "20px 0" }}>
+        
         {character.immagine && (
-          <div style={{ border: "4px solid black", padding: "5px", width: "300px", height: "600px", boxSizing: "border-box", position: "relative" }}>
-            <img
-             src={`http://217.154.16.188:3001/uploads/portraits/${character.immagine}`}
-             alt="Portrait"
-             style={{ width: "100%", height: "100%", objectFit: "cover" }}
-           />
-            <div style={{ position: "absolute", top: 10, right: 10 }}>
-              <button onClick={() => setShowEditPortrait((prev) => !prev)}>Modifica Portrait</button>
-            </div>
-           {showEditPortrait && <CharacterEditForms character={character} refresh={fetchCharacter} tipo="portrait" />}
-          </div>
-        )}
+  <div style={{
+    padding: "5px",
+    width: "380px",
+    height: "500px",
+    boxSizing: "border-box",
+    position: "relative",
+    overflow: "hidden"
+  }}>
+    {/* Portrait principale */}
+    <img
+      src={`http://217.154.16.188:3001/uploads/portraits/${character.immagine}`}
+      alt="Portrait"
+      style={{ 
+        position: "absolute",
+        left:"4%",
+        top:"4%", 
+        width: "90%", 
+        height: "90%", 
+        objectFit: "cover" }}
+    />
+
+    {/* Bordo sopra il portrait */}
+    <img
+      src={require("../assets/bordoPortrait.png")}
+      alt="Bordo"
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        objectFit: "cover",
+        pointerEvents: "none",
+        zIndex: 5
+      }}
+    />
+
+    {/* Bottone modifica */}
+    <div style={{ position: "absolute", top: 10, right: 10, zIndex: 3 }}>
+      <button onClick={() => setShowEditPortrait((prev) => !prev)}>Modifica Portrait</button>
+    </div>
+
+    {showEditPortrait && (
+      <CharacterEditForms character={character} refresh={fetchCharacter} tipo="portrait" />
+    )}
+  </div>
+)}
+
         {character.token_img && (
          <div style={{ border: "4px solid black", padding: "5px", width: "200px", height: "200px", boxSizing: "border-box", position: "relative" }}>
            <img
