@@ -345,6 +345,26 @@ app.get("/api/npc", async (req, res) => {
   }
 });
 
+// Modifica un NPC
+app.patch("/api/npc/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const fields = req.body;
+
+    const keys = Object.keys(fields).filter(k => k !== "id");
+    const values = keys.map(k => fields[k]);
+
+    const setClause = keys.map(k => `${k} = ?`).join(", ");
+
+    await db.query(`UPDATE npc SET ${setClause} WHERE id = ?`, [...values, id]);
+
+    res.status(200).json({ message: "NPC aggiornato con successo" });
+  } catch (err) {
+    console.error("Errore PATCH /api/npc/:id:", err);
+    res.status(500).json({ error: "Errore aggiornamento NPC" });
+  }
+});
+
 // Recupera tutti gli utenti
 app.get("/api/allutenti", async (req, res) => {
   try {
@@ -626,16 +646,16 @@ const uploadMulter = multer({ storage: storageToken });
 const uploadArchetipo = uploadMulter.single("immagine");
 
 // Configurazione multer portraits
+const sanitize = require("sanitize-filename");
+
 const dynamicStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    if (file.fieldname === "portrait") {
-      cb(null, "./uploads/portraits");
-    } else {
-      cb(null, "./uploads/tokens");
-    }
+    const path = file.fieldname === "portrait" ? "./uploads/portraits" : "./uploads/tokens";
+    cb(null, path);
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + "_" + file.originalname);
+    const cleanName = sanitize(file.originalname);
+    cb(null, Date.now() + "_" + cleanName);
   },
 });
 
@@ -705,7 +725,7 @@ app.post("/api/nuovo-npc", upload.fields([
     const immagine = req.files?.immagine?.[0]?.filename || "1744899088086_ChatGPT Image 17 apr 2025, 16_09_33.png";
     const token_img = req.files?.token_img?.[0]?.filename;
 
-    if (!nome || !immagine) return res.status(400).json({ message: "Nome o immagine mancante" });
+    if (!nome || !token_img) return res.status(400).json({ message: "Nome o immagine mancante" });
 
     await db.query(
       `INSERT INTO npc (
