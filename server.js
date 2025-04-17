@@ -417,7 +417,7 @@ app.post("/api/spawn-npc", async (req, res) => {
     const [npcData] = await db.query("SELECT * FROM npc WHERE id = ?", [id]);
     if (npcData.length === 0) return res.status(404).json({ message: "NPC non trovato" });
 
-    const { nome, immagine } = npcData[0];
+    const { nome, token_img } = npcData[0];
 
     const [existing] = await db.query(
       "SELECT * FROM tokens WHERE categoria = 'npc' AND fatherid = ?",
@@ -430,9 +430,9 @@ app.post("/api/spawn-npc", async (req, res) => {
       return res.json(updated[0]);
     } else {
       const [result] = await db.query(
-        `INSERT INTO tokens (nome, immagine, mappa_id, categoria, posizione_x, posizione_y, proprietario_id, fatherid)
+        `INSERT INTO tokens (nome, token_img, mappa_id, categoria, posizione_x, posizione_y, proprietario_id, fatherid)
          VALUES (?, ?, ?, 'npc', 0, 0, ?, ?)`,
-        [nome, immagine, mappa_id, "DM", id]
+        [nome, token_img, mappa_id, "DM", id]
       );
       const [nuovo] = await db.query("SELECT * FROM tokens WHERE id = ?", [result.insertId]);
       res.json(nuovo[0]);
