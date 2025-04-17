@@ -702,8 +702,8 @@ app.post("/api/nuovo-npc", upload.fields([
       bsopravvivenza, bstoria, biniziativa, baddestrare_animali, brapidita_di_mano
     } = req.body;
 
-    const immagine = req.files?.immagine?.[0]?.filename;
-    const token_img = req.files?.token_img?.[0]?.filename || "1744899088086_ChatGPT Image 17 apr 2025, 16_09_33.png";
+    const immagine = req.files?.immagine?.[0]?.filename || "1744899088086_ChatGPT Image 17 apr 2025, 16_09_33.png";
+    const token_img = req.files?.token_img?.[0]?.filename;
 
     if (!nome || !immagine) return res.status(400).json({ message: "Nome o immagine mancante" });
 
