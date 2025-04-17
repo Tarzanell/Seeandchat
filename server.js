@@ -682,7 +682,7 @@ app.post("/api/nuovo-archetipo-oggetto", uploadArchetipo, async (req, res) => {
 });
 
 // Nuovo NPC
-app.post("/api/nuovo-npc", uploadArchetipo.fields([
+app.post("/api/nuovo-npc", upload.fields([
   { name: "immagine", maxCount: 1 },
   { name: "token_img", maxCount: 1 }
 ]), async (req, res) => {
@@ -703,7 +703,7 @@ app.post("/api/nuovo-npc", uploadArchetipo.fields([
     } = req.body;
 
     const immagine = req.files?.immagine?.[0]?.filename;
-    const token_img = req.files?.token_img?.[0]?.filename || "placeholderPortrait.png";
+    const token_img = req.files?.token_img?.[0]?.filename || "1744899088086_ChatGPT Image 17 apr 2025, 16_09_33.png";
 
     if (!nome || !immagine) return res.status(400).json({ message: "Nome o immagine mancante" });
 
@@ -1303,7 +1303,7 @@ app.post("/api/personaggi", upload.fields([
 
     const formData = JSON.parse(req.body.formData);
     const filename = req.files["immagineToken"]?.[0]?.filename || null;
-    const portraitFilename = req.files["portrait"]?.[0]?.filename || "1744899088086_ChatGPT Image 17 apr 2025, 16_09_33.png ";
+    const portraitFilename = req.files["portrait"]?.[0]?.filename || "1744899088086_ChatGPT Image 17 apr 2025, 16_09_33.png";
 
 
     const abilitaFlags = {
