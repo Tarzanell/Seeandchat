@@ -682,7 +682,10 @@ app.post("/api/nuovo-archetipo-oggetto", uploadArchetipo, async (req, res) => {
 });
 
 // Nuovo NPC
-app.post("/api/nuovo-npc", uploadArchetipo, async (req, res) => {
+app.post("/api/nuovo-npc", uploadArchetipo.fields([
+  { name: "immagine", maxCount: 1 },
+  { name: "token_img", maxCount: 1 }
+]), async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) return res.status(401).json({ message: "Token mancante" });
@@ -690,13 +693,45 @@ app.post("/api/nuovo-npc", uploadArchetipo, async (req, res) => {
     const decoded = jwt.verify(token, "supersegreto");
     if (!decoded.is_dm) return res.status(403).json({ message: "Non autorizzato" });
 
-    const nome = req.body.nome;
-    const immagine = req.file.filename;
+    const {
+      nome, descrizione, note_dm, CA, iniziativa, velocita_in_metri, pfmax, pfatt, pftemp,
+      bFOR, bDES, bCOS, bINT, bSAG, bCHA,
+      btsFOR, btsDES, btsCOS, btsINT, btsSAG, btsCHA,
+      bacrobazia, barcano, batletica, bingannare, bfurtivita, bindagare, bintuizione,
+      bintrattenere, bintimidire, bmedicina, bnatura, bpercezione, bpersuasione, breligione,
+      bsopravvivenza, bstoria, biniziativa, baddestrare_animali, brapidita_di_mano
+    } = req.body;
 
-    await db.query(`INSERT INTO npc (nome, immagine) VALUES (?, ?)`, [nome, immagine]);
-    res.status(201).json({ message: "Archetipo creato con successo" });
+    const immagine = req.files?.immagine?.[0]?.filename;
+    const token_img = req.files?.token_img?.[0]?.filename || "placeholderPortrait.png";
+
+    if (!nome || !immagine) return res.status(400).json({ message: "Nome o immagine mancante" });
+
+    await db.query(
+      `INSERT INTO npc (
+        nome, immagine, descrizione, note_dm, token_img, CA, iniziativa, velocita_in_metri,
+        pfmax, pfatt, pftemp,
+        bFOR, bDES, bCOS, bINT, bSAG, bCHA,
+        btsFOR, btsDES, btsCOS, btsINT, btsSAG, btsCHA,
+        bacrobazia, barcano, batletica, bingannare, bfurtivita, bindagare, bintuizione,
+        bintrattenere, bintimidire, bmedicina, bnatura, bpercezione, bpersuasione, breligione,
+        bsopravvivenza, bstoria, biniziativa, baddestrare_animali, brapidita_di_mano
+      ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+      [
+        nome, immagine, descrizione || null, note_dm || null, token_img,
+        CA || null, iniziativa || null, velocita_in_metri || null,
+        pfmax || null, pfatt || null, pftemp || null,
+        bFOR || null, bDES || null, bCOS || null, bINT || null, bSAG || null, bCHA || null,
+        btsFOR || null, btsDES || null, btsCOS || null, btsINT || null, btsSAG || null, btsCHA || null,
+        bacrobazia || null, barcano || null, batletica || null, bingannare || null, bfurtivita || null, bindagare || null, bintuizione || null,
+        bintrattenere || null, bintimidire || null, bmedicina || null, bnatura || null, bpercezione || null, bpersuasione || null, breligione || null,
+        bsopravvivenza || null, bstoria || null, biniziativa || null, baddestrare_animali || null, brapidita_di_mano || null
+      ]
+    );
+
+    res.status(201).json({ message: "NPC creato con successo" });
   } catch (error) {
-    console.error(`Errore /api/nuovo-npc:`, error);
+    console.error("Errore /api/nuovo-npc:", error);
     res.status(500).json({ error: "Errore del server" });
   }
 });
