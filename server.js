@@ -430,7 +430,7 @@ app.post("/api/spawn-npc", async (req, res) => {
       return res.json(updated[0]);
     } else {
       const [result] = await db.query(
-        `INSERT INTO tokens (nome, token_img, mappa_id, categoria, posizione_x, posizione_y, proprietario_id, fatherid)
+        `INSERT INTO tokens (nome, immagine, mappa_id, categoria, posizione_x, posizione_y, proprietario_id, fatherid)
          VALUES (?, ?, ?, 'npc', 0, 0, ?, ?)`,
         [nome, token_img, mappa_id, "DM", id]
       );
