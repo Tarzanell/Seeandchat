@@ -1268,7 +1268,7 @@ app.post("/api/personaggi", upload.fields([
 
     const formData = JSON.parse(req.body.formData);
     const filename = req.files["immagineToken"]?.[0]?.filename || null;
-    const portraitFilename = req.files["portrait"]?.[0]?.filename || null;
+    const portraitName = req.files?.portrait?.[0]?.filename || "1744899088086_ChatGPT Image 17 apr 2025, 16_09_33.png";
 
     const abilitaFlags = {
       acrobazia: 0,
